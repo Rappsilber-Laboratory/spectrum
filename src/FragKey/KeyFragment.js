@@ -178,15 +178,7 @@ function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 			.attr("class", fragLineClass);
 
 
-		var ion = "";
-		for (var i = 0; i < fragments.b.length; i++) {
-			if(fragments.b[i].type.indexOf("AIon") != -1)
-				ion = "a"+this.bfrag_index;
-			else if(fragments.b[i].type.indexOf("BIon") != -1)
-				ion = "b"+this.bfrag_index;
-			else if(fragments.b[i].type.indexOf("CIon") != -1)
-				ion = "c"+this.bfrag_index;
-		};
+		var ion = fragments.b[0].type.toLowerCase()[0] + fragments.b[0].ionNumber;
 
 
 //Idea for multiple texts, could be to crowded
@@ -303,15 +295,7 @@ function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 			.style("cursor", "pointer")
 			.attr("class", fragLineClass);
 
-		var ion = "";
-		for (var i = 0; i < fragments.y.length; i++) {
-			if(fragments.y[i].type.indexOf("XIon") != -1)
-				ion = "x"+this.yfrag_index;
-			else if(fragments.y[i].type.indexOf("YIon") != -1)
-				ion = "y"+this.yfrag_index;
-			else if(fragments.y[i].type.indexOf("ZIon") != -1)
-				ion = "z"+this.yfrag_index;
-		}
+		var ion = fragments.y[0].type.toLowerCase()[0] + fragments.y[0].ionNumber;
 
 //Idea for multiple texts, could be to crowded
 /*		this.yTexts = []	//Array of d3 selections
