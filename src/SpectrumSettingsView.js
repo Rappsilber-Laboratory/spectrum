@@ -41,6 +41,7 @@ var SpectrumSettingsView = Backbone.View.extend({
 		'change #xispec_peakHighlightMode' : 'changePeakHighlightMode',
 		'click #xispec_toggleCustomCfgHelp' : 'toggleCustomCfgHelp',
 		'click #xispec_settingsCustomCfgApply' : 'applyCustomCfg',
+		'click #xispec_settingsAnnotatorApply': 'applyAnnotator',
 		'submit #xispec_settingsForm' : 'applyData',
 		// 'keyup .stepInput' : 'updateStepSizeKeyUp',
 		'change .xispec_ionSelectChkbox': 'updateIons',
@@ -77,7 +78,7 @@ var SpectrumSettingsView = Backbone.View.extend({
 
 		//menu
 		this.menu = this.wrapper.append("div").attr("class", "xispec_settings_menu");
-		var buttonData = ["Data", "Appearance", "Custom config"]
+		var buttonData = ["Data", "Appearance", "Custom config", "Annotator"]
 		buttonData.forEach(function(b, i){
 			var zIndex = 20 - i;
 			var b_id = b.replace(" ", "_").toLowerCase();
@@ -331,22 +332,28 @@ var SpectrumSettingsView = Backbone.View.extend({
 		// ;
 
 		//custom config
-		var customConfigTab = mainDiv.append("div").attr("class", "xispec_settings-tab xispec_flex-column").attr("id", "settings_custom_config").style("display", "none");
+		var customConfigTab = mainDiv.append("div")
+			.attr("class", "xispec_settings-tab xispec_flex-column")
+			.attr("id", "settings_custom_config")
+			.style("display", "none");
 		var customConfigHelpToggle = customConfigTab.append('div')
 			.attr('id', 'xispec_toggleCustomCfgHelp')
 			.attr('class', 'pointer')
 			.text('Help ')
-			.append('i').attr("class", "fa fa-question-circle").attr("aria-hidden", "true")
-		;
+			.append('i').attr("class", "fa fa-question-circle").attr("aria-hidden", "true");
 		customConfigTab.append("textarea")
 			.attr("id", "xispec_customCfgHelp")
 			.attr("class", "xispec_form-control")
 			.attr("style", "display:none")
-			.text('# enable double fragmentation within one fragment\n# also fragmentation events on both peptides\nfragment:BLikeDoubleFragmentation\n\n# also match peaks if they are one Dalton off\n# assuming that sometimes the monoisotopic peak is missing\nMATCH_MISSING_MONOISOTOPIC:(true|false)')
-		;
-		var customConfigInputLabel = customConfigTab.append('label').attr("for", "xispec_settingsCustomCfg-input").text('Custom config input:');
-		this.customConfigInput = customConfigTab.append("textarea").attr("id", "xispec_settingsCustomCfg-input").attr("class", "xispec_form-control");
-		var customConfigBottom = customConfigTab.append("div").attr("class", "xispec_settings-bottom");
+			.text('# enable double fragmentation within one fragment\n# also fragmentation events on both peptides\nfragment:BLikeDoubleFragmentation\n\n# also match peaks if they are one Dalton off\n# assuming that sometimes the monoisotopic peak is missing\nMATCH_MISSING_MONOISOTOPIC:(true|false)');
+		var customConfigInputLabel = customConfigTab.append('label')
+			.attr("for", "xispec_settingsCustomCfg-input")
+			.text('Custom config input:');
+		this.customConfigInput = customConfigTab.append("textarea")
+			.attr("id", "xispec_settingsCustomCfg-input")
+			.attr("class", "xispec_form-control");
+		var customConfigBottom = customConfigTab.append("div")
+			.attr("class", "xispec_settings-bottom");
 
 		// customConfigBottom.append("label").text("keep config")
 		// 	.append("input")
@@ -354,28 +361,56 @@ var SpectrumSettingsView = Backbone.View.extend({
 		// 		.attr("name", "keepCustomCfg")
 		// 		.attr("id", "xispec_keepCustomCfg")
 		// ;
-		var customConfigSubmit = customConfigBottom.append("input").attr("class", "xispec_btn xispec_btn-1 xispec_btn-1a network-control").attr("value", "Apply").attr("id", "xispec_settingsCustomCfgApply").attr("type", "submit");
+		var customConfigSubmit = customConfigBottom.append("input")
+			.attr("class", "xispec_btn xispec_btn-1 xispec_btn-1a network-control")
+			.attr("value", "Apply")
+			.attr("id", "xispec_settingsCustomCfgApply")
+			.attr("type", "submit");
 
 		var customConfigCancel = customConfigBottom.append("input")
 			.attr("class", "xispec_btn xispec_btn-1 xispec_btn-1a network-control xispec_settingsCancel")
 			.attr("value", "Cancel")
 			.attr("id", "xispec_settingsCancel")
-			.attr("type", "button")
-		;
+			.attr("type", "button");
 
-		d3.select(this.el).selectAll("label")
-			.classed ("xispec_label", true)
-		;
+		// annotatorTab
+		var annotatorTab = mainDiv.append("div")
+			.attr("class", "xispec_settings-tab xispec_flex-column")
+			.attr("id", "settings_annotator")
+			.style("display", "none");
 
-		d3.select(this.el).selectAll("input[type=text]")
-			.classed ("xispec_form-control", true)
+		var annotatorWrapper = annotatorTab.append("label")
+			.attr("class", "xispec_flex-row")
+			.text("Choose Annotator to use: ");
+
+		var annotatorDropdown = annotatorWrapper.append('div').append("select")
+			.attr("name", "annotator")
+			.attr("class", "xispec_form-control")
+			.attr('id', 'xispec_annotatorDropdown')
 		;
-		d3.select(this.el).selectAll("input[type=number]")
-			.classed ("xispec_form-control", true)
-		;
-		d3.select(this.el).selectAll("input[type=textarea]")
-			.classed ("xispec_form-control", true)
-		;
+		annotatorDropdown.append("option").attr("value", "annotate/FULL").text("classic");
+		annotatorDropdown.append("option").attr("value", "test/FULL").text("test");
+		var annotatorBottom = annotatorTab.append("div")
+			.attr("class", "xispec_settings-bottom");
+		var annotatorSubmit = annotatorBottom.append("input")
+			.attr("class", "xispec_btn xispec_btn-1 xispec_btn-1a network-control")
+			.attr("value", "Apply")
+			.attr("id", "xispec_settingsAnnotatorApply")
+			.attr("type", "submit");
+
+		var annotatorCancel = annotatorBottom.append("input")
+			.attr("class", "xispec_btn xispec_btn-1 xispec_btn-1a network-control xispec_settingsCancel")
+			.attr("value", "Cancel")
+			.attr("id", "xispec_settingsCancel")
+			.attr("type", "button");
+		// end Tabs
+
+		var d3el = d3.select(this.el);
+		d3el.selectAll("label").classed ("xispec_label", true);
+		d3el.selectAll("input[type=text]").classed ("xispec_form-control", true);
+		d3el.selectAll("input[type=number]").classed ("xispec_form-control", true);
+		d3el.selectAll("input[type=textarea]").classed ("xispec_form-control", true);
+		d3el.selectAll('select').style("cursor", "pointer");
 
 	},
 
@@ -403,7 +438,14 @@ var SpectrumSettingsView = Backbone.View.extend({
 		this.displayModel.set('changedAnnotation', true);
 
 		// this.render();
+	},
 
+	applyAnnotator: function(e){
+		e.preventDefault();
+		var json = this.model.get("JSONrequest");
+		var annotatorURL = $('#xispec_annotatorDropdown').val();
+		xiSPEC.request_annotation(json, false, annotatorURL);
+		this.displayModel.set('changedAnnotation', true);
 	},
 
 	toggleView: function(){
