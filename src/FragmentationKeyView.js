@@ -556,7 +556,11 @@ var FragmentationKeyView = Backbone.View.extend({
 					console.log('error finding modification');
 					return;
 				}
-				return mod[0].massDifference.toFixed(6);
+				if (typeof(mod[0].massDifference) !== 'undefined')
+					var mod_mass = mod[0].massDifference;
+				else
+					var mod_mass = mod[0].mass;
+				return parseFloat(mod_mass).toFixed(6);
 			};
 
 			var modLettersG = pep.group.selectAll("g.modLetterG").data (mod_data);

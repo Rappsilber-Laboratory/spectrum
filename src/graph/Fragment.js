@@ -38,14 +38,17 @@ function Fragment (fragment, all_clusters){
 	var ion = this.name.split('')[0];
 	if (ion == 'a' || ion == 'b' || ion == 'c') {
 		this.byType = 'bLike';
-	} else {
+	} else if (ion == 'x' || ion == 'y' || ion == 'z'){
 		this.byType = 'yLike';
+	}
+	else {
+		this.byType = null;
 	}
 
 	var fragRegex = /[abcxyz]([0-9]+)(?:_.*)?/g;
 	var regexMatch = fragRegex.exec(this.name);
 	if(regexMatch)
-		this.ionNumber = regexMatch[2] - 0;
+		this.ionNumber = regexMatch[1] - 0;
 	else
 		this.ionNumber = null;
 

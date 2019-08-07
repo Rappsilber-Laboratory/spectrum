@@ -239,7 +239,7 @@ xiSPEC.setData = function(data){
 
 };
 
-xiSPEC.request_annotation = function(json_request, isOriginalMatchRequest){
+xiSPEC.request_annotation = function(json_request, isOriginalMatchRequest, annotator){
 
 	// if (this.keepCustomConfig) {
 	// 	json_request['annotation']['custom'] = this.customConfig;
@@ -248,6 +248,10 @@ xiSPEC.request_annotation = function(json_request, isOriginalMatchRequest){
 	if (json_request.annotation.requestID)
 		this.lastRequestedID = json_request.annotation.requestID;
 
+	var annotatorURL = "annotate/FULL";
+	if(annotator){
+		annotatorURL = annotator;
+	}
 
 	this.SpectrumModel.trigger('request_annotation:pending');
 	console.log("annotation request:", json_request);
@@ -259,7 +263,7 @@ xiSPEC.request_annotation = function(json_request, isOriginalMatchRequest){
 			'Content-Type': 'application/json'
 		},
 		data: JSON.stringify(json_request),
-		url: this.xiAnnotatorBaseURL + "annotate/FULL",
+		url: this.xiAnnotatorBaseURL + annotatorURL,
 		success: function(data) {
 			if (data && data.annotation && data.annotation.requestID && data.annotation.requestID === self.lastRequestedID) {
 				//ToDo: Error handling -> https://github.com/Rappsilber-Laboratory/xi3-issue-tracker/issues/330
