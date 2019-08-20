@@ -105,7 +105,7 @@ var SpectrumView = Backbone.View.extend({
 		var mzRange = this.model.get('mzRange');
 		if (mzRange === undefined)
 			return;
-		if (mzRange[0] == this.graph.x.domain()[0] && mzRange[1] == this.graph.x.domain()[1])
+		if (mzRange[0] == this.graph.xscale.domain()[0] && mzRange[1] == this.graph.xscale.domain()[1])
 			return;
 		this.resize();
 	},

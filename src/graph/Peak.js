@@ -235,8 +235,8 @@ Peak.prototype.draw = function(){
 				filteredLabels.attr("x", coords[0]).attr("y", coords[1]);
 				filteredHighlights.attr("x", coords[0]).attr("y", coords[1]);
 
-				var startX = self.graph.x(self.x);
-				var startY = self.graph.y(self.y)
+				var startX = self.graph.xscale(self.x);
+				var startY = self.graph.yscale(self.y)
 				var mouseX = coords[0];//-startX;
 				var mouseY = coords[1];
 				var r = Math.sqrt((mouseX * mouseX) + ((mouseY-startY) * (mouseY-startY) ));
@@ -469,8 +469,8 @@ Peak.prototype.highlight = function(show, fragments){
 
 Peak.prototype.update = function(){
 
-	this.lineLabelGroup.attr("transform", "translate("+this.graph.x(this.x)+",0)");
-	var xDomain = this.graph.x.domain();
+	this.lineLabelGroup.attr("transform", "translate("+this.graph.xscale(this.x)+",0)");
+	var xDomain = this.graph.xscale.domain();
 	if (this.x > xDomain[0] && this.x < xDomain[1]){
 		//reset label lines
 		if (this.labels.length > 0){
@@ -518,7 +518,7 @@ Peak.prototype.updateX = function(xDomain){
 };
 
 Peak.prototype.updateY = function(){
-	var yScale = this.graph.y;
+	var yScale = this.graph.yscale;
 	this.line
 		.attr("y1", yScale(this.y))
 		.attr("y2", yScale(0));
@@ -550,7 +550,7 @@ Peak.prototype.removeLabels = function(){
 }
 
 Peak.prototype.showLabels = function(lossyOverride){
-	var xDomain = this.graph.x.domain();
+	var xDomain = this.graph.xscale.domain();
 	var labelCount = this.labels.length;
 	var self = this;
 	if (labelCount) {

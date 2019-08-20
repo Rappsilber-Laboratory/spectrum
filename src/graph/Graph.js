@@ -22,9 +22,9 @@
 //		and https://gist.github.com/mbostock/3019563
 
 Graph = function(targetSvg, model, options) {
-	this.x = d3.scale.linear();
-	this.y = d3.scale.linear();
-	this.y_right = d3.scale.linear();
+	this.xscale = d3.scale.linear();
+	this.yscale = d3.scale.linear();
+	this.yscale_right = d3.scale.linear();
 	this.model = model;
 	this.options = options;
 	this.margin = {
@@ -63,7 +63,7 @@ Graph = function(targetSvg, model, options) {
 	this.xaxisSVG = this.g.append("g").attr("class", "x axis");
 
 	//brush
-	this.brush = d3.svg.brush().x(this.x);
+	this.brush = d3.svg.brush().x(this.xscale);
 
 	this.xaxisZoomRect = this.g.append("rect")
 		.attr("height", "25")
@@ -167,7 +167,7 @@ Graph = function(targetSvg, model, options) {
 			.style("text-anchor","middle").style("pointer-events","none");
 	}
 
-	this.zoom = d3.behavior.zoom().x(this.x).on("zoom", this.redraw());
+	this.zoom = d3.behavior.zoom().x(this.xscale).on("zoom", this.redraw());
 
 };
 
@@ -238,20 +238,20 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 		}
 	}
 
-	this.x.domain([xmin, xmax])
+	this.xscale.domain([xmin, xmax])
 		.range([0, width]);
 
 	// y-scale
 	if (this.options.invert){
-		this.y.domain([0, ymax]).nice()
+		this.yscale.domain([0, ymax]).nice()
 			.range([0, height]).nice();
-		this.y_right.domain([0, ymax]).nice()
+		this.yscale_right.domain([0, ymax]).nice()
 			.range([0, height]).nice();
 	}
 	else{
-		this.y.domain([0, ymax]).nice()
+		this.yscale.domain([0, ymax]).nice()
 			.range([height, 0]).nice();
-		this.y_right.domain([0, ymax]).nice()
+		this.yscale_right.domain([0, ymax]).nice()
 			.range([height, 0]).nice();
 	}
 
@@ -262,8 +262,8 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 
 	this.yTicks = yTicks;
 
-	this.yAxisLeft = d3.svg.axis().scale(this.y).ticks(yTicks).orient("left").tickFormat(d3.format("s"));
-	this.yAxisRight = d3.svg.axis().scale(this.y_right).ticks(yTicks).orient("right").tickFormat(d3.format("s"));
+	this.yAxisLeft = d3.svg.axis().scale(this.yscale).ticks(yTicks).orient("left").tickFormat(d3.format("s"));
+	this.yAxisRight = d3.svg.axis().scale(this.yscale_right).ticks(yTicks).orient("right").tickFormat(d3.format("s"));
 
 	this.yAxisLeftSVG.call(this.yAxisLeft);
 	this.yAxisRightSVG
@@ -273,8 +273,8 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 	this.xaxisZoomRect.attr("width", width);
 
 	// var xAxisOrient = this.options.invert ? "top" : "bottom";
-	// this.xAxis = d3.svg.axis().scale(this.x).ticks(xTicks).orient(xAxisOrient);
-	this.xAxis = d3.svg.axis().scale(this.x).ticks(xTicks).orient("bottom");
+	// this.xAxis = d3.svg.axis().scale(this.xscale).ticks(xTicks).orient(xAxisOrient);
+	this.xAxis = d3.svg.axis().scale(this.xscale).ticks(xTicks).orient("bottom");
 
 	this.xaxisSVG
 		.attr("transform", "translate(0," + height + ")")
@@ -296,7 +296,7 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 
 	this.dragZoomHighlight.attr("height", height);
 
-	this.zoom = d3.behavior.zoom().x(this.x).on("zoom", this.redraw());
+	this.zoom = d3.behavior.zoom().x(this.xscale).on("zoom", this.redraw());
 	this.zoom.scaleExtent([0, this.model.xmaxPrimary]);
 	this.plot.call(this.zoom);
 
@@ -346,16 +346,16 @@ Graph.prototype.enableZoom = function(){
 
 	function brushmove() {
 	  var s = self.brush.extent();
-	  //var width = self.x(s[1] - s[0]) - self.x(0);
-	  var width = self.x(s[1]) - self.x(s[0]);
-	  self.dragZoomHighlight.attr("x",self.x(s[0])).attr("width", width);
+	  //var width = self.xscale(s[1] - s[0]) - self.xscale(0);
+	  var width = self.xscale(s[1]) - self.xscale(s[0]);
+	  self.dragZoomHighlight.attr("x",self.xscale(s[0])).attr("width", width);
 	}
 
 	function brushend() {
 	  self.dragZoomHighlight.attr("display","none");
 	  var s = self.brush.extent();
-	  self.x.domain(s);
-	  self.brush.x(self.x);
+	  self.xscale.domain(s);
+	  self.brush.x(self.xscale);
 	  self.model.xmin = s[0];
 	  self.model.xmax = s[1]; //--
 	  self.resize(self.model.xmin, self.model.xmax, self.model.ymin, self.model.ymax);
@@ -377,7 +377,7 @@ Graph.prototype.measure = function(on){
 			self.measureShow();
 
 			var coords = d3.mouse(this);
-			var mouseX = self.x.invert(coords[0]);
+			var mouseX = self.xscale.invert(coords[0]);
 			var distance = 100;
 			var highlighttrigger = 10;
 			var peakCount = self.peaks.length;
@@ -394,13 +394,13 @@ Graph.prototype.measure = function(on){
 				}
 			}
 			self.measuringToolVLineStart
-				.attr("x1", self.x(self.measureStartPeak.x))
-				.attr("x2", self.x(self.measureStartPeak.x))
-				.attr("y1", self.y(self.model.ymaxPrimary))
-				.attr("y2", self.y(self.measureStartPeak.y))
+				.attr("x1", self.xscale(self.measureStartPeak.x))
+				.attr("x2", self.xscale(self.measureStartPeak.x))
+				.attr("y1", self.yscale(self.model.ymaxPrimary))
+				.attr("y2", self.yscale(self.measureStartPeak.y))
 			;
 			self.measuringToolLine
-				.attr("x1", self.x(self.measureStartPeak.x))
+				.attr("x1", self.xscale(self.measureStartPeak.x))
 				.attr("x2", coords[0])
 				.attr("y1", coords[1])
 				.attr("y2", coords[1])
@@ -408,14 +408,14 @@ Graph.prototype.measure = function(on){
 			self.measuringToolVLineEnd
 				.attr("x1", coords[0])
 				.attr("x2", coords[0])
-				.attr("y1", self.y(0))
-				.attr("y2", self.y(self.model.ymaxPrimary))
+				.attr("y1", self.yscale(0))
+				.attr("y2", self.yscale(self.model.ymaxPrimary))
 			;
 		}
 
 		function measureMove() {
 			var coords = d3.mouse(this);
-			var mouseX = self.x.invert(coords[0]);
+			var mouseX = self.xscale.invert(coords[0]);
 			//find start and endPeak
 			var distance = 4;
 			var highlighttrigger = 15;	//triggerdistance to prioritize highlighted peaks as endpoint
@@ -438,18 +438,18 @@ Graph.prototype.measure = function(on){
 			if(endPeak){
 				//set end of the measuringTool to endPeak
 				self.measuringToolVLineEnd
-					.attr("x1", self.x(endPeak.x))
-					.attr("x2", self.x(endPeak.x))
-					.attr("y1", self.y(endPeak.y))
-					.attr("y2", self.y(self.model.ymaxPrimary))
+					.attr("x1", self.xscale(endPeak.x))
+					.attr("x2", self.xscale(endPeak.x))
+					.attr("y1", self.yscale(endPeak.y))
+					.attr("y2", self.yscale(self.model.ymaxPrimary))
 				;
 			}
 			else{
 				self.measuringToolVLineEnd
 					.attr("x1", coords[0])
 					.attr("x2", coords[0])
-					.attr("y1", self.y(0))
-					.attr("y2", self.y(self.model.ymaxPrimary))
+					.attr("y1", self.yscale(0))
+					.attr("y2", self.yscale(self.model.ymaxPrimary))
 				;
 			}
 
@@ -458,18 +458,18 @@ Graph.prototype.measure = function(on){
 			var measureEndX = parseFloat(self.measuringToolVLineEnd.attr("x1"));
 
 			if(self.options.invert){
-				if (coords[1] > self.y(self.model.ymaxPrimary))
-					var y = self.y(self.model.ymaxPrimary);
-				else if (coords[1] < self.y(0))
-					var y  = self.y(0);
+				if (coords[1] > self.yscale(self.model.ymaxPrimary))
+					var y = self.yscale(self.model.ymaxPrimary);
+				else if (coords[1] < self.yscale(0))
+					var y  = self.yscale(0);
 				else
 					var y = coords[1];
 			}
 			else{
-				if (coords[1] < self.y(self.model.ymaxPrimary))
-					var y = self.y(self.model.ymaxPrimary);
-				else if (coords[1] > self.y(0))
-					var y  = self.y(0);
+				if (coords[1] < self.yscale(self.model.ymaxPrimary))
+					var y = self.yscale(self.model.ymaxPrimary);
+				else if (coords[1] > self.yscale(0))
+					var y  = self.yscale(0);
 				else
 					var y = coords[1];
 			}
@@ -482,7 +482,7 @@ Graph.prototype.measure = function(on){
 
 			//draw peak info
 			var deltaX = Math.abs(measureStartX - measureEndX);
-			var distance = Math.abs(self.x.invert(measureStartX) - self.x.invert(measureEndX));
+			var distance = Math.abs(self.xscale.invert(measureStartX) - self.xscale.invert(measureEndX));
 			if (measureStartX  < measureEndX)
 				var labelX = measureStartX  + deltaX/2;
 			else
@@ -617,7 +617,7 @@ Graph.prototype.measure = function(on){
 		}
 
 		this.measureBrush = d3.svg.brush()
-			.x(this.x)
+			.x(this.xscale)
 			.on("brushstart", measureStart)
 			.on("brush", measureMove)
 
@@ -658,13 +658,13 @@ Graph.prototype.redraw = function(){
 		//adjust y scale to new highest intensity
 		if (self.peaks) {
 			var ymax = 0
-			var xDomain = self.x.domain();
+			var xDomain = self.xscale.domain();
 			for (var i = 0; i < self.peaks.length; i++){
 			  if (self.peaks[i].y > ymax && (self.peaks[i].x > xDomain[0] && self.peaks[i].x < xDomain[1]))
 			  	ymax = self.peaks[i].y;
 			}
-			self.y.domain([0, ymax/0.95]);
-			self.y_right.domain([0, (ymax/(self.model.ymaxPrimary*0.95))*100]);
+			self.yscale.domain([0, ymax/0.95]);
+			self.yscale_right.domain([0, (ymax/(self.model.ymaxPrimary*0.95))*100]);
 			self.yAxisLeftSVG.call(self.yAxisLeft);
 			self.yAxisRightSVG.call(self.yAxisRight);
 
@@ -675,7 +675,7 @@ Graph.prototype.redraw = function(){
 		self.xaxisSVG.call( self.xAxis);
 		if (self.model.measureMode)
 			self.disableZoom();
-		self.model.setZoom(self.x.domain());
+		self.model.setZoom(self.xscale.domain());
 	};
 }
 
@@ -781,7 +781,7 @@ Graph.prototype.hide = function(){
 /*
 
 Graph.prototype.resetScales = function(text) {
-	  this.y = d3.scale.linear()
+	  this.yscale = d3.scale.linear()
 	  .domain([this.options.ymax, this.options.ymin])
 	  .nice()
 	  .range([0, this.size.height])
