@@ -97,6 +97,7 @@ var SpectrumView = Backbone.View.extend({
 	},
 
 	resetZoom: function(){
+		this.graph.yZoomed = false;
 		this.graph.resize(this.model.xminPrimary, this.model.xmaxPrimary, this.model.ymin, this.model.ymaxPrimary);
 	},
 

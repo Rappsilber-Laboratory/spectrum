@@ -27,6 +27,7 @@ Graph = function(targetSvg, model, options) {
 	this.yscale_right = d3.scale.linear();
 	this.model = model;
 	this.options = options;
+	this.yZoomed = false;
 	this.margin = {
 		"top":	options.title  ? 130 : 110,
 		"right":  options.ylabelRight ? 60 : 45,
@@ -168,6 +169,7 @@ Graph = function(targetSvg, model, options) {
 	}
 
 	this.zoom = d3.behavior.zoom().x(this.xscale).on("zoom", this.redraw());
+	this.yzoom = d3.behavior.zoom().y(this.yscale).on("zoom", this.redraw());
 
 };
 
@@ -262,8 +264,16 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 
 	this.yTicks = yTicks;
 
-	this.yAxisLeft = d3.svg.axis().scale(this.yscale).ticks(yTicks).orient("left").tickFormat(d3.format("s"));
-	this.yAxisRight = d3.svg.axis().scale(this.yscale_right).ticks(yTicks).orient("right").tickFormat(d3.format("s"));
+	this.yAxisLeft = d3.svg.axis()
+		.scale(this.yscale)
+		.ticks(yTicks)
+		.orient("left")
+		.tickFormat(d3.format("s"));
+	this.yAxisRight = d3.svg.axis()
+		.scale(this.yscale_right)
+		.ticks(yTicks)
+		.orient("right")
+		.tickFormat(d3.format("s"));
 
 	this.yAxisLeftSVG.call(this.yAxisLeft);
 	this.yAxisRightSVG
@@ -271,6 +281,24 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 		.call(this.yAxisRight)
 	;
 	this.xaxisZoomRect.attr("width", width);
+
+	// create rect for yzoom on left and right y axis
+	this.g.append("svg:rect")
+		.attr("class", "zoom y box")
+		.attr("width", this.margin.left)
+		.attr("height", cy - this.margin.top - this.margin.bottom)
+		.attr("transform", "translate(" + -this.margin.left + "," + 0 + ")")
+		.style("visibility", "hidden")
+		.attr("pointer-events", "all")
+		.call(this.yzoom);
+	this.g.append("svg:rect")
+		.attr("class", "zoom y box")
+		.attr("width", this.margin.right)
+		.attr("height", cy - this.margin.top - this.margin.bottom)
+		.attr("transform", "translate(" + width + " ,0)")
+		.style("visibility", "hidden")
+		.attr("pointer-events", "all")
+		.call(this.yzoom);
 
 	// var xAxisOrient = this.options.invert ? "top" : "bottom";
 	// this.xAxis = d3.svg.axis().scale(this.xscale).ticks(xTicks).orient(xAxisOrient);
@@ -296,9 +324,19 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 
 	this.dragZoomHighlight.attr("height", height);
 
-	this.zoom = d3.behavior.zoom().x(this.xscale).on("zoom", this.redraw());
-	this.zoom.scaleExtent([0, this.model.xmaxPrimary]);
+	this.zoom = d3.behavior.zoom()
+		.x(this.xscale).on("zoom", this.redraw())
+		.scaleExtent([0, this.model.xmaxPrimary]);
 	this.plot.call(this.zoom);
+
+	this.yzoom = d3.behavior.zoom()
+		.y(this.yscale).on("zoom", function(){
+			this.yZoomed = true;
+			console.log('yzoom');
+			this.redraw()();
+		}.bind(this))
+		.scaleExtent([0, this.model.ymaxPrimary]);
+	this.yAxisLeftSVG.call(this.yzoom);
 
 	if(this.title) {
 		this.title.attr("x", width/2);
@@ -357,7 +395,8 @@ Graph.prototype.enableZoom = function(){
 	  self.xscale.domain(s);
 	  self.brush.x(self.xscale);
 	  self.model.xmin = s[0];
-	  self.model.xmax = s[1]; //--
+	  self.model.xmax = s[1];
+	  self.yZoomed = false;
 	  self.resize(self.model.xmin, self.model.xmax, self.model.ymin, self.model.ymax);
 	}
 }
@@ -654,17 +693,27 @@ Graph.prototype.redraw = function(){
 		else{
 			self.plotBackgroundLabel.attr('visibility', 'hidden');
 		}
-		//get highest intensity from peaks in x range
-		//adjust y scale to new highest intensity
-		if (self.peaks) {
-			var ymax = 0
-			var xDomain = self.xscale.domain();
-			for (var i = 0; i < self.peaks.length; i++){
-			  if (self.peaks[i].y > ymax && (self.peaks[i].x > xDomain[0] && self.peaks[i].x < xDomain[1]))
-			  	ymax = self.peaks[i].y;
+		// get highest intensity from peaks in x range
+		// adjust y scale to new highest intensity
+		if (self.peaks.length > 0) {
+			if (!self.yZoomed){
+				var xDomain = self.xscale.domain();
+				var ymax = d3.max(self.peaks, function(p) {
+					if (p.x > xDomain[0] && p.x < xDomain[1])
+						return p.y;
+				});
+				self.yscale.domain([0, ymax/0.95]);
+				self.yscale_right.domain([0, (ymax/(self.model.ymaxPrimary*0.95))*100]);
 			}
-			self.yscale.domain([0, ymax/0.95]);
-			self.yscale_right.domain([0, (ymax/(self.model.ymaxPrimary*0.95))*100]);
+			else{
+				var yDomain = self.yscale.domain();
+				var ymax = d3.min([yDomain[1], self.model.ymaxPrimary]);
+				console.log(ymax);
+				self.model.ymax = ymax;
+				self.yscale.domain([0, ymax]);
+				self.yscale_right.domain([0, (ymax/(self.model.ymaxPrimary))*100]);
+			}
+
 			self.yAxisLeftSVG.call(self.yAxisLeft);
 			self.yAxisRightSVG.call(self.yAxisRight);
 
