@@ -235,9 +235,9 @@ Peak.prototype.draw = function(){
 				filteredLabels.attr("x", coords[0]).attr("y", coords[1]);
 				filteredHighlights.attr("x", coords[0]).attr("y", coords[1]);
 
-				var startX = self.graph.x(self.x);
-				var startY = self.graph.y(self.y)
-				var mouseX = coords[0];//-startX;
+				var y = d3.min([self.graph.yscale.domain()[1], self.y]);
+				var startY = self.graph.yscale(y);
+				var mouseX = coords[0];
 				var mouseY = coords[1];
 				var r = Math.sqrt((mouseX * mouseX) + ((mouseY-startY) * (mouseY-startY) ));
 				if (r > 15){
@@ -246,7 +246,6 @@ Peak.prototype.draw = function(){
 					if(Math.abs(mouseX) > 20){
 						deltaX = (mouseX > 0 ? -8 : 8)
 					}
-// 					console.log(mouseX);
 					filteredLabelLines
 						.attr("opacity", 1)
 						.attr("x1", 0)
@@ -384,27 +383,40 @@ Peak.prototype.draw = function(){
 
 		}, this);
 
-		var fset = d3.set (this.fragments.map (function (frag) { return frag.id; }));
-		var labelgroups = this.lineLabelGroup.selectAll("g.xispec_label").filter (function(d) { return fset.has(d.id); });
+		var fset = d3.set(this.fragments.map(function(frag){ return frag.id; }));
+		var labelgroups = this.lineLabelGroup
+			.selectAll("g.xispec_label")
+			.filter (function(d){ return fset.has(d.id); });
 
 		this.labels = labelgroups.selectAll("text.xispec_peakAnnot");
 		this.labelHighlights = labelgroups.selectAll("text.xispec_peakAnnotHighlight");
 
-		this.labelLines = this.lineLabelGroup.selectAll("line.xispec_labelLine").filter (function(d) { return fset.has(d.id); });
+		this.labelLines = this.lineLabelGroup
+			.selectAll("line.xispec_labelLine")
+			.filter(function(d){ return fset.has(d.id); });
 
 		this.highlight(false);
 
 	}
 
 	var peakStrokeWidth = 1;
-	if (this.graph.options.accentuateCLcontainingFragments && this.fragments.filter(function(f){return f.crossLinkContaining}).length > 0){
+	if (this.graph.options.accentuateCLcontainingFragments
+		&& this.fragments.filter(function(f){return f.crossLinkContaining}).length > 0){
 		peakStrokeWidth = 2;
 	}
 
 	this.line = this.lineGroup.append('line')
-					.attr("stroke-width", peakStrokeWidth)
-					.attr("x1", 0)
-					.attr("x2", 0);
+		.attr("stroke-width", peakStrokeWidth)
+		.attr("x1", 0)
+		.attr("x2", 0);
+
+	// add max intensity breakSymbol
+	this.lineBreakSymbol = this.lineGroup.append('polyline')
+		.attr("points", "-8,6 -2,-2 4,6 7,2")
+		.attr("stroke-width", peakStrokeWidth)
+		.attr("stroke", "#333")
+		.attr("fill", "none")
+		.attr("opacity", 0);
 
 	if(this.fragments.length > 0){
 		this.line.style("cursor", "pointer");
@@ -469,8 +481,9 @@ Peak.prototype.highlight = function(show, fragments){
 
 Peak.prototype.update = function(){
 
-	this.lineLabelGroup.attr("transform", "translate("+this.graph.x(this.x)+",0)");
-	var xDomain = this.graph.x.domain();
+	this.lineLabelGroup.attr("transform", "translate("+this.graph.xscale(this.x)+",0)");
+	var xDomain = this.graph.xscale.domain();
+	var yDomain = this.graph.yscale.domain();
 	if (this.x > xDomain[0] && this.x < xDomain[1]){
 		//reset label lines
 		if (this.labels.length > 0){
@@ -483,7 +496,7 @@ Peak.prototype.update = function(){
 			}
 		//update Peak position
 		this.updateX(xDomain);
-		this.updateY();
+		this.updateY(yDomain);
 		//show peaks
 		this.lineLabelGroup.attr("display","inline");
 	} else {
@@ -517,26 +530,41 @@ Peak.prototype.updateX = function(xDomain){
 	}
 };
 
-Peak.prototype.updateY = function(){
-	var yScale = this.graph.y;
+Peak.prototype.updateY = function(yDomain){
+	var yScale = this.graph.yscale;
+	var ymax = yDomain[1];
+	var y = d3.min([ymax, this.y]);
 	this.line
-		.attr("y1", yScale(this.y))
+		.attr("y1", yScale(y))
 		.attr("y2", yScale(0));
 
 	var labelCount = this.labels.length;
 
+	// show lineBreakSymbol if intensity is above max
+	if (this.y > ymax){
+		this.lineBreakSymbol.attr("opacity", 1);}
+	else{
+		this.lineBreakSymbol.attr("opacity", 0);}
 	if (labelCount > 0) {
 		this.highlightLine
-			.attr("y1", yScale(this.y))
+			.attr("y1", yScale(y))
 			.attr("y2", yScale(0));
 		var yStep = 13;
 
 		for (var i = 0; i < labelCount; i++) {
+			var deltaY = 0;
 			var gap = this.graph.options.invert ? -10 - (yStep * i) : 5 + (yStep * i);
-			this.labels[i][0].setAttribute("y",  yScale(this.y) - gap);
-			this.labelHighlights[i][0].setAttribute("y",  yScale(this.y) - gap);
+			// move labels to right if peak intensity is at max
+			if (this.y > ymax){
+				this.labels[i][0].setAttribute("x",  16);
+				this.labelHighlights[i][0].setAttribute("x", 16);
+				deltaY = -2;
+				gap = -gap;
+			}
+			var labelY = yScale(y) - gap + deltaY;
+			this.labels[i][0].setAttribute("y",  labelY);
+			this.labelHighlights[i][0].setAttribute("y",  labelY);
 		}
-
 	}
 }
 
@@ -550,7 +578,7 @@ Peak.prototype.removeLabels = function(){
 }
 
 Peak.prototype.showLabels = function(lossyOverride){
-	var xDomain = this.graph.x.domain();
+	var xDomain = this.graph.xscale.domain();
 	var labelCount = this.labels.length;
 	var self = this;
 	if (labelCount) {

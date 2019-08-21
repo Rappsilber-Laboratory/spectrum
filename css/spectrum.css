@@ -310,7 +310,7 @@
     font-size: 0.9em;
     line-height: 3.5em;
     cursor: pointer;
-    letter-spacing: 1px;
+    letter-spacing: 0;
     font-weight: 300;
     outline: 0;
     display: block;
