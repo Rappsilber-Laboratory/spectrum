@@ -79,8 +79,6 @@ var SpectrumView = Backbone.View.extend({
 
 	render: function() {
 
-		this.graph.clear();
-
 		if(this.options.hidden){
 			this.graph.hide();
 			return this;
@@ -88,11 +86,10 @@ var SpectrumView = Backbone.View.extend({
 		else{
 			this.graph.show();
 		}
-
+		this.graph.resize(this.model.xminPrimary, this.model.xmaxPrimary, this.model.ymin, this.model.ymaxPrimary);
 		if (this.model.get("JSONdata")){
 			this.graph.setData();
 		}
-		// this.hideSpinner();
 		return this;
 	},
 

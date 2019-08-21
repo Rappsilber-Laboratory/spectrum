@@ -332,6 +332,7 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 	this.yzoom = d3.behavior.zoom()
 		.y(this.yscale).on("zoom", function(){
 			this.yZoomed = true;
+			console.log('yzoom');
 			this.redraw()();
 		}.bind(this))
 		.scaleExtent([0, this.model.ymaxPrimary]);
@@ -707,6 +708,7 @@ Graph.prototype.redraw = function(){
 			else{
 				var yDomain = self.yscale.domain();
 				var ymax = d3.min([yDomain[1], self.model.ymaxPrimary]);
+				console.log(ymax);
 				self.model.ymax = ymax;
 				self.yscale.domain([0, ymax]);
 				self.yscale_right.domain([0, (ymax/(self.model.ymaxPrimary))*100]);
