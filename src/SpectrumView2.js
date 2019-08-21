@@ -82,14 +82,12 @@ var SpectrumView = Backbone.View.extend({
 		if(this.options.hidden){
 			this.graph.hide();
 			return this;
-		}
-		else{
-			this.graph.show();
-		}
-		this.graph.resize(this.model.xminPrimary, this.model.xmaxPrimary, this.model.ymin, this.model.ymaxPrimary);
+		}else{
+			this.graph.show();}
+		if(!xiSPEC.lockZoom){
+			this.graph.resize(this.model.xminPrimary, this.model.xmaxPrimary, this.model.ymin, this.model.ymaxPrimary);}
 		if (this.model.get("JSONdata")){
-			this.graph.setData();
-		}
+			this.graph.setData();}
 		return this;
 	},
 
