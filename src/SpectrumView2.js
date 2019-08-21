@@ -78,7 +78,7 @@ var SpectrumView = Backbone.View.extend({
 	},
 
 	render: function() {
-
+		this.graph.clear();
 		if(this.options.hidden){
 			this.graph.hide();
 			return this;
