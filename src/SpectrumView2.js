@@ -71,6 +71,8 @@ var SpectrumView = Backbone.View.extend({
 		this.listenTo(this.model, 'resetZoom', this.resetZoom);
 		this.listenTo(this.model, 'changed:Highlights', this.updateHighlights);
 		this.listenTo(this.model, 'changed:lossyShown', this.showLossy);
+		this.listenTo(this.model, 'changed:labelCutoff', this.labelCutoff);
+		this.listenTo(this.model, 'changed:labelFontSize', this.changeLabelFontSize);
 		this.listenTo(this.model, 'request_annotation:pending', this.showSpinner);
 		this.listenTo(this.model, 'request_annotation:done', this.hideSpinner);
 		this.listenTo(this.model, 'changed:fragHighlighting', this.updatePeakHighlighting);
@@ -280,4 +282,11 @@ var SpectrumView = Backbone.View.extend({
 		}
 	},
 
+	labelCutoff: function(){
+		this.graph.updatePeakLabels();
+	},
+
+	changeLabelFontSize: function(){
+		this.graph.peaksSVG.selectAll('g.xispec_label text').style("font-size", this.model.labelFontSize);
+	},
 });

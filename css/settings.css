@@ -17,6 +17,10 @@
     box-sizing: border-box;
 }
 
+#xispec_settings_main{
+    padding-bottom: 30px;
+}
+
 #xispec_settings_main .xispec_form-control{
   display: inline-block;
   background-color: #fff;

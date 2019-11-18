@@ -59,6 +59,8 @@ var AnnotatedSpectrumModel = Backbone.Model.extend({
 		this.p2color_cluster = this.get('colorScheme')[5];
 		this.p2color_loss = this.get('colorScheme')[6];
 
+		this.labelFontSize = 10;
+
 		this.pepStrs = [];
 		this.pepStrsMods = [];
 		this.fragmentIons = [];

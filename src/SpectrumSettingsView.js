@@ -32,6 +32,8 @@ var SpectrumSettingsView = Backbone.View.extend({
 		'click #xispec_absErrChkBx': 'absErrToggle',
 		'click #xispec_accentuateCLcontainingChkBx': 'accentuateCLcontainingToggle',
 		'click #xispec_labelFragmentCharge': 'chargeLabelToggle',
+		'change #xispec_settingsLabelingCutoff': 'setLabelCutoff',
+		'change #xispec_settingsLabelFontSize': 'setLabelFontSize',
 		// 'click #butterflyChkBx': 'butterflyToggle',
 		'change #xispec_colorSelector': 'changeColorScheme',
 		'click .xispec_settingsTab' : 'changeTab',
@@ -313,7 +315,8 @@ var SpectrumSettingsView = Backbone.View.extend({
 		;
 
 		this.decimals = appearanceTab.append("label").text("Number of decimals to display: ")
-			.append("input").attr("type", "number").attr("id", "xispec_settingsDecimals").attr("min", "1").attr("max", "10").attr("autocomplete", "off")
+			.append("input").attr("type", "number").attr("id", "xispec_settingsDecimals")
+			.attr("min", "1").attr("max", "10").attr("autocomplete", "off")
 		;
 
 		this.absoluteError = appearanceTab.append("label").text("Absolute error values (QC): ")
@@ -326,6 +329,19 @@ var SpectrumSettingsView = Backbone.View.extend({
 
 		this.labelFragmentCharge = appearanceTab.append("label").text("label fragment charge: ")
 			.append("input").attr("type", "checkbox").attr("id", "xispec_labelFragmentCharge")
+		;
+
+		this.labelFilter = appearanceTab.append("label").text("labeling cutoff (% base peak): ")
+			.append("input").attr("type", "number").attr("id", "xispec_settingsLabelingCutoff")
+			.attr("min", "0").attr("max", "100").attr("autocomplete", "off")
+			.attr("value", 0)
+		;
+
+		this.labelFontSize = appearanceTab.append("label").text("label font size (px): ")
+			.append("input").attr("type", "number").attr("id", "xispec_settingsLabelFontSize")
+			.attr("min", "1").attr("max", "50").attr("autocomplete", "off")
+			.attr("value", this.model.labelFontSize)
+		;
 
 		// var butterfly = appearanceTab.append("label").text("Butterfly plot with original Spectrum: ")
 		// 	.append("input").attr("type", "checkbox").attr("id", "butterflyChkBx")
@@ -1061,4 +1077,16 @@ var SpectrumSettingsView = Backbone.View.extend({
 		var model = this.displayModel; //apply changes directly for now
 		model.changeColorScheme(e.target.value);
 	},
+
+	setLabelCutoff: function(e){
+		var model = this.displayModel;
+		model.labelCutoff = parseInt(e.target.value);
+		model.trigger("changed:labelCutoff");
+	},
+
+	setLabelFontSize: function(e){
+		var model = this.displayModel;
+		model.labelFontSize = parseInt(e.target.value);
+		model.trigger("changed:labelFontSize");
+	}
 });

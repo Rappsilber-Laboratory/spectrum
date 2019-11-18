@@ -353,7 +353,7 @@ Peak.prototype.draw = function(){
 					.attr("x", 0)
 					.attr("text-anchor", "middle")
 					.style("stroke-width", "6px")
-					.style("font-size", "0.8em")
+					.style("font-size", self.graph.model.labelFontSize)
 					.attr("class", "xispec_peakAnnotHighlight")
 					.attr("stroke", this.graph.model.get('highlightColor'));
 
@@ -365,7 +365,7 @@ Peak.prototype.draw = function(){
 					})
 					.attr("x", 0)
 					.attr("text-anchor", "middle")
-					.style("font-size", "0.8em")
+					.style("font-size", self.graph.model.labelFontSize)
 					.attr("font-weight", function(d){
 						if (self.graph.options.accentuateCLcontainingFragments && d.crossLinkContaining)
 							return '900';
@@ -506,27 +506,36 @@ Peak.prototype.update = function(){
 
 Peak.prototype.updateX = function(xDomain){
 	var labelCount = this.labels.length;
+	var model = this.graph.model;
+	function labelVisible (d, peakObj) {
+		// in the currently visible x range
+		var inXrange = peakObj.x > xDomain[0] && peakObj.x < xDomain[1];
+		if (!inXrange) return false;
 
-	function stickyTest (d, peakObj) {
-		return (peakObj.x > xDomain[0] && peakObj.x < xDomain[1])	//in current range
-			 && (peakObj.graph.lossyShown === true || d.class == "non-lossy" || _.intersection(peakObj.graph.model.sticky, peakObj.fragments).length != 0)	//lossy enabled OR not lossy OR isStickyFrag
-			 && (_.intersection(peakObj.graph.model.sticky, peakObj.fragments).length != 0 || peakObj.graph.model.sticky.length == 0 || peakObj.graph.model.showAllFragmentsHighlight)	//isStickyFrag OR no StickyFrags
+		// Y labelCutoff
+		var peakYrel = (peakObj.y / model.ymaxPrimary * 100);
+		if (peakYrel < model.labelCutoff) return false;
+
+		// is a sticky fragment
+		var isSticky = _.intersection(model.sticky, peakObj.fragments).length != 0;
+
+		return (peakObj.graph.lossyShown === true || d.class == "non-lossy" || isSticky)	//lossy enabled OR not lossy OR isStickyFrag
+			 && (isSticky || model.sticky.length == 0 || model.showAllFragmentsHighlight)	//isStickyFrag OR no StickyFrags or showAll
 	};
 	var self = this;
 	if (labelCount) {
 		this.labels
 			.attr("x", 0)
 			.attr("display",function(d, i) {
-				return stickyTest (d, self) ? "inline" : "none";
+				return labelVisible (d, self) ? "inline" : "none";
 			})
 		;
 		this.labelHighlights
 			.attr("x", 0)
 			.attr("display",function(d) {
-				return stickyTest (d, self) ? "inline" : "none";
+				return labelVisible (d, self) ? "inline" : "none";
 			})
 		;
-
 	}
 };
 
@@ -581,14 +590,22 @@ Peak.prototype.showLabels = function(lossyOverride){
 	var xDomain = this.graph.xscale.domain();
 	var labelCount = this.labels.length;
 	var self = this;
+	var model = this.graph.model;
 	if (labelCount) {
-		var ffunc = function(d) {
-			return (self.x > xDomain[0] && self.x < xDomain[1])
-				&& (self.graph.lossyShown === true || d.class == "non-lossy" || lossyOverride == true);
+		var isVisible = function(d) {
+			// ToDo: code duplication with updateX isVisible function
+			// in the currently visible x range
+			var inXrange = self.x > xDomain[0] && self.x < xDomain[1];
+			if (!inXrange) return false;
+			// LabelCutoff
+			var peakYrel = (self.y / model.ymaxPrimary * 100);
+			if (peakYrel < model.labelCutoff) return false;
+
+			return (self.graph.lossyShown === true || d.class == "non-lossy" || lossyOverride == true);
 		};
-		this.labels.filter(ffunc).attr("display", "inline");
-		this.labelHighlights.filter(ffunc).attr("display", "inline");
-// 		this.labelLines.filter(ffunc).attr("opacity", 1);
+		this.labels.filter(isVisible).attr("display", "inline");
+		this.labelHighlights.filter(isVisible).attr("display", "inline");
+// 		this.labelLines.filter(isVisible).attr("opacity", 1);
 	}
 }
 
