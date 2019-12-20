@@ -12,7 +12,7 @@ To change the xiAnnotatorURL use the xiAnnotatorBaseURL option.
 ### Examples
 Please refer to the following examples of using xiSPEC in a html page:
   1. example_linear.html 	-- linear peptide example
-  2. example_cross-link.html 	-- cross-linked peptide example
+  2. example_crosslink.html 	-- crosslinked peptide example
 
 You need to include the following files:
 ```
@@ -88,10 +88,10 @@ To set the data call the setData function with the spectra data:
 ```
 var data = {
       sequence1: sequence1,                     // sequence of peptide 1 incl. modifications
-      sequence2: sequence2,                     // sequence of peptide 2 incl. modifications (for cross-linked peptide)
-      linkPos1: linkPos1,                       // cross-linked residue on peptide 1 (for cross-linked peptide)
-      linkPos2: linkPos2,                       // cross-linked residue on peptide 2 (for cross-linked peptide)
-      crossLinkerModMass: crossLinkerModMass    // modification mass of the cross-linker (for cross-linked peptide)
+      sequence2: sequence2,                     // sequence of peptide 2 incl. modifications (for crosslinked peptide)
+      linkPos1: linkPos1,                       // crosslinked residue on peptide 1 (for crosslinked peptide)
+      linkPos2: linkPos2,                       // crosslinked residue on peptide 2 (for crosslinked peptide)
+      crossLinkerModMass: crossLinkerModMass    // modification mass of the crosslinker (for crosslinked peptide)
       modifications: modifications,             // modification definitions
       precursorMz: precursorMz,                 // m/z of the precursor
       precursorCharge: precursorCharge,         // charge state of the precursor
@@ -105,9 +105,9 @@ xiSPEC.setData(data);
 
 sequence1/2: Peptide sequence for peptide 1/2 in one letter amino acid code (uppercase) with modifications following the amino acid and consisting of the following characters: a-z:0-9.()\-
 
-linkPos1/2: Position of cross-linked residue for peptide 1/2 (0-based)
+linkPos1/2: Position of crosslinked residue for peptide 1/2 (0-based)
 
-crossLinkerModMass: Modification Mass of the cross-linker.
+crossLinkerModMass: Modification Mass of the crosslinker.
 
 modifications: Array of modification definitions with id, mass and amino acid specificity e.g.
 ```

@@ -204,7 +204,7 @@ var FragmentationKeyView = Backbone.View.extend({
 			this.CL.on("mouseover", function() {
 				if (!self.options.disabled && !self.changeMod  && !self.changeCL){
 					self.CLlineHighlight.attr("opacity", 0.8);
-					self.tooltip.text("Cross-link: Click to change position");
+					self.tooltip.text("Crosslink: Click to change position");
 					self.tooltip.transition()
 							.duration(200)
 							.style("opacity", .9);
@@ -272,7 +272,7 @@ var FragmentationKeyView = Backbone.View.extend({
 
 			// #==========================================================================
 			// #	account for crosslink shift
-			// #	this alings the peptide sequences at the cross-link site
+			// #	this alings the peptide sequences at the crosslink site
 			// #==========================================================================
 			var shift = this.linkPos[0].linkSite - this.linkPos[1].linkSite;
 			var spaceArray = arrayOfHashes(Math.abs(shift));

@@ -114,7 +114,7 @@ function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 	// # bions; either normal or lossy; have different colors
 	if (fragments.b.length != 0){ // really a, b, or c , see get_fragment_annotation()
 
-		// check for Cross-link containing fragment - checking first is sufficient
+		// check for Crosslink containing fragment - checking first is sufficient
 		// fragments.b.filter(function(b){return b.type.crossLinkContaining})
 		var fragLineClass = 'xispec_fragBar';
 		if (this.FragKey.options.accentuateCLcontainingFragments && fragments.b[0].crossLinkContaining){

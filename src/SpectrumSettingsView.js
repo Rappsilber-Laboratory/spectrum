@@ -323,7 +323,7 @@ var SpectrumSettingsView = Backbone.View.extend({
 			.append("input").attr("type", "checkbox").attr("id", "xispec_absErrChkBx")
 		;
 
-		this.accentuateCrossLinkContaining = appearanceTab.append("label").text("accentuate cross-link containing fragments: ")
+		this.accentuateCrossLinkContaining = appearanceTab.append("label").text("accentuate crosslink containing fragments: ")
 			.append("input").attr("type", "checkbox").attr("id", "xispec_accentuateCLcontainingChkBx")
 		;
 
@@ -738,31 +738,8 @@ var SpectrumSettingsView = Backbone.View.extend({
 					},
 					"targets": 1,
 				},
-				// {
-				// 	"render": function ( data, type, row, meta ) {
-				// 		return row[0]+'<i class="fa fa-undo xispec_resetMod" title="reset modification to default" aria-hidden="true"></i></span>';
-				// 	},
-				// 	"targets": 1,
-				// },
 				{
 					"render": function ( data, type, row, meta ) {
-						// data = 0;
-						//
-						// var rowNode = self.lossTable.rows( meta.row ).nodes().to$();
-						//
-						// for (var i = 0; i < self.model.losses.length; i++) {
-						// 	if(self.model.losses[i].id == row[1]){
-						// 		data = self.model.losses[i].mass;
-						// 		if (self.model.losses[i].changed){
-						// 			displayModified(rowNode);
-						// 		}
-						// 	}
-						// }
-						// data = parseFloat(parseFloat(data).toFixed(10).toString()); // limit to 10 decimal places and get rid of tailing zeroes
-						// if(data.toString().indexOf('.') !== -1)
-						// 	var stepSize = '0.'+'0'.repeat(data.toString().split('.')[1].length - 1) + 1;
-						// else
-						// 	var stepSize = 1;
 						return '<input class="xispec_form-control stepInput" style="width:120px" id="lossMass_'+meta.row+'" row="'+meta.row+'" title="neutral loss mass" name="lossMasses[]" type="text" required value='+data+' autocomplete=off>';
 					},
 					"targets": 2,
@@ -779,29 +756,7 @@ var SpectrumSettingsView = Backbone.View.extend({
 
 	    this.lossTable = $('#xispec_lossTable').DataTable( tableVars );
 
-	    //ToDo: change to BB event handling
-		// $('#xispec_lossTable').on('input', 'input', function() {
-		//
-		// 	var row = this.getAttribute("row");
-		// 	var modName = $('#modName_'+row).val();
-		// 	var modMass = parseFloat($('#modMass_'+row).val());
-		// 	var modSpec = $('#modSpec_'+row).val();
-		//
-		// 	var mod = {'id': modName, 'mass': modMass, 'aminoAcids': modSpec.split('')};
-		//
-		// 	var updatedMod = self.model.updateModification(mod);
-		// 	if (!updatedMod.userMod)
-		// 		displayModified($(this).closest("tr"));
-		//
-		//  });
-		//
-		// var displayModified = function (row){
-		// 	row.addClass('userModified');
-		// 	row.find(".xispec_resetMod").css("visibility", "visible");
-		// }
-
 		$('#xispec_lossTable ').on('click', '.xispec_deleteLoss', function() {
-			// console.log(this);
 			self.lossTable
 				.row( $(this).parents('tr') )
 		        .remove()
