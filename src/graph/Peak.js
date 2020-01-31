@@ -346,8 +346,6 @@ Peak.prototype.draw = function(){
 
 				label.append("text")
 					.text(function(d) {
-						if (self.graph.options.labelFragmentCharge)
-							return d.name + '+'.repeat(d.get_charge(self.id));
 						return d.name;
 					})
 					.attr("x", 0)
@@ -355,12 +353,11 @@ Peak.prototype.draw = function(){
 					.style("stroke-width", "6px")
 					.style("font-size", self.graph.model.labelFontSize)
 					.attr("class", "xispec_peakAnnotHighlight")
-					.attr("stroke", this.graph.model.get('highlightColor'));
+					.attr("stroke", this.graph.model.get('highlightColor'))
+				;
 
 				label.append("text")
 					.text(function(d) {
-						if (self.graph.options.labelFragmentCharge)
-							return d.name + '+'.repeat(d.get_charge(self.id));
 						return d.name;
 					})
 					.attr("x", 0)
@@ -379,6 +376,16 @@ Peak.prototype.draw = function(){
 						var pepIndex = d.peptideId+1;
 						return self.graph.model["p" + pepIndex + partition.colourClass];
 					})
+				;
+				if (self.graph.options.labelFragmentCharge){
+					label.selectAll('text').append('tspan')
+						.text(function(d) {
+							return d.get_charge(self.id) + '+';
+						})
+						.style("font-size", "75%")
+						.style("baseline-shift", "super")
+					;
+				}
 			}
 
 		}, this);
