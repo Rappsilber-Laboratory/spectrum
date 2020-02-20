@@ -295,6 +295,13 @@ xiSPEC.revertAnnotation = function(){
 	}
 },
 
+xiSPEC.reloadAnnotation = function(){
+	this.SpectrumModel.reset_all_modifications();
+	this.SettingsSpectrumModel.reset_all_modifications();
+	this.request_annotation(this.originalMatchRequest);
+	this.SpectrumModel.set('changedAnnotation', false);
+},
+
 xiSPEC.sanityChecks = function(data){
 
 	// ToDo: create sanityChecks
@@ -389,8 +396,6 @@ xiSPEC.convert_to_json_request = function (data) {
 
 
 xiSPEC.setCustomConfigOverwrite = function(customConfig){
-	// this.SettingsSpectrumModel.customConfigOverwrite = customConfig;
-	// this.SpectrumModel.customConfigOverwrite = customConfig;
 	this.customConfigOverwrite = customConfig;
 };
 

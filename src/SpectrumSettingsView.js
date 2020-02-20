@@ -43,6 +43,7 @@ var SpectrumSettingsView = Backbone.View.extend({
 		'change #xispec_peakHighlightMode' : 'changePeakHighlightMode',
 		'click #xispec_toggleCustomCfgHelp' : 'toggleCustomCfgHelp',
 		'click #xispec_settingsCustomCfgApply' : 'applyCustomCfg',
+		'click #xispec_settingsCustomCfgDbSave' : 'saveCustomCfg',
 		'click #xispec_settingsAnnotatorApply': 'applyAnnotator',
 		'submit #xispec_settingsForm' : 'applyData',
 		// 'keyup .stepInput' : 'updateStepSizeKeyUp',
@@ -368,6 +369,7 @@ var SpectrumSettingsView = Backbone.View.extend({
 		this.customConfigInput = customConfigTab.append("textarea")
 			.attr("id", "xispec_settingsCustomCfg-input")
 			.attr("class", "xispec_form-control");
+
 		var customConfigBottom = customConfigTab.append("div")
 			.attr("class", "xispec_settings-bottom");
 
@@ -380,8 +382,20 @@ var SpectrumSettingsView = Backbone.View.extend({
 		var customConfigSubmit = customConfigBottom.append("input")
 			.attr("class", "xispec_btn xispec_btn-1 xispec_btn-1a network-control")
 			.attr("value", "Apply")
+			.attr("title", "Apply custom config to current spectrum.")
 			.attr("id", "xispec_settingsCustomCfgApply")
 			.attr("type", "submit");
+
+
+		var customConfigDbSave = customConfigBottom.append("input")
+			.attr("class", "xispec_btn xispec_btn-1 xispec_btn-1a network-control")
+			.attr("value", "Save for whole dataset")
+			.attr("title", "Write the current custom config to the database.")
+			.attr("id", "xispec_settingsCustomCfgDbSave")
+			.attr("type", "submit");
+		if (window.dbView !== 'true') {
+			customConfigDbSave.style("display", "none");
+		}
 
 		var customConfigCancel = customConfigBottom.append("input")
 			.attr("class", "xispec_btn xispec_btn-1 xispec_btn-1a network-control xispec_settingsCancel")
@@ -454,6 +468,30 @@ var SpectrumSettingsView = Backbone.View.extend({
 		this.displayModel.set('changedAnnotation', true);
 
 		// this.render();
+	},
+
+	saveCustomCfg: function(e){
+		var self = this;
+		e.preventDefault();
+		var customConfig = $("#xispec_settingsCustomCfg-input").val();
+		var post_data = {
+			custom_config: customConfig,
+		};
+		$.ajax({
+			url: "/php/saveCustomCfg.php",
+			type: 'POST',
+			data: post_data,
+			success: function (data) {
+				customConfig = customConfig.split("\n");
+				// add custom config to current json request
+				var json = self.model.get("JSONrequest");
+				json.annotation.custom = customConfig;
+				// overwrite customConfig on current wrapper
+				xiSPEC.setCustomConfigOverwrite(customConfig);
+				// request current spectrum with updated custom config as original annotation
+				xiSPEC.request_annotation(json, true);
+			}
+		});
 	},
 
 	applyAnnotator: function(e){
