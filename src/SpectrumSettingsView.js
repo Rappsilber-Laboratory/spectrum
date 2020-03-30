@@ -410,10 +410,10 @@ var SpectrumSettingsView = Backbone.View.extend({
 			.style("display", "none");
 
 		var annotatorWrapper = annotatorTab.append("label")
-			.attr("class", "xispec_flex-row")
+			.attr("class", "xispec_label")
 			.text("Choose Annotator to use: ");
 
-		var annotatorDropdown = annotatorWrapper.append('div').append("select")
+		var annotatorDropdown = annotatorWrapper.append("select")
 			.attr("name", "annotator")
 			.attr("class", "xispec_form-control")
 			.attr('id', 'xispec_annotatorDropdown')
@@ -815,12 +815,6 @@ var SpectrumSettingsView = Backbone.View.extend({
 		if (!this.isVisible) return;
 
 		this.pepInputView.render();
-
-		// var cc_checked = false;
-		// if(this.displayModel.keepCustomConfig !== false){
-		// 	cc_checked = true
-		// }
-		// $('#xispec_keepCustomCfg').prop("checked", cc_checked);
 
 		this.renderModTable();
 		this.renderLossTable();

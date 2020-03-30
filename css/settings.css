@@ -9,16 +9,13 @@
     min-height: 400px;
     font-size: 10pt;
     border: 1px solid #333;
+    padding-bottom: 20px;
 }
 
 #xispec_settingsWrapper * {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-}
-
-#xispec_settings_main{
-    padding-bottom: 30px;
 }
 
 #xispec_settings_main .xispec_form-control{
@@ -93,7 +90,7 @@
 
 .xispec_settings_menu{
     font-size: 1.5em;
-    margin: -6px 0px;
+    margin-top: -6px
 }
 .xispec_settings_menu .xispec_btn{
   margin: 0px -5px 0px 0px;
@@ -112,7 +109,6 @@
 }
 
 #xispec_settings_main{
-    padding-top: 10px;
     padding-left: 10px;
     padding-right: 10px;
     display: flex;
@@ -122,11 +118,12 @@
 }
 
 #xispec_settings_main .xispec_label .xispec_form-control{
-  height: 2.9em;
+  height: 2.7em;
 }
 
 #xispec_settings_main #xispec_settingsPeaklist{
   height:100%;
+  white-space: pre-wrap;
 }
 
 .pointer{
@@ -147,7 +144,7 @@
     display: inline;
     margin-right: 2%;
     flex-grow: 5;
-    flex-basis: 250px;
+    flex-basis: 260px;
 }
 
 .xispec_settingsDataRight{
