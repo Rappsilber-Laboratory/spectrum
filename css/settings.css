@@ -114,7 +114,7 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    height: 100%;
+    height: calc(100% - 20px);
 }
 
 #xispec_settings_main .xispec_label .xispec_form-control{
