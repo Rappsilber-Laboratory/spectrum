@@ -64,7 +64,7 @@
     .xispec_form-control[disabled],
     .xispec_form-control[readonly],
     fieldset[disabled] .xispec_form-control {
-      background-color: #f4f6f6;
+      background-color: -internal-light-dark-color(rgb(235, 235, 228), rgb(45, 45, 45));
       color: #333;
       cursor: default;
       filter: alpha(opacity=70);
@@ -197,6 +197,11 @@
 #xispec_spectrumControls form > * {
     margin-right: 0.3em;
     vertical-align: middle;
+}
+
+#xispec_spectrumControls .xispec_form-control{
+    height: 2em;
+    padding: 0px;
 }
 
 .xispec_plotsDiv {

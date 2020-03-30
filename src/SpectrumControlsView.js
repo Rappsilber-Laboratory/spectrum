@@ -107,6 +107,7 @@ var SpectrumControlsView = Backbone.View.extend({
 
 		var mzRangeFrom = setRangeForm.append('input')
 			.attr('id', 'xispec_xleft')
+			.attr('class', 'xispec_form-control')
 			.attr('type', 'text')
 			.attr('size', '5')
 			.attr('title', 'm/z range from:')
@@ -116,6 +117,7 @@ var SpectrumControlsView = Backbone.View.extend({
 
 		var mzRangeTo = setRangeForm.append('input')
 			.attr('id', 'xispec_xright')
+			.attr('class', 'xispec_form-control')
 			.attr('type', 'text')
 			.attr('size', '5')
 			.attr('title', 'm/z range to:')
