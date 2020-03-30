@@ -77,7 +77,6 @@ var PepInputView = Backbone.View.extend({
     }
 
     //update model with input data
-
     if (this.model.get("JSONdata") !== undefined && this.model.get("JSONdata") !== null){
       this.model.get("JSONdata").Peptides = peptides;
       this.model.get("JSONdata").LinkSite = linkSites;
@@ -85,10 +84,6 @@ var PepInputView = Backbone.View.extend({
     }
     else
       this.model.set({JSONdata: {'Peptides': peptides, 'LinkSite': linkSites} });
-
-    //ToDo: this should be handled inside the model
-    // this.model.calcPrecursorMass();
-
   },
 
   clear: function() {
@@ -96,9 +91,6 @@ var PepInputView = Backbone.View.extend({
   },
 
   render: function() {
-
-    this.clear();
-
     if(this.model.peptides === undefined || this.model.get("JSONdata") === null)
       return;
 
@@ -111,16 +103,22 @@ var PepInputView = Backbone.View.extend({
         if (this.model.get("JSONdata").LinkSite.length > 0){
           for (var k = 0; k < this.model.get("JSONdata").LinkSite.length; k++) {
             if (this.model.get("JSONdata").LinkSite[k].peptideId == i && this.model.get("JSONdata").LinkSite[k].linkSite == j)
-              pepStrsArr[i] += "#" // + (this.model.get("JSONdata").LinkSite[k].id+1); only needed for multiple cls
+              pepStrsArr[i] += "#";
           }
         }
       }
     }
-
     var pepsStr = pepStrsArr.join(";");
-    if (this.el.value != pepsStr)
+
+    // only update the input field if the string differs
+    if (this.el.value != pepsStr){
+      this.clear();
       this.el.value = pepsStr;
+    }
+
   },
+
+
 
 
 });
