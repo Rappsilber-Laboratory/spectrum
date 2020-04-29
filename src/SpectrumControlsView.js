@@ -191,7 +191,6 @@ var SpectrumControlsView = Backbone.View.extend({
 			.attr('title', 'Help')
 		;
 
-
 	},
 
 	toggleSettings: function(event){

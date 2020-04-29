@@ -35,9 +35,7 @@ var ErrorPlotView = Backbone.View.extend({
 
 		var self = this;
 
-		var defaultOptions = {
-
-		};
+		var defaultOptions = {};
 		this.options = _.extend(defaultOptions, viewOptions);
 
 		this.absolute = false;

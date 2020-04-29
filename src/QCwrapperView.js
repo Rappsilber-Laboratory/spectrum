@@ -36,7 +36,6 @@ var QCwrapperView = Backbone.View.extend({
 	initialize: function(viewOptions) {
 
 		var defaultOptions = {
-			splitIds: ['#xispec_spectrumMainPlotDiv', '#xispec_QCdiv'],
 			showQualityControl: "bottom",
 		};
 		this.options = _.extend(defaultOptions, viewOptions);

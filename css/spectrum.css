@@ -209,22 +209,22 @@
     flex-direction: column;
     flex-grow:  1;
     flex-shrink:  0;
-    height: calc(100% - 35px);
+    /* height: calc(100% - 35px); */
     position: relative;
 }
 
-#xispec_spectrumMainPlotDiv {
+.xispec_spectrumMainPlotDiv {
     display: flex;
     flex-flow: column;
     flex-grow: 1;
     min-height: 150px;
 }
 
-#xispec_Svg {
-    width: 100%;
-    height: 100%;
-    flex-grow: 1;
+.xispec_Svg {
     background-color: white;
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
 }
 
 #xispec_wrapper {
@@ -382,4 +382,11 @@
     font-family: "Lato-Regular", Helvetica, Arial, sans-serif;
     font-weight: 300;
     line-height: 1.3em;
+}
+
+.xispec_spectrawrapper{
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  height: calc(100% - 35px);
 }
