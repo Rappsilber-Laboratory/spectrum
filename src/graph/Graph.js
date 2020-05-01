@@ -221,7 +221,7 @@ Graph.prototype.setData = function(){
 
 	this.g.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
-	if(xiSPEC.lockZoom){
+	if(xiSPECUI.lockZoom){
 		this.resize(this.model.get('mzRange')[0], this.model.get('mzRange')[1], this.model.ymin, this.model.ymax);
 		this.disableZoom();
 	}
@@ -608,7 +608,7 @@ Graph.prototype.measure = function(on){
 			for(i=1; i<7; i++){
 				var massObj = new Object();
 				massObj.mass = distance * i;
-				massObj.matchAA = xiSPEC.matchMassToAA(distance * i);
+				massObj.matchAA = xiSPECUI.matchMassToAA(distance * i);
 				massArr.push(massObj);
 			};
 

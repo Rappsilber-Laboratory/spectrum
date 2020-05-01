@@ -218,6 +218,7 @@
     flex-flow: column;
     flex-grow: 1;
     min-height: 150px;
+    border-right: 1px solid black;
 }
 
 .xispec_Svg {
@@ -384,9 +385,14 @@
     line-height: 1.3em;
 }
 
-.xispec_spectrawrapper{
+.xispec_spectraWrapper{
   display: flex;
   flex-direction: row;
   flex-grow: 1;
   height: calc(100% - 35px);
+}
+
+.xispec_specPanelControls{
+  position: absolute;
+  right: 0;
 }

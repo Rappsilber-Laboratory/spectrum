@@ -45,7 +45,7 @@ var QCwrapperView = Backbone.View.extend({
 			minSize: [250, 150],
 			gutterSize: 5,
 			direction: 'vertical',
-			onDragEnd: function(){ xiSPEC.vent.trigger('resize:spectrum'); }
+			onDragEnd: function(){ xiSPECUI.vent.trigger('resize:spectrum'); }
 		});
 
 		this.dock = this.options.showQualityControl;
@@ -139,7 +139,7 @@ var QCwrapperView = Backbone.View.extend({
 	},
 
 	downloadQCSVG: function(){
-		xiSPEC.vent.trigger('downloadQCSVG');
+		xiSPECUI.vent.trigger('downloadQCSVG');
 	},
 
 	splitHorizontal: function(){
@@ -152,7 +152,7 @@ var QCwrapperView = Backbone.View.extend({
 			minSize: [500, 220],
 			gutterSize: 4,
 			direction: 'horizontal',
-			onDragEnd: function(){ xiSPEC.vent.trigger('resize:spectrum'); }
+			onDragEnd: function(){ xiSPECUI.vent.trigger('resize:spectrum'); }
 		});
 	},
 
@@ -166,13 +166,13 @@ var QCwrapperView = Backbone.View.extend({
 			minSize: [250, 200],
 			gutterSize: 4,
 			direction: 'vertical',
-			onDragEnd: function(){ xiSPEC.vent.trigger('resize:spectrum'); }
+			onDragEnd: function(){ xiSPECUI.vent.trigger('resize:spectrum'); }
 		});
 	},
 
 	showView: function(){
 		// this.isVisible = true;
-		xiSPEC.vent.trigger('show:QC', true);
+		xiSPECUI.vent.trigger('show:QC', true);
 		$(this.controlsDiv[0]).show();
 		$(this.dockQCxispec_btn[0]).hide();
 		$(this.minQCxispec_btn[0]).show();
@@ -184,12 +184,12 @@ var QCwrapperView = Backbone.View.extend({
 		else{
 			this.splitVertical();
 		}
-		xiSPEC.vent.trigger('resize:spectrum');
+		xiSPECUI.vent.trigger('resize:spectrum');
 	},
 
 	minView: function(){
 		// this.isVisible = false;
-		xiSPEC.vent.trigger('show:QC', false);
+		xiSPECUI.vent.trigger('show:QC', false);
 		if(this.dock == 'side'){
 			$(this.el).parent().css('flex-direction', 'column');
 			$(this.el).removeClass('xispec_QCdiv-right');
@@ -201,7 +201,7 @@ var QCwrapperView = Backbone.View.extend({
 		$(this.contentDiv[0]).hide();
 		if(this.plotSplit)
 			this.plotSplit.destroy();
-		xiSPEC.vent.trigger('resize:spectrum');
+		xiSPECUI.vent.trigger('resize:spectrum');
 	},
 
 	dockSide: function(){
@@ -209,7 +209,7 @@ var QCwrapperView = Backbone.View.extend({
 		$(this.el).parent().css('flex-direction', 'row');
 		$(this.contentDiv[0]).css('flex-direction', 'column');
 		this.splitHorizontal();
-		xiSPEC.vent.trigger('resize:spectrum');
+		xiSPECUI.vent.trigger('resize:spectrum');
 	},
 
 	dockRight: function(){
@@ -230,14 +230,14 @@ var QCwrapperView = Backbone.View.extend({
 		$(this.el).removeClass('xispec_QCdiv-right');
 		$(this.contentDiv[0]).css('flex-direction', 'row');
 		this.splitVertical();
-		xiSPEC.vent.trigger('resize:spectrum');
+		xiSPECUI.vent.trigger('resize:spectrum');
 	},
 
 	updatePlots: function(e){
 		var plotId = $(e.target).attr('id');
 		var checked = $(e.target).is('checked');
-		xiSPEC.vent.trigger('QCPlotToggle', plotId);
-		xiSPEC.vent.trigger('resize:spectrum');
+		xiSPECUI.vent.trigger('QCPlotToggle', plotId);
+		xiSPECUI.vent.trigger('resize:spectrum');
 	}
 
 });

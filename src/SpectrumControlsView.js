@@ -19,7 +19,7 @@
 //
 //		SpectrumControlView.js
 
-var xiSPEC = xiSPEC || {};
+var xiSPECUI = xiSPECUI || {};
 var CLMSUI = CLMSUI || {};
 
 var SpectrumControlsView = Backbone.View.extend({
@@ -37,6 +37,7 @@ var SpectrumControlsView = Backbone.View.extend({
 		'click #xispec_toggleSpecList' : 'toggleSpecList',
 		'click #xispec_butterflyChkbx': 'butterflyToggle',
 		'click #xispec_butterflySwapBtn': 'butterflySwap',
+		'click #xispec_addSpectrum': 'addSpectrum',
 	},
 
 	initialize: function() {
@@ -176,6 +177,12 @@ var SpectrumControlsView = Backbone.View.extend({
 			.attr('type', 'checkbox')
 		;
 
+		var addSpectrumBtn = this.wrapper.append('button')
+			.attr('id', 'xispec_addSpectrum')
+			.attr('class', 'xispec_btn xispec_btn-1 xispec_btn-1a')
+			.text('Add Spectrum')
+			.attr('title', 'Add another spectrum panel')
+		;
 
 		var extra_controls_after = this.wrapper.append('span')
 			.attr("id", "xispec_extra_spectrumControls_after")
@@ -195,7 +202,7 @@ var SpectrumControlsView = Backbone.View.extend({
 
 	toggleSettings: function(event){
 		event.stopPropagation();
-		xiSPEC.vent.trigger('spectrumSettingsToggle', true);
+		xiSPECUI.vent.trigger('spectrumSettingsToggle', true);
 
 	},
 
@@ -220,7 +227,7 @@ var SpectrumControlsView = Backbone.View.extend({
 			$('#xispec_xright').prop('disabled', false);
 			xiSPEC.lockZoom = false;
 		}
-		xiSPEC.vent.trigger('lockZoomToggle');
+		xiSPECUI.vent.trigger('lockZoomToggle');
 	},
 
 	toggleMeasuringMode: function(e){
@@ -255,17 +262,17 @@ var SpectrumControlsView = Backbone.View.extend({
 	},
 
 	downloadSpectrumSVG: function(){
-		xiSPEC.vent.trigger('downloadSpectrumSVG');
+		xiSPECUI.vent.trigger('downloadSpectrumSVG');
 	},
 
 	toggleSpecList: function(){
-		xiSPEC.vent.trigger('toggleTableView');
+		xiSPECUI.vent.trigger('toggleTableView');
 	},
 
 	revertAnnotation: function(){
 		if(this.model.get('changedAnnotation')){
-			xiSPEC.revertAnnotation();
-			xiSPEC.vent.trigger('butterflyToggle', false);
+			xiSPECUI.vent.trigger('revertAnnotation');
+			xiSPECUI.vent.trigger('butterflyToggle', false);
 			$('#xispec_butterflyChkbx').prop('checked', false);
 		};
 	},
@@ -286,7 +293,7 @@ var SpectrumControlsView = Backbone.View.extend({
 	butterflyToggle: function(e) {
 		var $target = $(e.target);
 		var selected = $target.is(':checked');
-		xiSPEC.vent.trigger('butterflyToggle', selected);
+		xiSPECUI.vent.trigger('butterflyToggle', selected);
 		if(selected){
 			$('#xispec_butterflySwapBtn').removeClass('xispec_disabled');
 		}else{
@@ -297,7 +304,12 @@ var SpectrumControlsView = Backbone.View.extend({
 
 	butterflySwap: function(e) {
 		if($('#xispec_butterflyChkbx').is(':checked'))
-			xiSPEC.vent.trigger('butterflySwap');
+			xiSPECUI.vent.trigger('butterflySwap');
 	},
+
+	addSpectrum: function() {
+		xiSPECUI.vent.trigger('addSpectrum');
+		console.log('addSpectrum');
+	}
 
 });

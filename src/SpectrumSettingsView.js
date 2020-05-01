@@ -19,7 +19,7 @@
 //
 //		SpectrumSettingsView.js
 
-var xiSPEC = xiSPEC || {};
+var xiSPECUI = xiSPECUI || {};
 var CLMSUI = CLMSUI || {};
 
 var SpectrumSettingsView = Backbone.View.extend({
@@ -65,8 +65,8 @@ var SpectrumSettingsView = Backbone.View.extend({
 		SpectrumSettingsView.__super__.initialize.apply (this, arguments);
 		var self = this;
 
-		this.listenTo(xiSPEC.vent, 'spectrumSettingsShow', this.bringToTop);
-		this.listenTo(xiSPEC.vent, 'spectrumSettingsToggle', this.toggleView);
+		this.listenTo(xiSPECUI.vent, 'spectrumSettingsShow', this.bringToTop);
+		this.listenTo(xiSPECUI.vent, 'spectrumSettingsToggle', this.toggleView);
 // 		this.listenTo(this.model, 'change', this.render);
 		this.listenTo(this.model, 'change:JSONdata', this.render);
 
@@ -268,7 +268,6 @@ var SpectrumSettingsView = Backbone.View.extend({
 		var cancelxispec_btn = dataBottom.append("input")
 			.attr("class", "xispec_btn xispec_btn-1 xispec_btn-1a network-control xispec_settingsCancel")
 			.attr("value", "Cancel")
-			.attr("id", "xispec_settingsCancel")
 			.attr("type", "button")
 		;
 
@@ -400,7 +399,6 @@ var SpectrumSettingsView = Backbone.View.extend({
 		var customConfigCancel = customConfigBottom.append("input")
 			.attr("class", "xispec_btn xispec_btn-1 xispec_btn-1a network-control xispec_settingsCancel")
 			.attr("value", "Cancel")
-			.attr("id", "xispec_settingsCancel")
 			.attr("type", "button");
 
 		// annotatorTab
@@ -431,7 +429,6 @@ var SpectrumSettingsView = Backbone.View.extend({
 		var annotatorCancel = annotatorBottom.append("input")
 			.attr("class", "xispec_btn xispec_btn-1 xispec_btn-1a network-control xispec_settingsCancel")
 			.attr("value", "Cancel")
-			.attr("id", "xispec_settingsCancel")
 			.attr("type", "button");
 		// end Tabs
 
@@ -452,21 +449,11 @@ var SpectrumSettingsView = Backbone.View.extend({
 	},
 
 	applyCustomCfg: function(e){
-
 		var json = this.model.get("JSONrequest");
 		var customConfig = $("#xispec_settingsCustomCfg-input").val().split("\n");
-
 		json.annotation.custom = customConfig;
-		// if ($('#xispec_keepCustomCfg').is(":checked")){
- 	// 		this.displayModel.keepCustomConfig = customConfig;
-		// }
-		// else {
-		// 	this.displayModel.keepCustomConfig = false;
-		// }
-
-		xiSPEC.request_annotation(json);
+		xiSPECUI.vent.trigger('requestAnnotation', json);
 		this.displayModel.set('changedAnnotation', true);
-
 		// this.render();
 	},
 
@@ -487,9 +474,9 @@ var SpectrumSettingsView = Backbone.View.extend({
 				var json = self.model.get("JSONrequest");
 				json.annotation.custom = customConfig;
 				// overwrite customConfig on current wrapper
-				xiSPEC.setCustomConfigOverwrite(customConfig);
+				xiSPECUI.vent.trigger('setCustomConfigOverwrite', customConfig);
 				// request current spectrum with updated custom config as original annotation
-				xiSPEC.request_annotation(json, true);
+				xiSPECUI.vent.trigger('requestAnnotation', json_req, true);
 			}
 		});
 	},
@@ -498,7 +485,7 @@ var SpectrumSettingsView = Backbone.View.extend({
 		e.preventDefault();
 		var json = this.model.get("JSONrequest");
 		var annotatorURL = $('#xispec_annotatorDropdown').val();
-		xiSPEC.request_annotation(json, false, annotatorURL);
+		xiSPECUI.vent.trigger('requestAnnotation', json, false, annotatorURL);
 		this.displayModel.set('changedAnnotation', true);
 	},
 
@@ -537,19 +524,15 @@ var SpectrumSettingsView = Backbone.View.extend({
 // 				json['annotation']['custom'] = self.displayModel.customConfig;
 				json['annotation']['custom'] = self.displayModel.get("JSONdata").annotation.custom;
 				json['annotation']['precursorMZ'] = self.displayModel.precursor.expMz;
-				json['annotation']['requestID'] = xiSPEC.lastRequestedID + Date.now();
-				xiSPEC.request_annotation(json);
+				json['annotation']['requestID'] = xiSPECUI.lastRequestedID + Date.now();
+				xiSPECUI.vent.trigger('requestAnnotation', json);
 				self.displayModel.set('changedAnnotation', true);
 				self.displayModel.knownModifications = $.extend(true, [], self.model.knownModifications);
 				spinner.stop();
 				$('#xispec_settingsForm').show();
 			}
 		});
-
-// 		this.model.saveUserModificationsToCookie();
 		return false;
-
-		//window.SpectrumModel.request_annotation(window.SettingsSpectrummodel.get("JSONdata"));
 	},
 
 	//ToDo: improve error handling to be more informative - display outside of console
@@ -1045,19 +1028,19 @@ var SpectrumSettingsView = Backbone.View.extend({
 	absErrToggle: function(e) {
 		var $target = $(e.target);
 		var selected = $target.is(':checked');
-		xiSPEC.vent.trigger('QCabsErr', selected);
+		xiSPECUI.vent.trigger('QCabsErr', selected);
 	},
 
 	accentuateCLcontainingToggle: function(e) {
 		var $target = $(e.target);
 		var selected = $target.is(':checked');
-		xiSPEC.vent.trigger('AccentuateCrossLinkContainingFragments', selected);
+		xiSPECUI.vent.trigger('AccentuateCrossLinkContainingFragments', selected);
 	},
 
 	chargeLabelToggle: function(e) {
 		var $target = $(e.target);
 		var selected = $target.is(':checked');
-		xiSPEC.vent.trigger('labelFragmentCharge', selected);
+		xiSPECUI.vent.trigger('labelFragmentCharge', selected);
 	},
 
 	changeColorScheme: function(e){

@@ -19,7 +19,7 @@
 //
 //		SpectrumView2.js
 
-var xiSPEC = xiSPEC || {};
+var xiSPECUI = xiSPECUI || {};
 var CLMSUI = CLMSUI || {};
 
 var SpectrumView = Backbone.View.extend({
@@ -59,22 +59,22 @@ var SpectrumView = Backbone.View.extend({
 		this.listenTo(this.model, 'changed:ColorScheme', this.updateColors);
 		this.listenTo(this.model, 'change:mzRange', this.updateMzRange);
 
-		this.listenTo(xiSPEC.vent, 'butterflyToggle', this.butterflyToggle);
-		this.listenTo(xiSPEC.vent, 'butterflySwap', this.butterflySwap);
-		this.listenTo(xiSPEC.vent, 'AccentuateCrossLinkContainingFragments', this.accentuateCLcontainingToggle);
-		this.listenTo(xiSPEC.vent, 'labelFragmentCharge', this.labelFragmentChargeToggle);
-		this.listenTo(xiSPEC.vent, 'downloadSpectrumSVG', this.downloadSVG);
-		this.listenTo(xiSPEC.vent, 'resize:spectrum', this.resize);
-		this.listenTo(xiSPEC.vent, 'clearSpectrumHighlights', this.clearHighlights);
-		this.listenTo(xiSPEC.vent, 'lockZoomToggle', this.lockZoom);
+		this.listenTo(xiSPECUI.vent, 'butterflyToggle', this.butterflyToggle);
+		this.listenTo(xiSPECUI.vent, 'butterflySwap', this.butterflySwap);
+		this.listenTo(xiSPECUI.vent, 'AccentuateCrossLinkContainingFragments', this.accentuateCLcontainingToggle);
+		this.listenTo(xiSPECUI.vent, 'labelFragmentCharge', this.labelFragmentChargeToggle);
+		this.listenTo(xiSPECUI.vent, 'downloadSpectrumSVG', this.downloadSVG);
+		this.listenTo(xiSPECUI.vent, 'resize:spectrum', this.resize);
+		this.listenTo(xiSPECUI.vent, 'clearSpectrumHighlights', this.clearHighlights);
+		this.listenTo(xiSPECUI.vent, 'lockZoomToggle', this.lockZoom);
 
 		this.listenTo(this.model, 'resetZoom', this.resetZoom);
 		this.listenTo(this.model, 'changed:Highlights', this.updateHighlights);
 		this.listenTo(this.model, 'changed:lossyShown', this.showLossy);
 		this.listenTo(this.model, 'changed:labelCutoff', this.labelCutoff);
 		this.listenTo(this.model, 'changed:labelFontSize', this.changeLabelFontSize);
-		this.listenTo(this.model, 'request_annotation:pending', this.showSpinner);
-		this.listenTo(this.model, 'request_annotation:done', this.hideSpinner);
+		this.listenTo(this.model, 'requestAnnotation:pending', this.showSpinner);
+		this.listenTo(this.model, 'requestAnnotation:done', this.hideSpinner);
 		this.listenTo(this.model, 'changed:fragHighlighting', this.updatePeakHighlighting);
 		//this.listenTo(this.model, 'destroy', this.remove);
 	},
@@ -86,7 +86,7 @@ var SpectrumView = Backbone.View.extend({
 			return this;
 		}else{
 			this.graph.show();}
-		if(!xiSPEC.lockZoom){
+		if(!xiSPECUI.lockZoom){
 			this.graph.resize(this.model.xminPrimary, this.model.xmaxPrimary, this.model.ymin, this.model.ymaxPrimary);}
 		if (this.model.get("JSONdata")){
 			this.graph.setData();}

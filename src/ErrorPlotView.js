@@ -26,12 +26,12 @@ var ErrorPlotView = Backbone.View.extend({
 
 	initialize: function(viewOptions) {
 
-		this.listenTo(xiSPEC.vent, 'QCabsErr', this.toggleAbsErr);
-		this.listenTo(xiSPEC.vent, 'QCPlotToggle', this.toggleView);
+		this.listenTo(xiSPECUI.vent, 'QCabsErr', this.toggleAbsErr);
+		this.listenTo(xiSPECUI.vent, 'QCPlotToggle', this.toggleView);
 		this.listenTo(window, 'resize', _.debounce(this.render));
-		this.listenTo(xiSPEC.vent, 'resize:spectrum', this.render);
-		this.listenTo(xiSPEC.vent, 'downloadQCSVG', this.downloadSVG);
-		this.listenTo(xiSPEC.vent, 'show:QC', this.wrapperVisToggle);
+		this.listenTo(xiSPECUI.vent, 'resize:spectrum', this.render);
+		this.listenTo(xiSPECUI.vent, 'downloadQCSVG', this.downloadSVG);
+		this.listenTo(xiSPECUI.vent, 'show:QC', this.wrapperVisToggle);
 
 		var self = this;
 
