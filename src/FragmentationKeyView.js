@@ -29,7 +29,7 @@ d3.selection.prototype.moveToFront = function() {
 var FragmentationKeyView = Backbone.View.extend({
 
 	initialize: function(viewOptions) {
-		var defaultOptions = {
+		const defaultOptions = {
 			invert: false,
 			hidden: false,
 			disabled: false,

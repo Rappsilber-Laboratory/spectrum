@@ -18,120 +18,118 @@
 //
 //
 //		PrecursorInfoView.js
-var PrecursorInfoView = Backbone.View.extend({
 
-	events : {
-		'click .toggle' : 'expandToggle',
-	},
+let PrecursorInfoView = Backbone.View.extend({
 
-	initialize: function(viewOptions) {
+    events: {
+        'click .toggle': 'expandToggle',
+    },
 
-		var defaultOptions = {
-			invert: false,
-			hidden: false,
-		};
+    initialize: function (viewOptions) {
 
-		this.options = _.extend(defaultOptions, viewOptions);
+        let defaultOptions = {
+            invert: false,
+            hidden: false,
+        };
+        this.options = _.extend(defaultOptions, viewOptions);
 
-		this.listenTo(xiSPECUI.vent, 'butterflyToggle', this.butterflyToggle);
-		this.listenTo(xiSPECUI.vent, 'butterflySwap', this.butterflySwap);
-		this.listenTo(xiSPECUI.vent, 'resize:spectrum', this.render);
-		this.listenTo(window, 'resize', _.debounce(this.render));
-		this.expand = true;
+        // event listeners
+        this.listenTo(xiSPECUI.vent, 'butterflyToggle', this.butterflyToggle);
+        this.listenTo(xiSPECUI.vent, 'butterflySwap', this.butterflySwap);
+        this.listenTo(xiSPECUI.vent, 'resize:spectrum', this.render);
 
-		// this.svg = d3.select(this.el.getElementsByTagName("svg")[0]); //xispec_Svg
+        this.expand = true;
+
+        // create svg text el
 		this.svg = d3.select(this.el);
+        this.wrapper = this.svg.append('text')
+            .attr("class", "precursorInfo")
+            .attr("x", 10)
+            .attr("y", 13)
+            .attr("font-size", 12);
 
-		//create
-		this.wrapper = this.svg.append('text')
-			.attr("class", "precursorInfo")
-			.attr("x", 10)
-			.attr("y", 13)
-			.attr("font-size", 12);
+        this.listenTo(this.model, 'change', this.render);
+    },
 
-		this.listenTo(this.model, 'change', this.render);
-	},
+    clear: function () {
+        this.wrapper.selectAll("*").remove();
+    },
 
-	clear: function(){
-		this.wrapper.selectAll("*").remove();
-	},
+    render: function () {
+        this.clear();
 
-	render: function() {
-		this.clear();
+        if (this.options.hidden)
+            return;
 
-		if(this.options.hidden)
-			return;
+        this.toggle = this.wrapper.append('tspan')
+            .text("[-]")
+            .style("cursor", "pointer")
+            .attr("font-family", "monospace")
+            .attr("class", "toggle");
 
-		this.toggle = this.wrapper.append('tspan')
-			.text("[-]")
-			.style("cursor", "pointer")
-			.attr("font-family", "monospace")
-			.attr("class", "toggle");
+        this.wrapper.append('tspan')
+            .text("  Precursor: ")
+            .style("cursor", "pointer")
+            .attr("class", "toggle");
 
-		this.wrapper.append('tspan')
-			.text("  Precursor: ")
-			.style("cursor", "pointer")
-			.attr("class", "toggle");
+        this.content = this.wrapper.append('tspan')
+            .style("cursor", "default");
 
-		this.content = this.wrapper.append('tspan')
-			.style("cursor", "default");
+        if (this.options.invert) {
+            var $el = $(this.el)
+            var parentWidth = $el.width();
+            var parentHeight = $el.height();
+            var top = this.model.isLinear ? parentHeight - 65 : parentHeight - 115;
+        } else {
+            var top = 0;
+        }
+        this.wrapper.attr("transform", "translate(0," + top + ")");
 
-		if(this.options.invert){
-			var $el = $(this.el)
-			var parentWidth = $el.width();
-			var parentHeight = $el.height();
-			var top = this.model.isLinear ? parentHeight - 65 : parentHeight - 115;
-		}
-		else{
-			var top = 0;
-		}
-		this.wrapper.attr("transform", "translate(0," + top + ")");
+        var precursor = this.model.precursor;
+        var content = "";
 
-		var precursor = this.model.precursor;
-		var content = "";
+        var dataArr = [];
+        if (precursor.intensity !== undefined && precursor.intensity != -1)
+            dataArr.push("Intensity=" + precursor.intensity);
+        if (precursor.expMz !== undefined && precursor.expMz != -1)
+            dataArr.push("exp m/z=" + precursor.expMz.toFixed(this.model.showDecimals));
+        if (precursor.calcMz !== undefined)
+            dataArr.push("calc m/z=" + precursor.calcMz.toFixed(this.model.showDecimals));
+        if (precursor.charge !== undefined)
+            dataArr.push("z=" + precursor.charge);
+        if (precursor.error !== undefined && precursor.error.tolerance && precursor.error.unit)
+            dataArr.push("error=" + precursor.error.tolerance.toFixed(this.model.showDecimals) + ' ' + precursor.error.unit);
 
-		var dataArr = [];
-		if (precursor.intensity !== undefined && precursor.intensity != -1)
-			dataArr.push("Intensity=" + precursor.intensity);
-		if (precursor.expMz !== undefined && precursor.expMz != -1)
-			dataArr.push("exp m/z=" + precursor.expMz.toFixed(this.model.showDecimals));
-		if(precursor.calcMz !== undefined)
-			dataArr.push("calc m/z=" + precursor.calcMz.toFixed(this.model.showDecimals));
-		if (precursor.charge !== undefined)
-			dataArr.push("z=" + precursor.charge);
-		if (precursor.error !== undefined && precursor.error.tolerance && precursor.error.unit)
-			dataArr.push("error=" + precursor.error.tolerance.toFixed(this.model.showDecimals) + ' ' + precursor.error.unit);
+        content += dataArr.join("; ");
+        this.content.text(content);
 
-		content += dataArr.join("; ");
-		this.content.text(content);
+    },
 
-	},
+    expandToggle: function () {
+        this.expand = !this.expand;
+        if (this.options.hidden)
+            return;
+        newOpacity = this.expand ? 1 : 0;
 
-	expandToggle: function(){
-		this.expand = !this.expand;
-		if(this.options.hidden)
-			return;
-		newOpacity = this.expand ? 1 : 0;
+        this.content.style("opacity", newOpacity);
+        if (!this.expand)
+            this.toggle.text("[+]")
+        else
+            this.toggle.text("[-]")
+    },
 
-		this.content.style("opacity", newOpacity);
-		if (!this.expand)
-			this.toggle.text("[+]")
-		else
-			this.toggle.text("[-]")
-	},
+    butterflyToggle: function (toggle) {
+        // this.graph.options.butterfly = toggle;
+        if (this.options.invert) {
+            this.options.hidden = !toggle;
+            this.render();
+        }
+        this.render();
+    },
 
-	butterflyToggle: function(toggle){
-		// this.graph.options.butterfly = toggle;
-		if(this.options.invert){
-			this.options.hidden = !toggle;
-			this.render();
-		}
-		this.render();
-	},
-
-	butterflySwap: function(){
-		this.options.invert = !this.options.invert;
-		this.render();
-	},
+    butterflySwap: function () {
+        this.options.invert = !this.options.invert;
+        this.render();
+    },
 
 });

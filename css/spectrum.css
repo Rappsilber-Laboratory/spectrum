@@ -79,11 +79,11 @@
       border-color: #750000;
   }
 .xispec_form-control::-moz-selection {
-    background-color: #091d42;
+    background-color: #750000;
     color: #fff;
 }
 .xispec_form-control::selection {
-    background-color: #091d42;
+    background-color: #750000;
     color: #fff;
 }
 
@@ -143,9 +143,8 @@
     margin-right:22px;
 }
 .fa-times-circle:hover {
-    color: #091D42;
+    color: #333333;
     background:white;
-    /* font-size: 1.5em; */
 }
 
 #xispec_spectrumControls {
@@ -211,6 +210,7 @@
     flex-shrink:  0;
     /* height: calc(100% - 35px); */
     position: relative;
+    border-right: 1px solid black;
 }
 
 .xispec_spectrumMainPlotDiv {
@@ -218,7 +218,6 @@
     flex-flow: column;
     flex-grow: 1;
     min-height: 150px;
-    border-right: 1px solid black;
 }
 
 .xispec_Svg {
@@ -385,7 +384,7 @@
     line-height: 1.3em;
 }
 
-.xispec_spectraWrapper{
+.xispec_spectra{
   display: flex;
   flex-direction: row;
   flex-grow: 1;
@@ -395,4 +394,38 @@
 .xispec_specPanelControls{
   position: absolute;
   right: 0;
+  text-align: right;
 }
+
+.xispec_specPanelControls i{
+    padding: 2px;
+}
+
+.xispec_inactiveSpecHeader i:hover{
+    color: #750000;
+    background: #FFFFFF;
+    cursor: pointer;
+}
+
+.xispec_activeSpecHeader .fa-times:hover{
+    color: #750000;
+    background: #FFFFFF;
+    cursor: pointer;
+}
+
+.xispec_activeSpecHeader{
+    background: #999999;
+    color: #ffffff;
+    padding: 0 5px;
+}
+
+.xispec_activeSpecHeader .fa-thumb-tack{
+    transform: rotate(30deg);
+}
+
+.xispec_inactiveSpecHeader{
+    background: #eeeeee;
+    padding: 0 5px;
+}
+
+

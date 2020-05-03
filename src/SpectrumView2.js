@@ -22,13 +22,13 @@
 var xiSPECUI = xiSPECUI || {};
 var CLMSUI = CLMSUI || {};
 
-var SpectrumView = Backbone.View.extend({
+let SpectrumView = Backbone.View.extend({
 
 	events : {},
 
 	initialize: function(viewOptions) {
 
-		var defaultOptions = {
+		const defaultOptions = {
 			invert: false,
 			hidden: false,
 			xlabel: "m/z",
@@ -122,7 +122,7 @@ var SpectrumView = Backbone.View.extend({
 
 	lockZoom: function(){
 
-		if(xiSPEC.lockZoom){
+		if(xiSPECUI.lockZoom){
 			this.graph.disableZoom();
 		}
 		else{

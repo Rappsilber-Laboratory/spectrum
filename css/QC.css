@@ -43,7 +43,7 @@
   margin: 2px 3px;
 }
 
-.xispec_subViewHeader .minMax{
+.xispec_subViewHeader .xispec_toggleQCWrapper{
   position: absolute;
   right: 5px;
 }
