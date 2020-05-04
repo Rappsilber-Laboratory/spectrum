@@ -284,11 +284,10 @@ let SpectrumWrapper = Backbone.View.extend({
 
 	toggleActive: function () {
 		xiSPECUI.vent.trigger('activateSpecPanel', this.id);
-		this.headerDiv.attr('class', 'xispec_activeSpecHeader');
-		this.thumbTackIcon.attr('title', 'This is the active spectrum panel.')
 	},
 
 	close: function () {
+		this.destroy();
 		xiSPECUI.vent.trigger('closeSpecPanel', this.id);
 	},
 
@@ -308,6 +307,10 @@ let SpectrumWrapper = Backbone.View.extend({
 		if (activeId !== this.id){
 			this.headerDiv.attr('class', 'xispec_inactiveSpecHeader');
 			this.thumbTackIcon.attr('title', 'Activate this spectrum panel.')
+		}
+		else{
+			this.headerDiv.attr('class', 'xispec_activeSpecHeader');
+			this.thumbTackIcon.attr('title', 'This is the active spectrum panel.')
 		}
 
 	}

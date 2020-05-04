@@ -1062,9 +1062,7 @@ let SpectrumSettingsView = Backbone.View.extend({
         // update event listeners to changed model
         this.listenTo(this.model, 'change:JSONdata', this.render);
 
-        // // update the View
+        // update the View
         this.render();
-        // this.updateRange();
-        // this.changedAnnotation();
     }
 });

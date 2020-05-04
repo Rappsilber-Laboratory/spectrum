@@ -210,7 +210,7 @@
     flex-shrink:  0;
     /* height: calc(100% - 35px); */
     position: relative;
-    border-right: 1px solid black;
+    /* border-right: 1px solid black; */
 }
 
 .xispec_spectrumMainPlotDiv {

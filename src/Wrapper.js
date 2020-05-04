@@ -81,6 +81,7 @@ let xiSPEC_wrapper = Backbone.View.extend({
 
         // create the initial spectrum
         this.spectra = [];
+        this.specIds = [];
         this.activeSpectrum = this.addSpectrum();
 
         // create the SpectrumControls and Settings views
@@ -245,43 +246,84 @@ let xiSPEC_wrapper = Backbone.View.extend({
         return annotationRequest;
     },
 
+    updatePlotSplit: function () {
+        //  destroy the plotSplit if it exists
+        try{ this.plotSplit.destroy(); } catch (e) {}
+
+        // stop if there is only a single spectrum
+        let numSpec = this.spectra.length;
+        if (numSpec < 2)
+            return
+
+        // prepare Split options
+        let splitSizes = [];
+        let splitIds = [];
+        let minSizes = [];
+        for (let i = 0; i < numSpec; i++) {
+            splitIds.push('#xispec_spec' + this.specIds[i]);
+            splitSizes.push(100.0 / numSpec);
+            minSizes.push(250);
+        }
+
+        // create Split
+        this.plotSplit = Split(splitIds, {
+            sizes: splitSizes,
+            minSize: minSizes,
+            gutterSize: 5,
+            direction: 'horizontal',
+            onDragEnd: function(){ xiSPECUI.vent.trigger('resize:spectrum'); }
+        });
+    },
+
     addSpectrum: function () {
-        let num_spec = this.spectra.length;
+
+        // create an unused id and append it to the plotIds arr
+        let specId = (this.specIds.length === 0) ? 0: this.specIds[this.specIds.length-1] + 1;
+        this.specIds.push(specId);
 
         // append a div for the new spectrum
         this.spectraWrapperDiv.append('div')
             .attr('class', 'xispec_plotsDiv')
-            .attr('id', 'xispec_spec' + num_spec)
+            .attr('id', 'xispec_spec' + specId)
         ;
 
         // create new SpectrumWrapper
-        let new_spec = new SpectrumWrapper({
-            el: '#xispec_spec' + num_spec,
+        let newSpec = new SpectrumWrapper({
+            el: '#xispec_spec' + specId,
             opt: this.options,
-            id: num_spec,
+            id: specId,
         });
-        this.spectra.push(new_spec);
+        this.spectra.push(newSpec);
 
         // if there is already an activeSpectrum copy it's originalMatchRequest
         if (this.activeSpectrum) {
-            new_spec.originalMatchRequest = $.extend(true, {}, this.activeSpectrum.originalMatchRequest);
-            new_spec.reloadAnnotation();
+            newSpec.originalMatchRequest = $.extend(true, {}, this.activeSpectrum.originalMatchRequest);
+            newSpec.reloadAnnotation();
         }
+
+        // update the div splitting
+        this.updatePlotSplit();
 
         // trigger resizing
         xiSPECUI.vent.trigger('resize:spectrum');
 
-        return new_spec;
+        return newSpec;
     },
 
     closeSpectrum: function (id) {
-        this.spectra[id].destroy();
-        this.spectra.splice(id, 1);
+        if (id === this.activeSpectrum.id){
+            xiSPECUI.vent.trigger('activateSpecPanel', 0);
+        }
+        let specIndex = this.spectra.map(function(x) {return x.id; }).indexOf(id);
+        this.spectra.splice(specIndex, 1);
+        this.specIds.splice(specIndex, 1)
+        this.updatePlotSplit();
         xiSPECUI.vent.trigger('resize:spectrum');
     },
 
     activateSpectrum: function (id) {
-        this.activeSpectrum = this.spectra[id];
+        let specIndex = this.spectra.map(function(x) {return x.id; }).indexOf(id);
+        this.activeSpectrum = this.spectra[specIndex];
         this.SpectrumControlsView.model = this.activeSpectrum.models['Spectrum'];
         this.SettingsView.model = this.activeSpectrum.models['SettingsSpectrum'];
         this.SettingsView.displayModel = this.activeSpectrum.models['Spectrum'];
