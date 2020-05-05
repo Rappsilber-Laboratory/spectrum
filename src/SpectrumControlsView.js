@@ -27,7 +27,7 @@ let SpectrumControlsView = Backbone.View.extend({
     events: {
         'click #xispec_reset': 'resetZoom',
         'submit #xispec_setrange': 'setRange',
-        'click #xispec_lockZoom': 'lockZoom',
+        'click #xispec_lockZoom': 'toggleLockZoom',
         'click #xispec_clearHighlights': 'clearHighlights',
         'click #xispec_measuringTool': 'toggleMeasuringMode',
         'click #xispec_moveLabels': 'toggleMoveLabels',
@@ -44,7 +44,7 @@ let SpectrumControlsView = Backbone.View.extend({
     initialize: function () {
 
     	// event listeners
-        this.listenTo(this.model, 'change:mzRange', this.updateRange);
+        this.listenTo(this.model, 'change:mzRange', this.renderMzRange);
         this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
         this.listenTo(xiSPECUI.vent, 'activeSpecPanel:changed', this.changedModel);
 
@@ -163,6 +163,13 @@ let SpectrumControlsView = Backbone.View.extend({
             .attr('id', 'xispec_revertAnnotation')
             .attr('title', 'revert to original annotation')
         ;
+        // addSpectrumBtn
+        this.wrapper.append('i')
+            .attr('id', 'xispec_addSpectrum')
+            .attr('title', 'Add another spectrum panel')
+            .attr('class', 'xispec_btn xispec_btn-1a xispec_btn-topNav fa fa-plus')
+            .attr('aria-hidden', 'true')
+        ;
 		// butterflyControls
         this.butterflyControls = this.wrapper.append('div')
             .attr('id', 'xispec_butterflyControls')
@@ -187,13 +194,6 @@ let SpectrumControlsView = Backbone.View.extend({
             .attr('id', 'xispec_butterflyChkbx')
             .attr('type', 'checkbox')
         ;
-		// addSpectrumBtn
-        this.wrapper.append('button')
-            .attr('id', 'xispec_addSpectrum')
-            .attr('class', 'xispec_btn xispec_btn-1 xispec_btn-1a')
-            .text('Add Spectrum')
-            .attr('title', 'Add another spectrum panel')
-        ;
 		// extra_controls_after
         this.wrapper.append('span')
             .attr("id", "xispec_extra_spectrumControls_after")
@@ -212,6 +212,33 @@ let SpectrumControlsView = Backbone.View.extend({
 
     },
 
+    render: function () {
+        this.renderMzRange();
+        this.changedAnnotation();
+        this.renderLockZoom();
+        // ToDo: move labels, measure, butterfly
+    },
+
+    renderLockZoom: function () {
+        if (this.model.get('zoomLocked')) {
+            $('#xispec_lock')[0].innerHTML = "&#128274";
+            $('#xispec_mzRangeSubmit').prop('disabled', true);
+            $('#xispec_xleft').prop('disabled', true);
+            $('#xispec_xright').prop('disabled', true);
+        } else {
+            $('#xispec_lock')[0].innerHTML = "&#128275";
+            $('#xispec_mzRangeSubmit').prop('disabled', false);
+            $('#xispec_xleft').prop('disabled', false);
+            $('#xispec_xright').prop('disabled', false);
+        }
+    },
+
+    renderMzRange: function () {
+        let mzRange = this.model.get('mzRange');
+        $("#xispec_xleft").val(mzRange[0].toFixed(0));
+        $("#xispec_xright").val(mzRange[1].toFixed(0));
+    },
+
     toggleDataSettings: function () {
         xiSPECUI.vent.trigger('dataSettingsToggle');
     },
@@ -220,28 +247,11 @@ let SpectrumControlsView = Backbone.View.extend({
         xiSPECUI.vent.trigger('appearanceSettingsToggle');
     },
 
-    updateRange: function () {
-        let mzRange = this.model.get('mzRange');
-        $("#xispec_xleft").val(mzRange[0].toFixed(0));
-        $("#xispec_xright").val(mzRange[1].toFixed(0));
-    },
 
-    lockZoom: function () {
-
-        if ($('#xispec_lockZoom').is(':checked')) {
-            $('#xispec_lock')[0].innerHTML = "&#128274";
-            $('#xispec_mzRangeSubmit').prop('disabled', true);
-            $('#xispec_xleft').prop('disabled', true);
-            $('#xispec_xright').prop('disabled', true);
-            xiSPECUI.lockZoom = true;
-        } else {
-            $('#xispec_lock')[0].innerHTML = "&#128275";
-            $('#xispec_mzRangeSubmit').prop('disabled', false);
-            $('#xispec_xleft').prop('disabled', false);
-            $('#xispec_xright').prop('disabled', false);
-            xiSPECUI.lockZoom = false;
-        }
-        xiSPECUI.vent.trigger('lockZoomToggle');
+    toggleLockZoom: function (e) {
+        let selected = $(e.target).is(':checked');
+        this.model.set('zoomLocked', selected);
+        this.renderLockZoom();
     },
 
     toggleMeasuringMode: function (e) {
@@ -326,12 +336,11 @@ let SpectrumControlsView = Backbone.View.extend({
 
     changedModel: function () {
         // update event listeners to changed model
-        this.listenTo(this.model, 'change:mzRange', this.updateRange);
+        this.listenTo(this.model, 'change:mzRange', this.renderMzRange);
         this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
 
         // update the View
-        this.updateRange();
-        this.changedAnnotation();
+        this.render();
     }
 
 });

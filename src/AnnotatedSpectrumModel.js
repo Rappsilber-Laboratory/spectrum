@@ -19,7 +19,7 @@
 //
 //		AnnotatedSpectrumModel.js
 
-var AnnotatedSpectrumModel = Backbone.Model.extend({
+let AnnotatedSpectrumModel = Backbone.Model.extend({
 
 	defaults: function() {
 	return {
@@ -48,6 +48,7 @@ var AnnotatedSpectrumModel = Backbone.Model.extend({
 		this.showDecimals = 2;
 		this.set('moveLabels', false);
 		this.set('measureMode', false);
+		this.set('zoomLocked', false);
 		this.showAllFragmentsHighlight = true;
 		this.set('changedAnnotation', false);
 		// this.keepCustomConfig = false;
@@ -224,7 +225,7 @@ var AnnotatedSpectrumModel = Backbone.Model.extend({
 		//this.ymaxPrimary = ymax / 0.9;
 		this.ymaxPrimary = ymax;
 
-		if (!xiSPECUI.lockZoom){
+		if (!this.get('zoomLocked')){
 			this.set('mzRange', [this.xminPrimary, this.xmaxPrimary]);
 			this.ymax = this.ymaxPrimary;
 			this.ymin = 0;

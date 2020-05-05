@@ -50,32 +50,35 @@ let SpectrumWrapper = Backbone.View.extend({
 			'originalSpectrum': originalSpectrumModel,
 		}
 
-		// model event listeners
-		originalSpectrumModel.listenTo(
-			SpectrumModel,
+		// sync model event listeners between original and spectrumModel
+		originalSpectrumModel.listenTo(SpectrumModel,
 			'change:moveLabels',
 			function (spectrumModel) {
 				this.set('moveLabels', spectrumModel.get('moveLabels'));
 			}
 		);
-		//sync moveLabels and measureMode
-		originalSpectrumModel.listenTo(
-			SpectrumModel,
+		// sync measureMode
+		originalSpectrumModel.listenTo(SpectrumModel,
 			'change:measureMode',
 			function (spectrumModel) {
 				this.set('measureMode', spectrumModel.get('measureMode'));
 			}
 		);
-		//sync mzRange
-		originalSpectrumModel.listenTo(
-			SpectrumModel,
+		// sync zoomLock
+		originalSpectrumModel.listenTo(SpectrumModel,
+			'change:zoomLocked',
+			function (spectrumModel) {
+				this.set('zoomLocked', spectrumModel.get('zoomLocked'));
+			}
+		);
+		// sync mzRange
+		originalSpectrumModel.listenTo(SpectrumModel,
 			'change:mzRange',
 			function (spectrumModel) {
 				this.setZoom(spectrumModel.get('mzRange'));
 			}
 		);
-		SpectrumModel.listenTo(
-			originalSpectrumModel,
+		SpectrumModel.listenTo(originalSpectrumModel,
 			'change:mzRange',
 			function (spectrumModel) {
 				this.setZoom(spectrumModel.get('mzRange'));

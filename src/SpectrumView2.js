@@ -54,6 +54,7 @@ let SpectrumView = Backbone.View.extend({
 		this.listenTo(this.model, 'change:JSONdata', this.render);
 		this.listenTo(this.model, 'change:measureMode', this.measuringTool);
 		this.listenTo(this.model, 'change:moveLabels', this.moveLabels);
+		this.listenTo(this.model, 'change:zoomLocked', this.lockZoomToggle);
 		this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
 		this.listenTo(this.model, 'change:highlightColor', this.updateHighlightColors);
 		this.listenTo(this.model, 'changed:ColorScheme', this.updateColors);
@@ -66,7 +67,6 @@ let SpectrumView = Backbone.View.extend({
 		this.listenTo(xiSPECUI.vent, 'downloadSpectrumSVG', this.downloadSVG);
 		this.listenTo(xiSPECUI.vent, 'resize:spectrum', this.resize);
 		this.listenTo(xiSPECUI.vent, 'clearSpectrumHighlights', this.clearHighlights);
-		this.listenTo(xiSPECUI.vent, 'lockZoomToggle', this.lockZoom);
 
 		this.listenTo(this.model, 'resetZoom', this.resetZoom);
 		this.listenTo(this.model, 'changed:Highlights', this.updateHighlights);
@@ -86,7 +86,7 @@ let SpectrumView = Backbone.View.extend({
 			return this;
 		}else{
 			this.graph.show();}
-		if(!xiSPECUI.lockZoom){
+		if(!this.model.get('zoomLocked')){
 			this.graph.resize(this.model.xminPrimary, this.model.xmaxPrimary, this.model.ymin, this.model.ymaxPrimary);}
 		if (this.model.get("JSONdata")){
 			this.graph.setData();}
@@ -120,9 +120,8 @@ let SpectrumView = Backbone.View.extend({
 		this.graph.updatePeakLabels();
 	},
 
-	lockZoom: function(){
-
-		if(xiSPECUI.lockZoom){
+	lockZoomToggle: function(){
+		if(this.model.get('zoomLocked')){
 			this.graph.disableZoom();
 		}
 		else{

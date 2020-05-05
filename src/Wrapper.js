@@ -11,8 +11,6 @@
 'use strict'
 
 var xiSPECUI = xiSPECUI || {};
-//ToDo: make extra spectrum controls model with mzRange, moveLabels, measureMode?
-xiSPECUI.lockZoom = false;
 // http://stackoverflow.com/questions/11609825/backbone-js-how-to-communicate-between-views
 xiSPECUI.vent = {};
 _.extend(xiSPECUI.vent, Backbone.Events);
