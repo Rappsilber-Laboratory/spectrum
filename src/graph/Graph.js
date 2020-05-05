@@ -41,9 +41,24 @@ Graph = function(targetSvg, model, options) {
 		.attr("class", "xispec_plotBackground")
 		.style("fill", "white")
 		.attr("pointer-events", "visible")
+		.style("cursor", "e-resize")
 	;
 
-	backgroundLabel = (this.options.identifier == 'originalSpectrum') ? 'original' : 're-annotation';
+	// create rect for yzoom on left and right y axis
+	this.yZoomRectLeft = this.g.append("svg:rect")
+		.attr("class", "zoom y box")
+		.style("visibility", "hidden")
+		.style("cursor", "s-resize")
+		.attr("pointer-events", "all")
+	;
+	this.yZoomRectRight = this.g.append("svg:rect")
+		.attr("class", "zoom y box")
+		.style("visibility", "hidden")
+		.style("cursor", "s-resize")
+		.attr("pointer-events", "all")
+	;
+
+	var backgroundLabel = (this.options.identifier === 'originalSpectrum') ? 'original' : 're-annotation';
 
 	this.plotBackgroundLabel = this.g.append('text')
 		.attr('visibility', 'hidden')
@@ -75,9 +90,13 @@ Graph = function(targetSvg, model, options) {
 	this.xaxisZoomRect.call(this.brush);
 
 	this.yAxisLeftSVG = this.g.append("g")
-		.attr("class", "y axis");
+		.attr("class", "y axis")
+		.attr("pointer-events", "none")
+	;
 	this.yAxisRightSVG = this.g.append("g")
-		.attr("class", "y axis");
+		.attr("class", "y axis")
+		.attr("pointer-events", "none")
+	;
 
 	this.dragZoomHighlight = this.innerSVG.append("rect").attr("y", 0).attr("width", 0).attr("fill","#addd8e");
 
@@ -282,24 +301,6 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 	;
 	this.xaxisZoomRect.attr("width", width);
 
-	// create rect for yzoom on left and right y axis
-	this.g.append("svg:rect")
-		.attr("class", "zoom y box")
-		.attr("width", this.margin.left)
-		.attr("height", cy - this.margin.top - this.margin.bottom)
-		.attr("transform", "translate(" + -this.margin.left + "," + 0 + ")")
-		.style("visibility", "hidden")
-		.attr("pointer-events", "all")
-		.call(this.yzoom);
-	this.g.append("svg:rect")
-		.attr("class", "zoom y box")
-		.attr("width", this.margin.right)
-		.attr("height", cy - this.margin.top - this.margin.bottom)
-		.attr("transform", "translate(" + width + " ,0)")
-		.style("visibility", "hidden")
-		.attr("pointer-events", "all")
-		.call(this.yzoom);
-
 	// var xAxisOrient = this.options.invert ? "top" : "bottom";
 	// this.xAxis = d3.svg.axis().scale(this.xscale).ticks(xTicks).orient(xAxisOrient);
 	this.xAxis = d3.svg.axis().scale(this.xscale).ticks(xTicks).orient("bottom");
@@ -335,7 +336,17 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 			this.redraw()();
 		}.bind(this))
 		.scaleExtent([0, this.model.ymaxPrimary]);
-	this.yAxisLeftSVG.call(this.yzoom);
+
+	this.yZoomRectLeft.attr("width", this.margin.left)
+		.attr("height", cy - this.margin.top - this.margin.bottom)
+		.attr("transform", "translate(" + -this.margin.left + "," + 0 + ")")
+		.call(this.yzoom)
+	;
+	this.yZoomRectRight.attr("width", this.margin.right)
+		.attr("height", cy - this.margin.top - this.margin.bottom)
+		.attr("transform", "translate(" + width + " ,0)")
+		.call(this.yzoom)
+	;
 
 	if(this.title) {
 		this.title.attr("x", width/2);
