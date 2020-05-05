@@ -39,7 +39,7 @@ You need to include the following files:
     <script type="text/javascript" src="src/SpectrumView2.js"></script>
     <script type="text/javascript" src="src/FragmentationKeyView.js"></script>
     <script type="text/javascript" src="src/PrecursorInfoView.js"></script>
-    <script type="text/javascript" src="src/SpectrumSettingsView.js"></script>
+    <script type="text/javascript" src="src/DataSettingsView.js"></script>
     <script type="text/javascript" src="src/PepInputView.js"></script>
     <script type="text/javascript" src="src/QCwrapperView.js"></script>
     <script type="text/javascript" src="src/ErrorPlotView.js"></script>

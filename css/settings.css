@@ -1,45 +1,56 @@
-#xispec_settingsWrapper{
-    display: none;
+.xispec_settingsWrapper{
     z-index: 2;
-    right: 5%;
-    top: 10%;
-    width: 550px;
-    height: 520px;
-    min-width: 550px;
-    min-height: 400px;
+    display: none;
     font-size: 10pt;
     border: 1px solid #333;
     padding-bottom: 20px;
 }
 
-#xispec_settingsWrapper * {
+#xispec_dataSettingsWrapper{
+    right: 5%;
+    top: 10%;
+    width: 550px;
+    height: 530;
+    min-width: 550px;
+    min-height: 400px;
+}
+#xispec_appearanceSettingsWrapper{
+    right: 10%;
+    top: 15%;
+    width: 400px;
+    height: 370px;
+    min-width: 400px;
+    min-height: 350px;
+}
+
+.xispec_settingsWrapper * {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
 
-#xispec_settings_main .xispec_form-control{
+.xispec_settings_main .xispec_form-control{
   display: inline-block;
   background-color: #fff;
   flex-grow: 1;
 }
 
-#xispec_settings_main .xispec_settings-tab{
+.xispec_settings_main .xispec_settings-tab{
   flex-grow: 1;
 }
 
-#xispec_settings_main #xispec_settingsForm{
+.xispec_settings_main #xispec_settingsForm{
   flex-grow: 1;
 }
 
-#xispec_settings_main .xispec_flex-column{
+.xispec_settings_main .xispec_flex-column{
    display: -webkit-flex;
    display: flex;
    -webkit-flex-direction: column;
    flex-direction: column;
 }
 
-#xispec_settings_main .xispec_flex-row{
+.xispec_settings_main .xispec_flex-row{
    display: -webkit-flex;
    display: flex;
    -webkit-flex-direction: row;
@@ -48,12 +59,12 @@
    justify-content: flex-start;
 }
 
-#xispec_settings_main .xispec_flex-grow {
+.xispec_settings_main .xispec_flex-grow {
     flex-grow: 1;
     margin-left: 5px;
 }
 
-#xispec_settings_main .xispec_flex-grow input{
+.xispec_settings_main .xispec_flex-grow input{
     width: 100%;
 }
 
@@ -61,11 +72,11 @@
   min-height: 210px;
 }
 
-#xispec_settings_main .xispec_splitDataDiv{
+.xispec_settings_main .xispec_splitDataDiv{
   flex-grow: 1;
 }
 
-#xispec_settings_main .xispec_label {
+.xispec_settings_main .xispec_label {
     font-size: 0.9em;
     cursor: pointer;
     text-transform: uppercase;
@@ -78,7 +89,7 @@
     line-height: 3.5em;
 }
 
-#xispec_settings_main .xispec_settings-bottom{
+.xispec_settings_main .xispec_settings-bottom{
   margin-bottom: 20px;
   text-align: center;
   font-size: 1.5em;
@@ -108,7 +119,7 @@
     color: #fff;
 }
 
-#xispec_settings_main{
+.xispec_settings_main{
     padding-left: 10px;
     padding-right: 10px;
     display: flex;
@@ -117,11 +128,11 @@
     height: calc(100% - 20px);
 }
 
-#xispec_settings_main .xispec_label .xispec_form-control{
+.xispec_settings_main .xispec_label .xispec_form-control{
   height: 2.7em;
 }
 
-#xispec_settings_main #xispec_settingsPeaklist{
+.xispec_settings_main #xispec_settingsPeaklist{
   height:100%;
   white-space: pre-wrap;
 }
@@ -180,17 +191,17 @@
     color: #333;
 }
 
-#xispec_settings_main .invisible {
+.xispec_settings_main .invisible {
     visibility: hidden;
     display: none;
 }
 
-#xispec_settings_main .xispec_userModified{
+.xispec_settings_main .xispec_userModified{
     background-color: #a0bbde !important;
     font-weight: bold !important;
 }
 
-#xispec_settings_main #xispec_ionList input{
+.xispec_settings_main #xispec_ionList input{
     width: unset;
 }
 

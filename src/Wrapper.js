@@ -34,7 +34,6 @@ let xiSPEC_wrapper = Backbone.View.extend({
             knownModifications: [],
             knownModificationsURL: false,
         };
-
         this.options = _.extend(defaultOptions, options);
 
         // options.targetDiv could be div itself or id of div - lets deal with that
@@ -52,32 +51,30 @@ let xiSPEC_wrapper = Backbone.View.extend({
         this.listenTo(xiSPECUI.vent, 'closeSpecPanel', this.closeSpectrum);
         this.listenTo(xiSPECUI.vent, 'activateSpecPanel', this.activateSpectrum);
 
+        // HTML elements
+        let d3el = d3.select(this.options.targetDiv)
         // empty the targetDiv
-        d3.select(this.options.targetDiv).selectAll("*").remove();
-
-        const _html = ""
-            + "<div class='xispec_dynDiv' id='xispec_settingsWrapper'>"
-            + "	<div class='xispec_dynDiv_moveParentDiv'>"
-            + "		<span class='xispec_dynTitle'>Spectrum settings</span>"
-            + "		<i class='fa fa-times-circle xispec_settingsCancel' id='closeSettings'></i>"
-            + "	</div>"
-            + "	<div class='xispec_dynDiv_resizeDiv_tl draggableCorner'></div>"
-            + "	<div class='xispec_dynDiv_resizeDiv_tr draggableCorner'></div>"
-            + "	<div class='xispec_dynDiv_resizeDiv_bl draggableCorner'></div>"
-            + "	<div class='xispec_dynDiv_resizeDiv_br draggableCorner'></div>"
-            + "</div>"
-            + "<div id='xispec_spectrumControls'></div>"
-        ;
-        d3.select(this.options.targetDiv)
-            .append("div")
+        d3el.selectAll("*").remove();
+        // create elements
+        let spectrumPanelDiv = d3el.append("div")
             .attr("id", 'xispec_spectrumPanel')
-            .html(_html)
         ;
-
-        this.spectraWrapperDiv = d3.select('#xispec_spectrumPanel')
+        spectrumPanelDiv.append('div')
+            .attr('class', 'xispec_dynDiv')
+            .attr('id', 'xispec_dataSettingsWrapper')
+        ;
+        spectrumPanelDiv.append('div')
+            .attr('class', 'xispec_dynDiv')
+            .attr('id', 'xispec_appearanceSettingsWrapper')
+        ;
+        spectrumPanelDiv.append('div')
+            .attr('id', 'xispec_spectrumControls')
+        ;
+        this.spectraWrapperDiv = spectrumPanelDiv
             .append('div')
             .attr('class', 'xispec_spectra')
             .attr('id', 'xispec_spectra')
+        ;
 
         // create the initial spectrum
         this.spectra = [];
@@ -89,11 +86,19 @@ let xiSPEC_wrapper = Backbone.View.extend({
             model: this.activeSpectrum.models['Spectrum'],
             el: "#xispec_spectrumControls",
         });
-        this.SettingsView = new SpectrumSettingsView({
+        this.DataSettingsView = new DataSettingsView({
             model: this.activeSpectrum.models['SettingsSpectrum'],
             displayModel: this.activeSpectrum.models['Spectrum'],
-            el: "#xispec_settingsWrapper",
+            el: "#xispec_dataSettingsWrapper",
             showCustomCfg: this.options.showCustomConfig,
+            title: 'Data Settings'
+        });
+        this.AppearanceSettingsView = new AppearanceSettingsView({
+            model: this.activeSpectrum.models['SettingsSpectrum'],
+            displayModel: this.activeSpectrum.models['Spectrum'],
+            el: "#xispec_appearanceSettingsWrapper",
+            showCustomCfg: this.options.showCustomConfig,
+            title: 'Appearance Settings'
         });
     },
 
@@ -325,8 +330,10 @@ let xiSPEC_wrapper = Backbone.View.extend({
         let specIndex = this.spectra.map(function(x) {return x.id; }).indexOf(id);
         this.activeSpectrum = this.spectra[specIndex];
         this.SpectrumControlsView.model = this.activeSpectrum.models['Spectrum'];
-        this.SettingsView.model = this.activeSpectrum.models['SettingsSpectrum'];
-        this.SettingsView.displayModel = this.activeSpectrum.models['Spectrum'];
+        this.DataSettingsView.model = this.activeSpectrum.models['SettingsSpectrum'];
+        this.DataSettingsView.displayModel = this.activeSpectrum.models['Spectrum'];
+        this.AppearanceSettingsView.model = this.activeSpectrum.models['SettingsSpectrum'];
+        this.AppearanceSettingsView.displayModel = this.activeSpectrum.models['Spectrum'];
         xiSPECUI.vent.trigger('activeSpecPanel:changed');
     },
 });

@@ -32,7 +32,8 @@ let SpectrumControlsView = Backbone.View.extend({
         'click #xispec_measuringTool': 'toggleMeasuringMode',
         'click #xispec_moveLabels': 'toggleMoveLabels',
         'click #xispec_dl_spectrum_SVG': 'downloadSpectrumSVG',
-        'click #xispec_toggleSettings': 'toggleSettings',
+        'click #xispec_toggleDataSettings': 'toggleDataSettings',
+        'click #xispec_toggleAppearanceSettings': 'toggleAppearanceSettings',
         'click #xispec_revertAnnotation': 'revertAnnotation',
         'click #xispec_toggleSpecList': 'toggleSpecList',
         'click #xispec_butterflyChkbx': 'butterflyToggle',
@@ -141,12 +142,19 @@ let SpectrumControlsView = Backbone.View.extend({
             .text('Reset Zoom')
             .attr('title', 'Reset to initial zoom level')
         ;
-        // toggleSettingsButton
+        // toggleDataSettingsButton
 		this.wrapper.append('i')
             .attr('class', 'xispec_btn xispec_btn-1a xispec_btn-topNav fa fa-cog')
             .attr('aria-hidden', 'true')
-            .attr('id', 'xispec_toggleSettings')
-            .attr('title', 'Show/Hide Settings')
+            .attr('id', 'xispec_toggleDataSettings')
+            .attr('title', 'show/hide data settings')
+        ;
+        // toggleAppearanceSettingsButton
+        this.wrapper.append('i')
+            .attr('class', 'xispec_btn xispec_btn-1a xispec_btn-topNav fa fa-eye')
+            .attr('aria-hidden', 'true')
+            .attr('id', 'xispec_toggleAppearanceSettings')
+            .attr('title', 'show/hide appearance settings')
         ;
         // revertAnnotationButton
 		this.wrapper.append('i')
@@ -204,10 +212,12 @@ let SpectrumControlsView = Backbone.View.extend({
 
     },
 
-    toggleSettings: function (event) {
-        event.stopPropagation();
-        xiSPECUI.vent.trigger('spectrumSettingsToggle', true);
+    toggleDataSettings: function () {
+        xiSPECUI.vent.trigger('dataSettingsToggle');
+    },
 
+    toggleAppearanceSettings: function () {
+        xiSPECUI.vent.trigger('appearanceSettingsToggle');
     },
 
     updateRange: function () {

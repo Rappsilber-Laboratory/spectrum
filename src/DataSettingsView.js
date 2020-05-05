@@ -17,107 +17,60 @@
 //		authors: Lars Kolbowski
 //
 //
-//		SpectrumSettingsView.js
+//		DataSettingsView.js
 
 var xiSPECUI = xiSPECUI || {};
 var CLMSUI = CLMSUI || {};
 
-let SpectrumSettingsView = Backbone.View.extend({
+let DataSettingsView = SettingsView.extend({
 
-    events: {
-        'click #xispec_toggleModifications': 'toggleModTable',
-        'click #xispec_toggleLosses': 'toggleLossTable',
-        'click #xispec_addNewLoss': 'addNewLoss',
-        'click #xispec_lossyChkBx': 'showLossy',
-        'click #xispec_absErrChkBx': 'absErrToggle',
-        'click #xispec_accentuateCLcontainingChkBx': 'accentuateCLcontainingToggle',
-        'click #xispec_labelFragmentCharge': 'chargeLabelToggle',
-        'change #xispec_settingsLabelingCutoff': 'setLabelCutoff',
-        'change #xispec_settingsLabelFontSize': 'setLabelFontSize',
-        // 'click #butterflyChkBx': 'butterflyToggle',
-        'change #xispec_colorSelector': 'changeColorScheme',
-        'click .xispec_settingsTab': 'changeTab',
-        'click .xispec_settingsCancel': 'cancel',
-        'change #xispec_settingsDecimals': 'changeDecimals',
-        'change #highlightColor': 'updateJScolor',
-        'change #xispec_peakHighlightMode': 'changePeakHighlightMode',
-        'click #xispec_toggleCustomCfgHelp': 'toggleCustomCfgHelp',
-        'click #xispec_settingsCustomCfgApply': 'applyCustomCfg',
-        'click #xispec_settingsCustomCfgDbSave': 'saveCustomCfg',
-        'click #xispec_settingsAnnotatorApply': 'applyAnnotator',
-        'submit #xispec_settingsForm': 'applyData',
-        // 'keyup .stepInput' : 'updateStepSizeKeyUp',
-        'change .xispec_ionSelectChkbox': 'updateIons',
+    events: function() {
+        return _.extend({}, SettingsView.prototype.events, {
+            'click #xispec_toggleModifications': 'toggleModTable',
+            'click #xispec_toggleLosses': 'toggleLossTable',
+            'click #xispec_addNewLoss': 'addNewLoss',
+            // 'click #butterflyChkBx': 'butterflyToggle',
+            'click #xispec_toggleCustomCfgHelp': 'toggleCustomCfgHelp',
+            'click #xispec_settingsCustomCfgApply': 'applyCustomCfg',
+            'click #xispec_settingsCustomCfgDbSave': 'saveCustomCfg',
+            'click #xispec_settingsAnnotatorApply': 'applyAnnotator',
+            'submit #xispec_settingsForm': 'applyData',
+            // 'keyup .stepInput' : 'updateStepSizeKeyUp',
+            'change .xispec_ionSelectChkbox': 'updateIons',
+        });
     },
 
-    identifier: "Spectrum Settings",
+    identifier: "Data Settings",
 
     initialize: function (options) {
-
+        // load default options and super initialize the parent view
         const defaultOptions = {
             showCustomCfg: true,
+            tabs: ["general", "custom config", "annotator"]
         };
-
         this.options = _.extend(defaultOptions, options);
+        arguments[0] = this.options;
+        DataSettingsView.__super__.initialize.apply(this, arguments);
 
         this.displayModel = this.options.displayModel;
-
-        SpectrumSettingsView.__super__.initialize.apply(this, arguments);
-        let self = this;
-
         // event listeners
-        this.listenTo(this.model, 'change:JSONdata', this.render);
-        this.listenTo(xiSPECUI.vent, 'spectrumSettingsToggle', this.toggleView);
-		this.listenTo(xiSPECUI.vent, 'activeSpecPanel:changed', this.modelChanged);
-
-        this.isVisible = false;
-
-        this.wrapper = d3.select(this.el);
-
-        //borrowed from CLMSUI.BaseframeView
-        // add drag listener to four corners to call resizing locally rather than through dyn_div's api, which loses this view context
-        let drag = d3.behavior.drag().on("dragend", function () {
-            self.modTable.draw();
-        });
-        this.wrapper.selectAll(".draggableCorner").call(drag);
-
-        //menu
-        this.menu = this.wrapper.append("div").attr("class", "xispec_settings_menu");
-        let buttonData = ["Data", "Appearance", "Custom config", "Annotator"]
-        buttonData.forEach(function (b, i) {
-            let zIndex = 20 - i;
-            let b_id = b.replace(" ", "_").toLowerCase();
-            self.menu.append("button")
-                .attr("class", "xispec_settingsTab xispec_btn xispec_btn-1a")
-                .attr("data-tab", b_id)
-                .attr("id", b_id)
-                .attr("style", "z-index: " + zIndex)
-                .text(b)
-            ;
-        });
+        this.listenTo(xiSPECUI.vent, 'dataSettingsToggle', this.toggleView);
 
         if (!this.options.showCustomCfg) {
             this.menu.selectAll('#custom_config').style("display", "none");
         }
 
-        // add active class to first tab-button
-        this.menu.select('button').classed('xispec_active', true);
-
-        let mainDiv = this.wrapper.append("div").attr("id", "xispec_settings_main");
-
-        //data ToDo: change to more BBlike data handling
-        let dataTab = mainDiv.append("div")
+        // general tab
+        let generalTab = this.mainDiv.append("div")
             .attr("class", "xispec_settings-tab xispec_flex-column")
-            .attr("id", "settings_data")
+            .attr("id", "xispec_general_tab")
         ;
 
-        let dataForm = dataTab.append("form")
+        let dataForm = generalTab.append("form")
             .attr("id", "xispec_settingsForm")
             .attr("method", "post")
             .attr("class", "xispec_flex-column")
         ;
-
-        // let dataFlexColumn = dataForm.append("div").attr("class", "xispec_flex-column");
 
         let topDataDiv = dataForm.append('div').attr('class', 'xispec_topDataDiv');
         let peptideLabel = topDataDiv.append("label").attr("class", "xispec_flex-row").text("Peptide Sequence: ");
@@ -226,7 +179,7 @@ let SpectrumSettingsView = Backbone.View.extend({
         // .attr("class", "stepInput")
         ;
 
-        //modTable
+        // modTable
         let modToggle = dataForm.append('div')
             .attr('id', 'xispec_toggleModifications')
             .attr('class', 'pointer')
@@ -278,91 +231,11 @@ let SpectrumSettingsView = Backbone.View.extend({
             .attr("value", "Cancel")
             .attr("type", "button")
         ;
-
-        //appearance
-        let appearanceTab = mainDiv.append("div")
-            .attr("class", "xispec_settings-tab xispec_flex-column")
-            .attr("id", "settings_appearance")
-            .style("display", "none")
-        ;
-
-        let colorSchemeSelector = appearanceTab.append("label").text("Color scheme: ")
-            .append("select").attr("id", 'xispec_colorSelector').attr("class", 'xispec_form-control pointer')
-        ;
-        let colOptions = [
-            {value: "RdBu", text: "Red (& Blue)"},
-            {value: "BrBG", text: "Brown (& Teal)"},
-            {value: "PiYG", text: "Pink (& Green)"},
-            {value: "PRGn", text: "Purple (& Green)"},
-            {value: "PuOr", text: "Orange (& Purple)"},
-        ];
-
-        d3.select("#xispec_colorSelector").selectAll("option").data(colOptions)
-            .enter()
-            .append("option")
-            .attr("value", function (d) {
-                return d.value;
-            })
-            .text(function (d) {
-                return d.text;
-            })
-        ;
-
-        let highlightColorSelector = appearanceTab.append("label").text("Highlight Color: ")
-            .append("input")
-            .attr("class", "jscolor pointer")
-            .attr("id", "highlightColor")
-            .attr("value", this.model.get('highlightColor'))
-            .attr("type", "text")
-            .attr("style", "width: 103px;")
-        ;
-        jscolor.installByClassName("jscolor");
-
-        let highlightingModeChkBx = appearanceTab.append("label").text("Hide not selected fragments: ")
-            .append("input").attr("type", "checkbox").attr("id", "xispec_peakHighlightMode")
-        ;
-
-        let lossyChkBx = appearanceTab.append("label").text("Show neutral loss labels: ")
-            .append("input").attr("type", "checkbox").attr("id", "xispec_lossyChkBx")
-        ;
-
-        this.decimals = appearanceTab.append("label").text("Number of decimals to display: ")
-            .append("input").attr("type", "number").attr("id", "xispec_settingsDecimals")
-            .attr("min", "1").attr("max", "10").attr("autocomplete", "off")
-        ;
-
-        this.absoluteError = appearanceTab.append("label").text("Absolute error values (QC): ")
-            .append("input").attr("type", "checkbox").attr("id", "xispec_absErrChkBx")
-        ;
-
-        this.accentuateCrossLinkContaining = appearanceTab.append("label").text("accentuate crosslink containing fragments: ")
-            .append("input").attr("type", "checkbox").attr("id", "xispec_accentuateCLcontainingChkBx")
-        ;
-
-        this.labelFragmentCharge = appearanceTab.append("label").text("label fragment charge: ")
-            .append("input").attr("type", "checkbox").attr("id", "xispec_labelFragmentCharge")
-        ;
-
-        this.labelFilter = appearanceTab.append("label").text("labeling cutoff (% base peak): ")
-            .append("input").attr("type", "number").attr("id", "xispec_settingsLabelingCutoff")
-            .attr("min", "0").attr("max", "100").attr("autocomplete", "off")
-            .attr("value", 0)
-        ;
-
-        this.labelFontSize = appearanceTab.append("label").text("label font size (px): ")
-            .append("input").attr("type", "number").attr("id", "xispec_settingsLabelFontSize")
-            .attr("min", "1").attr("max", "50").attr("autocomplete", "off")
-            .attr("value", this.model.labelFontSize)
-        ;
-
-        // let butterfly = appearanceTab.append("label").text("Butterfly plot with original Spectrum: ")
-        // 	.append("input").attr("type", "checkbox").attr("id", "butterflyChkBx")
-        // ;
-
+        
         //custom config
-        let customConfigTab = mainDiv.append("div")
+        let customConfigTab = this.mainDiv.append("div")
             .attr("class", "xispec_settings-tab xispec_flex-column")
-            .attr("id", "settings_custom_config")
+            .attr("id", "xispec_custom_config_tab")
             .style("display", "none");
         let customConfigHelpToggle = customConfigTab.append('div')
             .attr('id', 'xispec_toggleCustomCfgHelp')
@@ -414,9 +287,9 @@ let SpectrumSettingsView = Backbone.View.extend({
             .attr("type", "button");
 
         // annotatorTab
-        let annotatorTab = mainDiv.append("div")
+        let annotatorTab = this.mainDiv.append("div")
             .attr("class", "xispec_settings-tab xispec_flex-column")
-            .attr("id", "settings_annotator")
+            .attr("id", "xispec_annotator_tab")
             .style("display", "none");
 
         let annotatorWrapper = annotatorTab.append("label")
@@ -451,13 +324,66 @@ let SpectrumSettingsView = Backbone.View.extend({
         d3el.selectAll("input[type=textarea]").classed("xispec_form-control", true);
         d3el.selectAll('select').style("cursor", "pointer");
 
+        // borrowed from CLMSUI.BaseframeView
+        // add drag listener to four corners to call resizing locally rather than through dyn_div's api,
+        // which loses this view context
+        let self = this;
+        let drag = d3.behavior.drag().on("dragend", function () {
+            self.modTable.draw();
+            self.lossTable.draw();
+        });
+        this.wrapper.selectAll(".draggableCorner").call(drag);
+
     },
 
-    changeDecimals: function () {
-        let showDecimals = parseInt(this.decimals[0][0].value);
-        this.model.showDecimals = showDecimals;
-        this.displayModel.showDecimals = showDecimals; //apply changes directly for now
-        this.displayModel.trigger('change'); //necessary for PrecursorInfoView update
+    render: function () {
+        if (!this.isVisible) return;
+
+        this.pepInputView.render();
+
+        this.renderModTable();
+        this.renderLossTable();
+
+        //ions
+        $('.xispec_ionSelectChkbox:checkbox').prop('checked', false);
+        this.model.fragmentIons.forEach(function (ion) {
+            $('#' + ion.type).prop('checked', true);
+        });
+        let ionSelectionArr = [];
+        $('.xispec_ionSelectChkbox:checkbox:checked').each(function () {
+            ionSelectionArr.push($(this).val());
+        });
+        $('#xispec_ionSelection').val(ionSelectionArr.join(", "));
+
+        this.peaklist[0][0].value = this.model.peaksToMGF();
+        this.precursorZ[0][0].value = this.model.precursor.charge;
+        this.toleranceValue[0][0].value = this.model.MSnTolerance.tolerance;
+        this.toleranceUnit[0][0].value = this.model.MSnTolerance.unit;
+        this.crossLinkerModMass[0][0].value = this.model.crossLinkerModMass;
+
+        if (this.model.isLinear)
+            $(this.crossLinkerModMassWrapper[0][0]).hide();
+        else
+            $(this.crossLinkerModMassWrapper[0][0]).show();
+
+        if (this.model.customConfig !== undefined)
+            this.customConfigInput[0][0].value = this.model.customConfig.join("\n");
+        else
+            this.customConfigInput[0][0].value = '';
+        // this.updateStepSize($(this.toleranceValue[0][0]));
+        // this.updateStepSize($(this.crossLinkerModMass[0][0]));
+    },
+
+    cancel: function () {
+        DataSettingsView.__super__.cancel.apply(this);
+        // resetModel: ToDo: move to xiSPEC Wrapper? change to cloning of models?
+        // used to reset SettingsModel
+        if (this.displayModel.get("JSONdata") == null) return;
+        let json_data_copy = $.extend({}, this.displayModel.get("JSONdata"));
+        let json_request_copy = $.extend({}, this.displayModel.get("JSONrequest"));
+        this.knownModifications = $.extend(true, [], this.displayModel.knownModifications);
+        this.model.set({"JSONdata": json_data_copy, "JSONrequest": json_request_copy});
+        this.model.trigger("change:JSONdata");
     },
 
     applyCustomCfg: function (e) {
@@ -498,13 +424,6 @@ let SpectrumSettingsView = Backbone.View.extend({
         let annotatorURL = $('#xispec_annotatorDropdown').val();
         xiSPECUI.vent.trigger('requestAnnotation', json, false, annotatorURL);
         this.displayModel.set('changedAnnotation', true);
-    },
-
-    toggleView: function () {
-        this.isVisible = !this.isVisible;
-        this.render();
-        $(this.el).toggle();
-        this.modTable.draw();
     },
 
     applyData: function (e) {
@@ -803,46 +722,6 @@ let SpectrumSettingsView = Backbone.View.extend({
 
     },
 
-    render: function () {
-
-        if (!this.isVisible) return;
-
-        this.pepInputView.render();
-
-        this.renderModTable();
-        this.renderLossTable();
-
-        //ions
-        $('.xispec_ionSelectChkbox:checkbox').prop('checked', false);
-        this.model.fragmentIons.forEach(function (ion) {
-            $('#' + ion.type).prop('checked', true);
-        });
-        let ionSelectionArr = [];
-        $('.xispec_ionSelectChkbox:checkbox:checked').each(function () {
-            ionSelectionArr.push($(this).val());
-        });
-        $('#xispec_ionSelection').val(ionSelectionArr.join(", "));
-
-        this.peaklist[0][0].value = this.model.peaksToMGF();
-        this.precursorZ[0][0].value = this.model.precursor.charge;
-        this.toleranceValue[0][0].value = this.model.MSnTolerance.tolerance;
-        this.toleranceUnit[0][0].value = this.model.MSnTolerance.unit;
-        this.crossLinkerModMass[0][0].value = this.model.crossLinkerModMass;
-        this.decimals[0][0].value = this.model.showDecimals;
-
-        if (this.model.isLinear)
-            $(this.crossLinkerModMassWrapper[0][0]).hide();
-        else
-            $(this.crossLinkerModMassWrapper[0][0]).show();
-
-        if (this.model.customConfig !== undefined)
-            this.customConfigInput[0][0].value = this.model.customConfig.join("\n");
-        else
-            this.customConfigInput[0][0].value = '';
-        // this.updateStepSize($(this.toleranceValue[0][0]));
-        // this.updateStepSize($(this.crossLinkerModMass[0][0]));
-    },
-
     extractModsFromPepStr: function (pepStrMods) {
         let modifications = [];
         const re = /[^A-Z]+/g;
@@ -949,22 +828,6 @@ let SpectrumSettingsView = Backbone.View.extend({
         }
     },
 
-    cancel: function () {
-        this.isVisible = false;
-        $(this.wrapper[0]).hide();
-        document.getElementById('highlightColor').jscolor.hide();
-
-        // resetModel: ToDo: move to xiSPEC Wrapper? change to cloning of models?
-        // used to reset SettingsModel
-        if (this.displayModel.get("JSONdata") == null) return;
-        let json_data_copy = jQuery.extend({}, this.displayModel.get("JSONdata"));
-        let json_request_copy = jQuery.extend({}, this.displayModel.get("JSONrequest"));
-        this.knownModifications = jQuery.extend(true, [], this.displayModel.knownModifications);
-        this.model.set({"JSONdata": json_data_copy, "JSONrequest": json_request_copy});
-        this.model.trigger("change:JSONdata");
-
-    },
-
     toggleCustomCfgHelp: function () {
         $('#xispec_customCfgHelp').toggle();
     },
@@ -986,28 +849,6 @@ let SpectrumSettingsView = Backbone.View.extend({
     // 	$target.attr('value', $target.prop('value'));
     // },
 
-    changeTab: function (e) {
-        let activeTab = $(e.currentTarget).data('tab');
-        $('.xispec_settings-tab').hide();
-        this.menu.selectAll('button').classed('xispec_active', false);
-        $('#settings_' + activeTab).show();
-        $(e.target).addClass('xispec_active');
-    },
-
-    updateJScolor: function (event) {
-        let color = '#' + event.originalEvent.srcElement.value;
-        //for now change color of model directly
-        //ToDo: Maybe change this also to apply/cancel and/or put in reset to default values
-        this.displayModel.set('highlightColor', color);
-    },
-
-    changePeakHighlightMode: function (event) {
-        let model = this.displayModel; //apply changes directly for now
-        let selected = $(event.target).is(':checked');
-        model.showAllFragmentsHighlight = !selected;
-        model.trigger("changed:fragHighlighting");
-    },
-
     updateIons: function () {
         let ionSelectionArr = [];
         $('.xispec_ionSelectChkbox:checkbox:checked').each(function () {
@@ -1019,50 +860,4 @@ let SpectrumSettingsView = Backbone.View.extend({
         else
             $('#xispec_ionSelection').val(ionSelectionArr.join(", "));
     },
-
-    showLossy: function (e) {
-        let model = this.displayModel; //apply changes directly for now
-        model.lossyShown = $(e.target).is(':checked');
-        model.trigger("changed:lossyShown");
-    },
-
-    absErrToggle: function (e) {
-        let selected = $(e.target).is(':checked');
-        xiSPECUI.vent.trigger('QCabsErr', selected);
-    },
-
-    accentuateCLcontainingToggle: function (e) {
-        let selected = $(e.target).is(':checked');
-        xiSPECUI.vent.trigger('AccentuateCrossLinkContainingFragments', selected);
-    },
-
-    chargeLabelToggle: function (e) {
-        let selected = $(e.target).is(':checked');
-        xiSPECUI.vent.trigger('labelFragmentCharge', selected);
-    },
-
-    changeColorScheme: function (e) {
-        let model = this.displayModel; //apply changes directly for now
-        model.changeColorScheme(e.target.value);
-    },
-
-    setLabelCutoff: function (e) {
-        let model = this.displayModel;
-        model.labelCutoff = parseInt(e.target.value);
-        model.trigger("changed:labelCutoff");
-    },
-
-    setLabelFontSize: function (e) {
-        let model = this.displayModel;
-        model.labelFontSize = parseInt(e.target.value);
-        model.trigger("changed:labelFontSize");
-    },
-
-    modelChanged: function () {
-        // update event listeners to changed model
-        this.listenTo(this.model, 'change:JSONdata', this.render);
-
-        // update the View
-        this.render();
-    }
 });
