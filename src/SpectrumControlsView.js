@@ -69,7 +69,7 @@ let SpectrumControlsView = Backbone.View.extend({
             .text("Move Labels")
         ;
         // moveLabelCheckbox
-		moveLabelsLabel.append('input')
+		this.moveLabelsChkbox = moveLabelsLabel.append('input')
             .attr('id', 'xispec_moveLabels')
             .attr('type', 'checkbox')
         ;
@@ -80,7 +80,7 @@ let SpectrumControlsView = Backbone.View.extend({
             .text("Measure")
         ;
         // toggleMeasureCheckbox
-		toggleMeasureLabel.append('input')
+		this.measureModeChkbox = toggleMeasureLabel.append('input')
             .attr('class', 'pointer')
             .attr('id', 'xispec_measuringTool')
             .attr('type', 'checkbox')
@@ -216,7 +216,8 @@ let SpectrumControlsView = Backbone.View.extend({
         this.renderMzRange();
         this.changedAnnotation();
         this.renderLockZoom();
-        // ToDo: move labels, measure, butterfly
+        this.moveLabelsChkbox.property('checked', this.model.get('moveLabels'))
+        this.measureModeChkbox.property('checked', this.model.get('measureMode'))
     },
 
     renderLockZoom: function () {
