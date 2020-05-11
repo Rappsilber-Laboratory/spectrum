@@ -334,12 +334,12 @@
 
 .gutter.gutter-horizontal {
   background-image: url('../images/grips/vertical.png');
-  cursor: ew-resize;
+  cursor: col-resize;
 }
 
 .gutter.gutter-vertical {
   background-image: url('../images/grips/horizontal.png');
-  cursor: ns-resize;
+  cursor: row-resize;
 }
 
 .xispec_btn:disabled {

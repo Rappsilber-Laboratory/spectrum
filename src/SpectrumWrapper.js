@@ -27,6 +27,12 @@ let SpectrumWrapper = Backbone.View.extend({
 
 	initialize: function (options) {
 
+		const defaultOptions = {
+			title: '',
+		};
+		this.options = _.extend(defaultOptions, options);
+		this.title = this.options.title;
+
 		// remove non-model options
 		let model_options = $.extend({}, options.opt)
 		delete model_options.targetDiv;
@@ -92,11 +98,12 @@ let SpectrumWrapper = Backbone.View.extend({
 		let d3el = d3.select(this.el);
 		// header
 		let headerClass = (this.id === 0) ? 'xispec_activeSpecHeader': 'xispec_inactiveSpecHeader';
+		let headerTitle = 'Spectrum ' + (this.id+1) + this.options.title;
 		this.headerDiv = d3el.append('div')
 			.attr('class', headerClass)
 			.attr('id', 'xispec_specHeader' + this.id)
-			.html('Spectrum ' + (this.id+1))
 		;
+		this.headerTitle = this.headerDiv.append('span').html(headerTitle);
 		// spectrum panel controls
 		let specPanelControls = this.headerDiv.append('span')
 			.attr('class', 'xispec_specPanelControls')
@@ -315,6 +322,10 @@ let SpectrumWrapper = Backbone.View.extend({
 			this.headerDiv.attr('class', 'xispec_activeSpecHeader');
 			this.thumbTackIcon.attr('title', 'This is the active spectrum panel.')
 		}
+	},
 
+	setTitle: function (title) {
+		this.title = title;
+		this.headerTitle.html(this.title);
 	}
 });

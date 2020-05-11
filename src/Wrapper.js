@@ -130,6 +130,7 @@ let xiSPEC_wrapper = Backbone.View.extend({
         this.activeSpectrum.models['Spectrum'].set('changedAnnotation', false);
         this.activeSpectrum.models['Spectrum'].reset_all_modifications();
         this.activeSpectrum.requestAnnotation(json_request, true);
+        this.activeSpectrum.setTitle(data.spectrum_title);
     },
 
     requestAnnotation: function (...args) {
@@ -302,6 +303,7 @@ let xiSPEC_wrapper = Backbone.View.extend({
         if (this.activeSpectrum) {
             newSpec.originalMatchRequest = $.extend(true, {}, this.activeSpectrum.originalMatchRequest);
             newSpec.reloadAnnotation();
+            newSpec.setTitle(this.activeSpectrum.title);
         }
 
         // update the div splitting
