@@ -27,6 +27,7 @@ let SettingsView = Backbone.View.extend({
     events: {
         'click .xispec_settingsTab': 'changeTab',
         'click .xispec_settingsCancel': 'cancel',
+        'click': 'bringToFront',
     },
 
 
@@ -110,6 +111,7 @@ let SettingsView = Backbone.View.extend({
     },
 
     toggleView: function () {
+        this.bringToFront();
         this.isVisible = !this.isVisible;
         this.render();
         $(this.el).toggle();
@@ -121,5 +123,10 @@ let SettingsView = Backbone.View.extend({
 
         // update the View
         this.render();
-    }
+    },
+
+    bringToFront: function () {
+        $('.xispec_settingsWrapper').css('z-index', 3);
+        $(this.el).css('z-index', 4);
+    },
 });
