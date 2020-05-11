@@ -29,7 +29,6 @@ let DataSettingsView = SettingsView.extend({
             'click #xispec_toggleModifications': 'toggleModTable',
             'click #xispec_toggleLosses': 'toggleLossTable',
             'click #xispec_addNewLoss': 'addNewLoss',
-            // 'click #butterflyChkBx': 'butterflyToggle',
             'click #xispec_toggleCustomCfgHelp': 'toggleCustomCfgHelp',
             'click #xispec_settingsCustomCfgApply': 'applyCustomCfg',
             'click #xispec_settingsCustomCfgDbSave': 'saveCustomCfg',
@@ -476,32 +475,32 @@ let DataSettingsView = SettingsView.extend({
             return false;
         }
 
-        //peptideStr
+        // peptideStr
         var invalidChar = invalidChars(formData['peps'].value, /([^GALMFWKQESPVICYHRNDTXa-z:;#0-9(.)\-]+)/);
         if (invalidChar) {
             alert('Invalid character(s) in peptide sequence: ' + invalidChar);
             return false;
         }
 
-        //peakList
+        // peakList
         var invalidChar = invalidChars(formData['peaklist'].value, /([^0-9\.\s]+)/);
         if (invalidChar) {
             alert('Invalid character(s) in peak list: ' + invalidChar);
             return false;
         }
-        //clModMass
+        // clModMass
         var invalidChar = invalidChars(formData['clModMass'].value, /([^0-9\.\-]+)/);
         if (invalidChar) {
             alert('Invalid character(s) in cros-linker modmass: ' + invalidChar);
             return false;
         }
-        //precursor charge state
+        // precursor charge state
         var invalidChar = invalidChars(formData['preCharge'].value, /([^0-9]+)/);
         if (invalidChar) {
             alert('Invalid character(s) in charge state: ' + invalidChar);
             return false;
         }
-        //ms2Tolerance
+        // ms2Tolerance
         var invalidChar = invalidChars(formData['ms2Tol'].value, /([^0-9\.]+)/);
         if (invalidChar) {
             alert('Invalid character(s) in ms2Tolerance: ' + invalidChar);
@@ -509,7 +508,7 @@ let DataSettingsView = SettingsView.extend({
         }
 
 
-        //modifications
+        // modifications
         if (formData['mods[]']) {
             var inputMods = this.extractModsFromPepStr(this.model.pepStrsMods.join(''));
 
@@ -533,7 +532,7 @@ let DataSettingsView = SettingsView.extend({
                     console.log('ok', formDataMods[i].value);
                     // return true;
                 } else {
-                    for (let j = 0; j < inputAminoAcidsArr.length; j++) {
+                    for (let j=0; j < inputAminoAcidsArr.length; j++) {
                         if (formDataAminoAcidsArr.indexOf(inputAminoAcidsArr[j]) == -1) {
                             console.log('not ok', formDataMods[i].value);
                             alert('Invalid modification specificity for: ' + formDataMods[i].value);
@@ -859,5 +858,11 @@ let DataSettingsView = SettingsView.extend({
             $('#xispec_ionSelection').val("Select ions...");
         else
             $('#xispec_ionSelection').val(ionSelectionArr.join(", "));
+    },
+
+    modelChanged: function () {
+        // update pepInputView model
+        this.pepInputView.model = this.model;
+        DataSettingsView.__super__.modelChanged.apply(this);
     },
 });
