@@ -56,6 +56,7 @@ let SpectrumWrapper = Backbone.View.extend({
 			'originalSpectrum': originalSpectrumModel,
 		}
 
+		// ToDo: create SpectrumPanel model to have these synced
 		// sync model event listeners between original and spectrumModel
 		originalSpectrumModel.listenTo(SpectrumModel,
 			'change:moveLabels',
@@ -75,6 +76,19 @@ let SpectrumWrapper = Backbone.View.extend({
 			'change:zoomLocked',
 			function (spectrumModel) {
 				this.set('zoomLocked', spectrumModel.get('zoomLocked'));
+			}
+		);
+		// sync butterfly
+		originalSpectrumModel.listenTo(SpectrumModel,
+			'change:butterfly',
+			function (spectrumModel) {
+				this.set('butterfly', spectrumModel.get('butterfly'));
+			}
+		);
+		originalSpectrumModel.listenTo(SpectrumModel,
+			'butterflySwap',
+			function () {
+				this.trigger('butterflySwap');
 			}
 		);
 		// sync mzRange

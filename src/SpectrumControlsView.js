@@ -36,7 +36,7 @@ let SpectrumControlsView = Backbone.View.extend({
         'click #xispec_toggleAppearanceSettings': 'toggleAppearanceSettings',
         'click #xispec_revertAnnotation': 'revertAnnotation',
         'click #xispec_toggleSpecList': 'toggleSpecList',
-        'click #xispec_butterflyChkbx': 'butterflyToggle',
+        'click #xispec_butterflyChkbx': 'toggleButterfly',
         'click #xispec_butterflySwapBtn': 'butterflySwap',
         'click #xispec_addSpectrum': 'addSpectrum',
     },
@@ -46,6 +46,7 @@ let SpectrumControlsView = Backbone.View.extend({
     	// event listeners
         this.listenTo(this.model, 'change:mzRange', this.renderMzRange);
         this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
+        this.listenTo(this.model, 'change:butterfly', this.renderButterfly);
         this.listenTo(xiSPECUI.vent, 'activeSpecPanel:changed', this.changedModel);
 
         // create HTML elements
@@ -176,7 +177,7 @@ let SpectrumControlsView = Backbone.View.extend({
             .attr('style', 'display:none;')
         ;
 		// butterflySwapBtn
-        this.butterflyControls.append('i')
+        this.butterflySwapBtn = this.butterflyControls.append('i')
             .attr('class', 'xispec_btn xispec_btn-topNav fa fa-exchange xispec_disabled')
             .attr('aria-hidden', 'true')
             .attr('id', 'xispec_butterflySwapBtn')
@@ -216,6 +217,7 @@ let SpectrumControlsView = Backbone.View.extend({
         this.renderMzRange();
         this.changedAnnotation();
         this.renderLockZoom();
+        this.renderButterfly();
         this.moveLabelsChkbox.property('checked', this.model.get('moveLabels'))
         this.measureModeChkbox.property('checked', this.model.get('measureMode'))
     },
@@ -240,6 +242,16 @@ let SpectrumControlsView = Backbone.View.extend({
         $("#xispec_xright").val(mzRange[1].toFixed(0));
     },
 
+    renderButterfly: function () {
+        let checked = this.model.get('butterfly');
+        $('#xispec_butterflyChkbx').prop('checked', checked);
+        if (checked) {
+            this.butterflySwapBtn.classed('xispec_disabled', false);
+        } else {
+            this.butterflySwapBtn.classed('xispec_disabled', true);
+        }
+    },
+
     toggleDataSettings: function () {
         xiSPECUI.vent.trigger('dataSettingsToggle');
     },
@@ -247,7 +259,6 @@ let SpectrumControlsView = Backbone.View.extend({
     toggleAppearanceSettings: function () {
         xiSPECUI.vent.trigger('appearanceSettingsToggle');
     },
-
 
     toggleLockZoom: function (e) {
         let selected = $(e.target).is(':checked');
@@ -265,6 +276,17 @@ let SpectrumControlsView = Backbone.View.extend({
         this.model.set('moveLabels', selected);
     },
 
+    toggleButterfly: function (e) {
+        let selected = $(e.target).is(':checked');
+        this.model.set('butterfly', selected);
+    },
+
+    butterflySwap: function () {
+        if ($('#xispec_butterflyChkbx').is(':checked')){
+            this.model.trigger('butterflySwap');
+        }
+    },
+
     setRange: function (e) {
         e.preventDefault();
         let xl = xispec_xleft.value - 0;
@@ -278,7 +300,6 @@ let SpectrumControlsView = Backbone.View.extend({
             $("#xispec_range-error").hide();
             this.model.set('mzRange', [xl, xr]);
         }
-
     },
 
     resetZoom: function () {
@@ -296,7 +317,7 @@ let SpectrumControlsView = Backbone.View.extend({
     revertAnnotation: function () {
         if (this.model.get('changedAnnotation')) {
             xiSPECUI.vent.trigger('revertAnnotation');
-            xiSPECUI.vent.trigger('butterflyToggle', false);
+            this.model.set('butterfly', false);
             $('#xispec_butterflyChkbx').prop('checked', false);
         }
     },
@@ -313,22 +334,6 @@ let SpectrumControlsView = Backbone.View.extend({
                 .addClass('xispec_disabled')
                 .removeClass('xispec_btn-1a');
         }
-    },
-
-    butterflyToggle: function (e) {
-        let selected = $(e.target).is(':checked');
-        xiSPECUI.vent.trigger('butterflyToggle', selected);
-        if (selected) {
-            $('#xispec_butterflySwapBtn').removeClass('xispec_disabled');
-        } else {
-            $('#xispec_butterflySwapBtn').addClass('xispec_disabled');
-        }
-
-    },
-
-    butterflySwap: function () {
-        if ($('#xispec_butterflyChkbx').is(':checked'))
-            xiSPECUI.vent.trigger('butterflySwap');
     },
 
     addSpectrum: function () {

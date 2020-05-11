@@ -34,8 +34,8 @@ let PrecursorInfoView = Backbone.View.extend({
         this.options = _.extend(defaultOptions, viewOptions);
 
         // event listeners
-        this.listenTo(xiSPECUI.vent, 'butterflyToggle', this.butterflyToggle);
-        this.listenTo(xiSPECUI.vent, 'butterflySwap', this.butterflySwap);
+        this.listenTo(this.model, 'change:butterfly', this.butterflyToggle);
+        this.listenTo(this.model, 'butterflySwap', this.butterflySwap);
         this.listenTo(xiSPECUI.vent, 'resize:spectrum', this.render);
 
         this.expand = true;
@@ -118,10 +118,10 @@ let PrecursorInfoView = Backbone.View.extend({
             this.toggle.text("[-]")
     },
 
-    butterflyToggle: function (toggle) {
-        // this.graph.options.butterfly = toggle;
+    butterflyToggle: function () {
+        let butterfly = this.model.get('butterfly');
         if (this.options.invert) {
-            this.options.hidden = !toggle;
+            this.options.hidden = !butterfly;
             this.render();
         }
         this.render();

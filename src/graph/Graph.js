@@ -58,7 +58,7 @@ Graph = function(targetSvg, model, options) {
 		.attr("pointer-events", "all")
 	;
 
-	var backgroundLabel = (this.options.identifier === 'originalSpectrum') ? 'original' : 're-annotation';
+	let backgroundLabel = (this.options.id === 'originalSpectrum') ? 'original' : 're-annotation';
 
 	this.plotBackgroundLabel = this.g.append('text')
 		.attr('visibility', 'hidden')

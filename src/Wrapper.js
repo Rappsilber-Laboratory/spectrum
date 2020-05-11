@@ -117,15 +117,12 @@ let xiSPEC_wrapper = Backbone.View.extend({
         // peakList: [[mz, int], [mz, int], ...],
         // requestId: 1,
         // }
-
-        xiSPECUI.vent.trigger('butterflyToggle', false);
-        $('#xispec_butterflyChkbx').prop('checked', false);	//ToDo: move to SpectrumControlsView
-
         let json_request = this.convert_to_json_request(data);
 
         if (this.customConfigOverwrite)
             json_request.annotation.custom = this.customConfigOverwrite;
 
+        this.activeSpectrum.models['Spectrum'].set('butterfly', false);
         this.activeSpectrum.originalMatchRequest = $.extend(true, {}, json_request);
         this.activeSpectrum.models['Spectrum'].set('changedAnnotation', false);
         this.activeSpectrum.models['Spectrum'].reset_all_modifications();
@@ -301,8 +298,7 @@ let xiSPEC_wrapper = Backbone.View.extend({
 
         // if there is already an activeSpectrum copy it's originalMatchRequest
         if (this.activeSpectrum) {
-            newSpec.originalMatchRequest = $.extend(true, {}, this.activeSpectrum.originalMatchRequest);
-            newSpec.reloadAnnotation();
+            newSpec.requestAnnotation(this.activeSpectrum.originalMatchRequest, true)
             newSpec.setTitle(this.activeSpectrum.title);
         }
 
