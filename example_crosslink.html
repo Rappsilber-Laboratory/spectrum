@@ -23,12 +23,15 @@
 
 	<!-- Spectrum viewer .js files -->
 	<script type="text/javascript" src="src/Wrapper.js"></script>
+  	<script type="text/javascript" src="src/SpectrumWrapper.js"></script>
 	<script type="text/javascript" src="src/AnnotatedSpectrumModel.js"></script>
 	<script type="text/javascript" src="src/SpectrumControlsView.js"></script>
 	<script type="text/javascript" src="src/SpectrumView2.js"></script>
 	<script type="text/javascript" src="src/FragmentationKeyView.js"></script>
 	<script type="text/javascript" src="src/PrecursorInfoView.js"></script>
-	<script type="text/javascript" src="src/SpectrumSettingsView.js"></script>
+ 	<script type="text/javascript" src="src/SettingsView.js"></script>
+ 	<script type="text/javascript" src="src/AppearanceSettingsView.js"></script>
+	<script type="text/javascript" src="src/DataSettingsView.js"></script>
 	<script type="text/javascript" src="src/PepInputView.js"></script>
 	<script type="text/javascript" src="src/QCwrapperView.js"></script>
 	<script type="text/javascript" src="src/ErrorPlotView.js"></script>
@@ -60,7 +63,7 @@
 
 	$(document).ready(function () {
 
-		xiSPEC.init({targetDiv: "xispec_wrapper"});
+		window.xiSPEC = new xiSPEC_wrapper({targetDiv: "xispec_wrapper"});
 
 		xiSPEC.setData({
 			sequence1: sequence1,

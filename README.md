@@ -16,51 +16,54 @@ Please refer to the following examples of using xiSPEC in a html page:
 
 You need to include the following files:
 ```
-    <!-- dependency .js files -->
-    <script type="text/javascript" src="vendor/jquery.min.js"></script>
-    <script type="text/javascript" src="vendor/underscore.js"></script>
-    <script type="text/javascript" src="vendor/backbone.js"></script>
-    <script type="text/javascript" src="vendor/d3.js"></script>
-    <script type="text/javascript" src="vendor/byrei-dyndiv_1.0rc1.js"></script>
-    <script type="text/javascript" src="vendor/colorbrewer.js"></script>
-    <script type="text/javascript" src="vendor/DataTables-1.10.12/datatables.min.js"></script>
-    <script type="text/javascript" src="vendor/jscolor.min.js"></script>
-    <script type="text/javascript" src="vendor/split.min.js"></script>
-    <script type="text/javascript" src="vendor/svgexp.js"></script>
-    <script type="text/javascript" src="vendor/spin.js"></script>
-    <script type="text/javascript" src="vendor/download.js"></script>
-    <script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="vendor/dataTables.bootstrap.min.js"></script>
+	<!-- dependency .js files -->
+	<script type="text/javascript" src="vendor/jquery.min.js"></script>
+	<script type="text/javascript" src="vendor/underscore.js"></script>
+	<script type="text/javascript" src="vendor/backbone.js"></script>
+	<script type="text/javascript" src="vendor/d3.min.js"></script>
+	<script type="text/javascript" src="vendor/byrei-dyndiv_1.0rc1.js"></script>
+	<script type="text/javascript" src="vendor/colorbrewer.js"></script>
+	<script type="text/javascript" src="vendor/DataTables-1.10.12/datatables.min.js"></script>
+	<script type="text/javascript" src="vendor/jscolor.min.js"></script>
+	<script type="text/javascript" src="vendor/split.min.js"></script>
+	<script type="text/javascript" src="vendor/svgexp.js"></script>
+	<script type="text/javascript" src="vendor/spin.js"></script>
+	<script type="text/javascript" src="vendor/download.js"></script>
+	<script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="vendor/dataTables.bootstrap.min.js"></script>
 
-    <!-- Spectrum viewer .js files -->
-    <script type="text/javascript" src="src/Wrapper.js"></script>
-    <script type="text/javascript" src="src/AnnotatedSpectrumModel.js"></script>
-    <script type="text/javascript" src="src/SpectrumControlsView.js"></script>
-    <script type="text/javascript" src="src/SpectrumView2.js"></script>
-    <script type="text/javascript" src="src/FragmentationKeyView.js"></script>
-    <script type="text/javascript" src="src/PrecursorInfoView.js"></script>
-    <script type="text/javascript" src="src/SpectrumSettingsView.js"></script>
-    <script type="text/javascript" src="src/PepInputView.js"></script>
-    <script type="text/javascript" src="src/QCwrapperView.js"></script>
-    <script type="text/javascript" src="src/ErrorPlotView.js"></script>
-    <script type="text/javascript" src="src/FragKey/KeyFragment.js"></script>
-    <script type="text/javascript" src="src/graph/Graph.js"></script>
-    <script type="text/javascript" src="src/graph/Peak.js"></script>
-    <script type="text/javascript" src="src/graph/Fragment.js"></script>
+	<!-- Spectrum viewer .js files -->
+	<script type="text/javascript" src="src/Wrapper.js"></script>
+  	<script type="text/javascript" src="src/SpectrumWrapper.js"></script>
+	<script type="text/javascript" src="src/AnnotatedSpectrumModel.js"></script>
+	<script type="text/javascript" src="src/SpectrumControlsView.js"></script>
+	<script type="text/javascript" src="src/SpectrumView2.js"></script>
+	<script type="text/javascript" src="src/FragmentationKeyView.js"></script>
+	<script type="text/javascript" src="src/PrecursorInfoView.js"></script>
+ 	<script type="text/javascript" src="src/SettingsView.js"></script>
+ 	<script type="text/javascript" src="src/AppearanceSettingsView.js"></script>
+	<script type="text/javascript" src="src/DataSettingsView.js"></script>
+	<script type="text/javascript" src="src/PepInputView.js"></script>
+	<script type="text/javascript" src="src/QCwrapperView.js"></script>
+	<script type="text/javascript" src="src/ErrorPlotView.js"></script>
+	<script type="text/javascript" src="src/FragKey/KeyFragment.js"></script>
+	<script type="text/javascript" src="src/graph/Graph.js"></script>
+	<script type="text/javascript" src="src/graph/Peak.js"></script>
+	<script type="text/javascript" src="src/graph/Fragment.js"></script>
 
-    <!-- style sheets -->
-    <link rel="stylesheet" href="css/spectrum.css" />
-    <link rel="stylesheet" href="css/settings.css" />
-    <link rel="stylesheet" href="css/QC.css">
-    <link rel="stylesheet" href="css/dropdown.css">
-    <link rel="stylesheet" type="text/css" href="vendor/dt-1.10.12_datatables.min.css"/>
-    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css"/>
-    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css"/>
+	<!-- style sheets -->
+	<link rel="stylesheet" href="css/spectrum.css" />
+	<link rel="stylesheet" href="css/settings.css" />
+	<link rel="stylesheet" href="css/QC.css">
+	<link rel="stylesheet" href="css/dropdown.css">
+	<link rel="stylesheet" type="text/css" href="vendor/dt-1.10.12_datatables.min.css"/>
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css"/>
 ```
 
 ### Usage
 
-To initialize the module call the init function.
+To initialize the module create a xiSPEC_wrapper with your desired options:
 
 targetDiv is the only required option.
 
@@ -77,7 +80,7 @@ var options = {
   peakColor: "#a6a6a6",                       // color for not annotated peaks
 };
 
-xiSPEC.init(options);
+var xiSPEC = new xiSPEC_wrapper(options);
 
 ```
 

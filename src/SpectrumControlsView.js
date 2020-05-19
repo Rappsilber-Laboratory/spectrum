@@ -19,286 +19,334 @@
 //
 //		SpectrumControlView.js
 
-var xiSPEC = xiSPEC || {};
+var xiSPECUI = xiSPECUI || {};
 var CLMSUI = CLMSUI || {};
 
-var SpectrumControlsView = Backbone.View.extend({
+let SpectrumControlsView = Backbone.View.extend({
 
-	events : {
-		'click #xispec_reset' : 'resetZoom',
-		'submit #xispec_setrange' : 'setrange',
-		'click #xispec_lockZoom' : 'lockZoom',
-		'click #xispec_clearHighlights' : 'clearHighlights',
-		'click #xispec_measuringTool': 'toggleMeasuringMode',
-		'click #xispec_moveLabels': 'toggleMoveLabels',
-		'click #xispec_dl_spectrum_SVG': 'downloadSpectrumSVG',
-		'click #xispec_toggleSettings' : 'toggleSettings',
-		'click #xispec_revertAnnotation' : 'revertAnnotation',
-		'click #xispec_toggleSpecList' : 'toggleSpecList',
-		'click #xispec_butterflyChkbx': 'butterflyToggle',
-		'click #xispec_butterflySwapBtn': 'butterflySwap',
-	},
+    events: {
+        'click #xispec_reset': 'resetZoom',
+        'submit #xispec_setrange': 'setRange',
+        'click #xispec_lockZoom': 'toggleLockZoom',
+        'click #xispec_clearHighlights': 'clearHighlights',
+        'click #xispec_measuringTool': 'toggleMeasuringMode',
+        'click #xispec_moveLabels': 'toggleMoveLabels',
+        'click #xispec_dl_spectrum_SVG': 'downloadSpectrumSVG',
+        'click #xispec_toggleDataSettings': 'toggleDataSettings',
+        'click #xispec_toggleAppearanceSettings': 'toggleAppearanceSettings',
+        'click #xispec_revertAnnotation': 'revertAnnotation',
+        'click #xispec_toggleSpecList': 'toggleSpecList',
+        'click #xispec_butterflyChkbx': 'toggleButterfly',
+        'click #xispec_butterflySwapBtn': 'butterflySwap',
+        'click #xispec_addSpectrum': 'addSpectrum',
+    },
 
-	initialize: function() {
+    initialize: function () {
 
-		this.listenTo(this.model, "change:mzRange", this.updateRange);
-		this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
+    	// event listeners
+        this.listenTo(this.model, 'change:mzRange', this.renderMzRange);
+        this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
+        this.listenTo(this.model, 'change:butterfly', this.renderButterfly);
+        this.listenTo(xiSPECUI.vent, 'activeSpecPanel:changed', this.changedModel);
 
-		this.wrapper = d3.select(this.el);
+        // create HTML elements
+        this.wrapper = d3.select(this.el);
 
-		var extra_controls_before = this.wrapper.append('span')
-			.attr("id", "xispec_extra_spectrumControls_before")
-		;
+        // spectrum controls before
+        this.wrapper.append('span')
+            .attr("id", "xispec_extra_spectrumControls_before")
+        ;
+        // downloadSVG
+        this.wrapper.append('i')
+            .attr('class', 'xispec_btn xispec_btn-1a xispec_btn-topNav fa fa-download')
+            .attr('aria-hidden', 'true')
+            .attr('id', 'xispec_dl_spectrum_SVG')
+            .attr('title', 'download SVG')
+            .attr('style', 'cursor: pointer;')
+        ;
+        // moveLabelsLabel
+        let moveLabelsLabel = this.wrapper.append('label')
+            .attr('class', 'xispec_btn')
+            .text("Move Labels")
+        ;
+        // moveLabelCheckbox
+		this.moveLabelsChkbox = moveLabelsLabel.append('input')
+            .attr('id', 'xispec_moveLabels')
+            .attr('type', 'checkbox')
+        ;
+		// toggleMeasureLabel
+        let toggleMeasureLabel = this.wrapper.append('label')
+            .attr('class', 'xispec_btn')
+            .attr('title', 'measure mode on/off')
+            .text("Measure")
+        ;
+        // toggleMeasureCheckbox
+		this.measureModeChkbox = toggleMeasureLabel.append('input')
+            .attr('class', 'pointer')
+            .attr('id', 'xispec_measuringTool')
+            .attr('type', 'checkbox')
+        ;
+		// setRangeForm
+        let setRangeForm = this.wrapper.append('form')
+            .attr('id', 'xispec_setrange')
+        ;
+        // mzRangeLabel
+		setRangeForm.append('label')
+            .attr('class', 'xispec_btn')
+            .attr('title', 'm/z range')
+            .attr('style', 'cursor: default;')
+            .text("m/z:")
+        ;
+        // lockZoomLabel
+		setRangeForm.append('label')
+            .attr('class', 'xispec_btn')
+            .attr('id', 'xispec_lock')
+            .attr('for', 'xispec_lockZoom')
+            .attr('title', 'Lock current zoom level')
+            .text("🔓")
+        ;
+        // lockZoomCheckbox
+		setRangeForm.append('input')
+            .attr('id', 'xispec_lockZoom')
+            .attr('type', 'checkbox')
+            .attr('style', 'display: none;')
+        ;
+        // mzRangeFrom
+		setRangeForm.append('input')
+            .attr('id', 'xispec_xleft')
+            .attr('class', 'xispec_form-control')
+            .attr('type', 'text')
+            .attr('size', '5')
+            .attr('title', 'm/z range from:')
+        ;
+        setRangeForm.append('span').text('-');
+        // mzRangeTo
+		setRangeForm.append('input')
+            .attr('id', 'xispec_xright')
+            .attr('class', 'xispec_form-control')
+            .attr('type', 'text')
+            .attr('size', '5')
+            .attr('title', 'm/z range to:')
+        ;
+        // mzRangeSubmit
+		setRangeForm.append('input')
+            .attr('id', 'xispec_mzRangeSubmit')
+            .attr('type', 'submit')
+            .attr('style', 'display:none;')
+        ;
+        // mzRangeError
+		setRangeForm.append('span').attr('id', 'xispec_range-error');
+        // resetZoomButton
+		setRangeForm.append('button')
+            .attr('id', 'xispec_reset')
+            .attr('class', 'xispec_btn xispec_btn-1 xispec_btn-1a')
+            .text('Reset Zoom')
+            .attr('title', 'Reset to initial zoom level')
+        ;
+        // toggleDataSettingsButton
+		this.wrapper.append('i')
+            .attr('class', 'xispec_btn xispec_btn-1a xispec_btn-topNav fa fa-cog')
+            .attr('aria-hidden', 'true')
+            .attr('id', 'xispec_toggleDataSettings')
+            .attr('title', 'show/hide data settings')
+        ;
+        // toggleAppearanceSettingsButton
+        this.wrapper.append('i')
+            .attr('class', 'xispec_btn xispec_btn-1a xispec_btn-topNav fa fa-eye')
+            .attr('aria-hidden', 'true')
+            .attr('id', 'xispec_toggleAppearanceSettings')
+            .attr('title', 'show/hide appearance settings')
+        ;
+        // revertAnnotationButton
+		this.wrapper.append('i')
+            .attr('class', 'xispec_btn xispec_btn-topNav fa fa-undo xispec_disabled')
+            .attr('aria-hidden', 'true')
+            .attr('id', 'xispec_revertAnnotation')
+            .attr('title', 'revert to original annotation')
+        ;
+        // addSpectrumBtn
+        this.wrapper.append('i')
+            .attr('id', 'xispec_addSpectrum')
+            .attr('title', 'Add another spectrum panel')
+            .attr('class', 'xispec_btn xispec_btn-1a xispec_btn-topNav fa fa-plus')
+            .attr('aria-hidden', 'true')
+        ;
+		// butterflyControls
+        this.butterflyControls = this.wrapper.append('div')
+            .attr('id', 'xispec_butterflyControls')
+            .attr('style', 'display:none;')
+        ;
+		// butterflySwapBtn
+        this.butterflySwapBtn = this.butterflyControls.append('i')
+            .attr('class', 'xispec_btn xispec_btn-topNav fa fa-exchange xispec_disabled')
+            .attr('aria-hidden', 'true')
+            .attr('id', 'xispec_butterflySwapBtn')
+            .attr('title', 'swap position of original and re-annotated spectrum')
+        ;
+		// butterflyToggleLabel
+        let butterflyToggleLabel = this.butterflyControls.append('label')
+            .attr('class', 'xispec_btn')
+            .attr('title', 'Display original annotation as butterfly plot')
+            .text("Butterfly")
+        ;
+		// butterflyCheckbox
+        butterflyToggleLabel.append('input')
+            .attr('class', 'pointer')
+            .attr('id', 'xispec_butterflyChkbx')
+            .attr('type', 'checkbox')
+        ;
+		// extra_controls_after
+        this.wrapper.append('span')
+            .attr("id", "xispec_extra_spectrumControls_after")
+        ;
+		// helpLink
+        let helpLink = this.wrapper.append('a')
+            .attr('href', 'http://spectrumviewer.org/help.php')
+            .attr('target', '_blank')
+        ;
+		// helpButton
+        helpLink.append('i')
+            .attr('class', 'xispec_btn xispec_btn-1a xispec_btn-topNav fa fa-question')
+            .attr('aria-hidden', 'true')
+            .attr('title', 'Help')
+        ;
 
-		var downloadSVG = this.wrapper.append('i')
-			.attr('class', 'xispec_btn xispec_btn-1a xispec_btn-topNav fa fa-download')
-			.attr('aria-hidden', 'true')
-			.attr('id', 'xispec_dl_spectrum_SVG')
-			.attr('title', 'download SVG')
-			.attr('style', 'cursor: pointer;')
-		;
+    },
 
-		var moveLabelsLabel = this.wrapper.append('label')
-			.attr('class', 'xispec_btn')
-			.text("Move Labels")
-		;
+    render: function () {
+        this.renderMzRange();
+        this.changedAnnotation();
+        this.renderLockZoom();
+        this.renderButterfly();
+        this.moveLabelsChkbox.property('checked', this.model.get('moveLabels'))
+        this.measureModeChkbox.property('checked', this.model.get('measureMode'))
+    },
 
-		var moveLabelCheckbox = moveLabelsLabel.append('input')
-			.attr('id', 'xispec_moveLabels')
-			.attr('type', 'checkbox')
-		;
+    renderLockZoom: function () {
+        if (this.model.get('zoomLocked')) {
+            $('#xispec_lock')[0].innerHTML = "&#128274";
+            $('#xispec_mzRangeSubmit').prop('disabled', true);
+            $('#xispec_xleft').prop('disabled', true);
+            $('#xispec_xright').prop('disabled', true);
+        } else {
+            $('#xispec_lock')[0].innerHTML = "&#128275";
+            $('#xispec_mzRangeSubmit').prop('disabled', false);
+            $('#xispec_xleft').prop('disabled', false);
+            $('#xispec_xright').prop('disabled', false);
+        }
+    },
 
-		var toggleMeasureLabel = this.wrapper.append('label')
-			.attr('class', 'xispec_btn')
-			.attr('title', 'measure mode on/off')
-			.text("Measure")
-		;
+    renderMzRange: function () {
+        let mzRange = this.model.get('mzRange');
+        $("#xispec_xleft").val(mzRange[0].toFixed(0));
+        $("#xispec_xright").val(mzRange[1].toFixed(0));
+    },
 
-		var toggleMeasureCheckbox = toggleMeasureLabel.append('input')
-			.attr('class', 'pointer')
-			.attr('id', 'xispec_measuringTool')
-			.attr('type', 'checkbox')
-		;
+    renderButterfly: function () {
+        let checked = this.model.get('butterfly');
+        $('#xispec_butterflyChkbx').prop('checked', checked);
+        if (checked) {
+            this.butterflySwapBtn.classed('xispec_disabled', false);
+        } else {
+            this.butterflySwapBtn.classed('xispec_disabled', true);
+        }
+    },
 
-		var setRangeForm = this.wrapper.append('form')
-			.attr('id', 'xispec_setrange')
-		;
+    toggleDataSettings: function () {
+        xiSPECUI.vent.trigger('dataSettingsToggle');
+    },
 
-		var mzRangeLabel = setRangeForm.append('label')
-			.attr('class', 'xispec_btn')
-			.attr('title', 'm/z range')
-			.attr('style', 'cursor: default;')
-			.text("m/z:")
-		;
+    toggleAppearanceSettings: function () {
+        xiSPECUI.vent.trigger('appearanceSettingsToggle');
+    },
 
-		var lockZoomLabel = setRangeForm.append('label')
-			.attr('class', 'xispec_btn')
-			.attr('id', 'xispec_lock')
-			.attr('for', 'xispec_lockZoom')
-			.attr('title', 'Lock current zoom level')
-			.text("🔓")
-		;
+    toggleLockZoom: function (e) {
+        let selected = $(e.target).is(':checked');
+        this.model.set('zoomLocked', selected);
+        this.renderLockZoom();
+    },
 
-		var lockZoomCheckbox = setRangeForm.append('input')
-			.attr('id', 'xispec_lockZoom')
-			.attr('type', 'checkbox')
-			.attr('style', 'display: none;')
-		;
+    toggleMeasuringMode: function (e) {
+        let selected = $(e.target).is(':checked');
+        this.model.set('measureMode', selected);
+    },
 
-		var mzRangeFrom = setRangeForm.append('input')
-			.attr('id', 'xispec_xleft')
-			.attr('class', 'xispec_form-control')
-			.attr('type', 'text')
-			.attr('size', '5')
-			.attr('title', 'm/z range from:')
-		;
+    toggleMoveLabels: function (e) {
+        let selected = $(e.target).is(':checked');
+        this.model.set('moveLabels', selected);
+    },
 
-		setRangeForm.append('span').text('-');
+    toggleButterfly: function (e) {
+        let selected = $(e.target).is(':checked');
+        this.model.set('butterfly', selected);
+    },
 
-		var mzRangeTo = setRangeForm.append('input')
-			.attr('id', 'xispec_xright')
-			.attr('class', 'xispec_form-control')
-			.attr('type', 'text')
-			.attr('size', '5')
-			.attr('title', 'm/z range to:')
-		;
+    butterflySwap: function () {
+        if ($('#xispec_butterflyChkbx').is(':checked')){
+            this.model.trigger('butterflySwap');
+        }
+    },
 
-		var mzRangeSubmit = setRangeForm.append('input')
-			.attr('id', 'xispec_mzRangeSubmit')
-			.attr('type', 'submit')
-			.attr('style', 'display:none;')
-		;
+    setRange: function (e) {
+        e.preventDefault();
+        let xl = xispec_xleft.value - 0;
+        let xr = xispec_xright.value - 0;
+        if (xl > xr) {
+            $("#xispec_range-error")
+				.show()
+				.html("Error: " + xl + " is larger than " + xr)
+			;
+        } else {
+            $("#xispec_range-error").hide();
+            this.model.set('mzRange', [xl, xr]);
+        }
+    },
 
-		var mzRangeError = setRangeForm.append('span').attr('id', 'xispec_range-error');
+    resetZoom: function () {
+        this.model.resetZoom();
+    },
 
-		var resetZoomButtom = setRangeForm.append('button')
-			.attr('id', 'xispec_reset')
-			.attr('class', 'xispec_btn xispec_btn-1 xispec_btn-1a')
-			.text('Reset Zoom')
-			.attr('title', 'Reset to initial zoom level')
-		;
+    downloadSpectrumSVG: function () {
+        xiSPECUI.vent.trigger('downloadSpectrumSVG');
+    },
 
-		var toggleSettingsButton = this.wrapper.append('i')
-			.attr('class', 'xispec_btn xispec_btn-1a xispec_btn-topNav fa fa-cog')
-			.attr('aria-hidden', 'true')
-			.attr('id', 'xispec_toggleSettings')
-			.attr('title', 'Show/Hide Settings')
-		;
+    toggleSpecList: function () {
+        xiSPECUI.vent.trigger('toggleTableView');
+    },
 
-		var reverAnnotationButton = this.wrapper.append('i')
-			.attr('class', 'xispec_btn xispec_btn-topNav fa fa-undo xispec_disabled')
-			.attr('aria-hidden', 'true')
-			.attr('id', 'xispec_revertAnnotation')
-			.attr('title', 'revert to original annotation')
-		;
+    revertAnnotation: function () {
+        if (this.model.get('changedAnnotation')) {
+            xiSPECUI.vent.trigger('revertAnnotation');
+            this.model.set('butterfly', false);
+            $('#xispec_butterflyChkbx').prop('checked', false);
+        }
+    },
 
-		this.butterflyControls = this.wrapper.append('div')
-			.attr('id', 'xispec_butterflyControls')
-			.attr('style', 'display:none;')
-		;
+    changedAnnotation: function () {
+        if (this.model.get('changedAnnotation')) {
+            this.butterflyControls.attr('style', 'display:-webkit-inline-box;');
+            $('#xispec_revertAnnotation')
+                .addClass('xispec_btn-1a')
+                .removeClass('xispec_disabled');
+        } else {
+            this.butterflyControls.attr('style', 'display:none;');
+            $('#xispec_revertAnnotation')
+                .addClass('xispec_disabled')
+                .removeClass('xispec_btn-1a');
+        }
+    },
 
-		this.butterflySwapBtn = this.butterflyControls.append('i')
-			.attr('class', 'xispec_btn xispec_btn-topNav fa fa-exchange xispec_disabled')
-			.attr('aria-hidden', 'true')
-			.attr('id', 'xispec_butterflySwapBtn')
-			.attr('title', 'swap position of original and re-annotated spectrum')
-		;
+    addSpectrum: function () {
+        xiSPECUI.vent.trigger('addSpectrum');
+    },
 
-		var butterflyToggleLabel = this.butterflyControls.append('label')
-			.attr('class', 'xispec_btn')
-			.attr('title', 'Display original annotation as butterfly plot')
-			.text("Butterfly")
-		;
+    changedModel: function () {
+        // update event listeners to changed model
+        this.listenTo(this.model, 'change:mzRange', this.renderMzRange);
+        this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
 
-		var butterflyCheckbox = butterflyToggleLabel.append('input')
-			.attr('class', 'pointer')
-			.attr('id', 'xispec_butterflyChkbx')
-			.attr('type', 'checkbox')
-		;
-
-
-		var extra_controls_after = this.wrapper.append('span')
-			.attr("id", "xispec_extra_spectrumControls_after")
-		;
-
-		var helpLink = this.wrapper.append('a')
-			.attr('href', 'http://spectrumviewer.org/help.php')
-			.attr('target', '_blank')
-		;
-		var helpButton = helpLink.append('i')
-			.attr('class', 'xispec_btn xispec_btn-1a xispec_btn-topNav fa fa-question')
-			.attr('aria-hidden', 'true')
-			.attr('title', 'Help')
-		;
-
-
-	},
-
-	toggleSettings: function(event){
-		event.stopPropagation();
-		xiSPEC.vent.trigger('spectrumSettingsToggle', true);
-
-	},
-
-	updateRange: function(){
-		var mzRange = this.model.get('mzRange');
-		$("#xispec_xleft").val(mzRange[0].toFixed(0));
-		$("#xispec_xright").val(mzRange[1].toFixed(0));
-	},
-
-	lockZoom: function(){
-
-		if ($('#xispec_lockZoom').is(':checked')) {
-			$('#xispec_lock')[0].innerHTML = "&#128274";
-			$('#xispec_mzRangeSubmit').prop('disabled', true);
-			$('#xispec_xleft').prop('disabled', true);
-			$('#xispec_xright').prop('disabled', true);
-			xiSPEC.lockZoom = true;
-		} else {
-			$('#xispec_lock')[0].innerHTML = "&#128275";
-			$('#xispec_mzRangeSubmit').prop('disabled', false);
-			$('#xispec_xleft').prop('disabled', false);
-			$('#xispec_xright').prop('disabled', false);
-			xiSPEC.lockZoom = false;
-		}
-		xiSPEC.vent.trigger('lockZoomToggle');
-	},
-
-	toggleMeasuringMode: function(e){
-		var $target = $(e.target);
-		var selected = $target .is(':checked');
-		this.model.set('measureMode', selected);
-	},
-
-	toggleMoveLabels: function(e){
-		var $target = $(e.target);
-		var selected = $target.is(':checked');
-		this.model.set('moveLabels', selected);
-	},
-
-	setrange: function(e){
-		e.preventDefault();
-		var xl = xispec_xleft.value-0;
-		var xr = xispec_xright.value-0;
-		if (xl > xr){
-			$("#xispec_range-error").show();
-			$("#xispec_range-error").html("Error: "+xl+" is larger than "+xr);
-		}
-		else{
-			$("#xispec_range-error").hide();
-			this.model.set('mzRange', [parseInt(xl), parseInt(xr)]);
-		}
-
-	},
-
-	resetZoom: function(){
-		this.model.resetZoom();
-	},
-
-	downloadSpectrumSVG: function(){
-		xiSPEC.vent.trigger('downloadSpectrumSVG');
-	},
-
-	toggleSpecList: function(){
-		xiSPEC.vent.trigger('toggleTableView');
-	},
-
-	revertAnnotation: function(){
-		if(this.model.get('changedAnnotation')){
-			xiSPEC.revertAnnotation();
-			xiSPEC.vent.trigger('butterflyToggle', false);
-			$('#xispec_butterflyChkbx').prop('checked', false);
-		};
-	},
-
-	changedAnnotation: function(){
-		if(this.model.get('changedAnnotation')){
-			this.butterflyControls.attr('style', 'display:-webkit-inline-box;');
-			$('#xispec_revertAnnotation').addClass('xispec_btn-1a');
-			$('#xispec_revertAnnotation').removeClass('xispec_disabled');
-		}
-		else{
-			this.butterflyControls.attr('style', 'display:none;');
-			$('#xispec_revertAnnotation').removeClass('xispec_btn-1a');
-			$('#xispec_revertAnnotation').addClass('xispec_disabled');
-		}
-	},
-
-	butterflyToggle: function(e) {
-		var $target = $(e.target);
-		var selected = $target.is(':checked');
-		xiSPEC.vent.trigger('butterflyToggle', selected);
-		if(selected){
-			$('#xispec_butterflySwapBtn').removeClass('xispec_disabled');
-		}else{
-			$('#xispec_butterflySwapBtn').addClass('xispec_disabled');
-		}
-
-	},
-
-	butterflySwap: function(e) {
-		if($('#xispec_butterflyChkbx').is(':checked'))
-			xiSPEC.vent.trigger('butterflySwap');
-	},
+        // update the View
+        this.render();
+    }
 
 });

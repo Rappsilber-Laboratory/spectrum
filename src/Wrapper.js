@@ -1,456 +1,380 @@
-//	xiSPEC Spectrum Viewer
-//	Copyright 2016 Rappsilber Laboratory, University of Edinburgh
+// xiSPEC Spectrum Viewer
+// Copyright 2016 Rappsilber Laboratory, University of Edinburgh
 //
-//	This product includes software developed at
-//	the Rappsilber Laboratory (http://www.rappsilberlab.org/).
+// This product includes software developed at
+// the Rappsilber Laboratory (http://www.rappsilberlab.org/).
 //
-//	author: Lars Kolbowski
+// author: Lars Kolbowski
 //
-//	Wrapper.js
+// Wrapper.js
 
-"use strict";
+'use strict'
 
-var xiSPEC = {};
-var xiSPEC = xiSPEC || {};
-var CLMSUI = CLMSUI || {};
+var xiSPECUI = xiSPECUI || {};
 // http://stackoverflow.com/questions/11609825/backbone-js-how-to-communicate-between-views
-xiSPEC.vent = {};
-_.extend (xiSPEC.vent, Backbone.Events);
-
+xiSPECUI.vent = {};
+_.extend(xiSPECUI.vent, Backbone.Events);
 _.extend(window, Backbone.Events);
-window.onresize = function() { window.trigger('resize') };
-
-xiSPEC.init = function(options) {
-
-	var defaultOptions = {
-		targetDiv: 'xispec_wrapper',
-		showCustomConfig: false,
-		showQualityControl: 'bottom',
-		baseDir:  './',
-		xiAnnotatorBaseURL: 'https://spectrumviewer.org/xiAnnotator/',
-		knownModifications: [],
-		knownModificationsURL: false,
-	};
-
-	options = _.extend(defaultOptions, options);
-
-	// remove non-model options
-	var model_options = jQuery.extend({}, options)
-	delete model_options.targetDiv;
-	delete model_options.showCustomConfig;
-	delete model_options.showQualityControl;
-	delete model_options.xiAnnotatorBaseURL;
-
-	// options.targetDiv could be div itself or id of div - lets deal with that
-	if (typeof options.targetDiv === "string"){
-		if(options.targetDiv.charAt(0) == "#") options.targetDiv = options.targetDiv.substr(1);
-		options.targetDiv = document.getElementById(options.targetDiv);
-	} else {
-		options.targetDiv = options.targetDiv;
-	}
-
-	d3.select(options.targetDiv).selectAll("*").remove();
-
-	this.xiAnnotatorBaseURL = options.xiAnnotatorBaseURL;
-
-	//init models
-	this.SpectrumModel = new AnnotatedSpectrumModel(model_options);
-	this.SettingsSpectrumModel = new AnnotatedSpectrumModel(model_options);
-	this.originalSpectrumModel = new AnnotatedSpectrumModel(model_options);
-
-	//ToDo: make extra spectrum controls model with mzRange, moveLabels, measureMode?
-	this.lockZoom = false;
-	//sync moveLabels and measureMode
-	this.originalSpectrumModel.listenTo(
-		this.SpectrumModel,
-		'change:moveLabels',
-		 function(spectrumModel){
-			this.set('moveLabels', spectrumModel.get('moveLabels'));
-		}
-	);
-	this.originalSpectrumModel.listenTo(
-		this.SpectrumModel,
-		'change:measureMode',
-		 function(spectrumModel){
-			this.set('measureMode', spectrumModel.get('measureMode'));
-		}
-	);
-	//sync mzRange
-	this.originalSpectrumModel.listenTo(
-		this.SpectrumModel,
-		'change:mzRange',
-		 function(spectrumModel){
-			this.setZoom(spectrumModel.get('mzRange'));
-		}
-	);
-	this.SpectrumModel.listenTo(
-		this.originalSpectrumModel,
-		'change:mzRange',
-		 function(spectrumModel){
-			this.setZoom(spectrumModel.get('mzRange'));
-		}
-	);
-
-	var _html = ""
-		+"<div class='xispec_dynDiv' id='xispec_settingsWrapper'>"
-		+"	<div class='xispec_dynDiv_moveParentDiv'>"
-		+"		<span class='xispec_dynTitle'>Spectrum settings</span>"
-		+"		<i class='fa fa-times-circle xispec_settingsCancel' id='closeSettings'></i>"
-		+"	</div>"
-		+"	<div class='xispec_dynDiv_resizeDiv_tl draggableCorner'></div>"
-		+"	<div class='xispec_dynDiv_resizeDiv_tr draggableCorner'></div>"
-		+"	<div class='xispec_dynDiv_resizeDiv_bl draggableCorner'></div>"
-		+"	<div class='xispec_dynDiv_resizeDiv_br draggableCorner'></div>"
-		+"</div>"
-		+"<div id='xispec_spectrumControls'></div>"
-		+"<div class='xispec_plotsDiv'>"
-		+"  <div id='xispec_spectrumMainPlotDiv'>"
-		+"	  <svg id='xispec_Svg'></svg>"
-		+"  </div>"
-		+"  <div id='xispec_QCdiv'>"
-		+"	  <div class='xispec_subViewHeader'></div>"
-		+"	  <div class='xispec_subViewContent'>"
-		+"		  <div class='xispec_subViewContent-plot' id='xispec_subViewContent-left'><svg id='xispec_errIntSVG' class='xispec_errSVG'></svg></div>"
-		+"		  <div class='xispec_subViewContent-plot' id='xispec_subViewContent-right'><svg id='xispec_errMzSVG' class='xispec_errSVG'></svg></div>"
-		+"	  </div>"
-		+"  </div>"
-		+"</div>"
-		+"</div>"
-	;
-
-	d3.select(options.targetDiv)
-		.append("div")
-		.attr ("id", 'xispec_spectrumPanel')
-		.html (_html)
-	;
-	d3.select('#xispec_Svg')
-		.append('g')
-		.attr('id', 'xispec_spectrumSvgGroup')
-	;
-	d3.select('#xispec_Svg')
-		.append('g')
-		.attr('id', 'xispec_measureTooltipSvgGroup')
-	;
-	this.SpectrumControls = new SpectrumControlsView({
-		model: this.SpectrumModel,
-		el: "#xispec_spectrumControls",
-	});
-	this.Spectrum = new SpectrumView({
-		model: this.SpectrumModel,
-		el: "#xispec_spectrumSvgGroup",
-		measureTooltipSvgG: '#xispec_measureTooltipSvgGroup',
-		identifier: "curSpectrum",
-	});
-	this.originalSpectrum = new SpectrumView({
-		model: this.originalSpectrumModel,
-		el: "#xispec_spectrumSvgGroup",
-		measureTooltipSvgG: '#xispec_measureTooltipSvgGroup',
-		invert: true,
-		hidden: true,
-		identifier: "originalSpectrum",
-	});
-	this.FragmentationKey = new FragmentationKeyView({
-		model: this.SpectrumModel,
-		el: "#xispec_Svg",
-		identifier: "curFragmentationKey",
-	});
-	this.originalFragmentationKey = new FragmentationKeyView({
-		model: this.originalSpectrumModel,
-		el: "#xispec_Svg",
-		invert: true,
-		hidden: true,
-		disabled: true,
-		identifier: "originalFragmentationKey",
-	});
-	this.InfoView = new PrecursorInfoView ({
-		model: this.SpectrumModel,
-		el: "#xispec_Svg",
-		identifier: "curPrecursorInfo",
-	});
-	this.originalInfoView = new PrecursorInfoView ({
-		model: this.originalSpectrumModel,
-		el: "#xispec_Svg",
-		invert: true,
-		hidden: true,
-		identifier: "originalPrecursorInfo",
-	});
-	this.QCwrapper = new QCwrapperView({
-		el: '#xispec_QCdiv',
-		showQualityControl: options.showQualityControl,
-	});
-	this.ErrorIntensityPlot = new ErrorPlotView({
-		model: this.SpectrumModel,
-		el:"#xispec_subViewContent-left",
-		xData: 'Intensity',
-		margin: {top: 10, right: 30, bottom: 20, left: 65},
-		svg: "#xispec_errIntSVG",
-	});
-	this.ErrorMzPlot = new ErrorPlotView({
-		model: this.SpectrumModel,
-		el:"#xispec_subViewContent-right",
-		xData: 'm/z',
-		margin: {top: 10, right: 30, bottom: 20, left: 65},
-		svg: "#xispec_errMzSVG",
-	});
-	if(options.showQualityControl !== 'min')
-		xiSPEC.vent.trigger('show:QC', true);
-
-	this.SettingsView = new SpectrumSettingsView({
-		model: this.SettingsSpectrumModel,
-		displayModel: this.SpectrumModel,
-		el:"#xispec_settingsWrapper",
-		showCustomCfg: options.showCustomConfig,
-	});
-
-
+window.onresize = function () {
+    window.trigger('resize')
 };
 
-xiSPEC.setData = function(data){
-	// EXAMPLE:
-	// xiSPEC.setData({
-	// sequence1: "KQTALVELVK",
-	// sequence2: "QNCcarbamidomethylELFEQLGEYKFQNALLVR",
-	// linkPos1: 1,
-	// linkPos2: 13,
-	// crossLinkerModMass: 0,
-	// modifications: [{id: 'carbamidomethyl', mass: 57.021464, aminoAcids: ['C']}],
-	// losses: [{ id: 'H2O', specificity: ['D', 'S', 'T', 'E', 'CTerm'], mass: 18.01056027}],
-	// precursorCharge: 3,
-	// fragmentTolerance: {"tolerance": '20.0', 'unit': 'ppm'},
-	// ionTypes: "peptide;b;y",
-	// precursorMz: 1012.1,
-	// peakList: [[mz, int], [mz, int], ...],
-	// requestId: 1,
-	// }
+let xiSPEC_wrapper = Backbone.View.extend({
 
-	this.vent.trigger('butterflyToggle', false);
-	$('#xispec_butterflyChkbx').prop('checked', false);	//ToDo: move to SpectrumControlsView
+    initialize: function (options) {
 
-	var json_request = this.convert_to_json_request(data);
+        const defaultOptions = {
+            targetDiv: 'xispec_wrapper',
+            showCustomConfig: false,
+            showQualityControl: 'bottom',
+            baseDir: './',
+            xiAnnotatorBaseURL: 'https://spectrumviewer.org/xiAnnotator/',
+            knownModifications: [],
+            knownModificationsURL: false,
+        };
+        this.options = _.extend(defaultOptions, options);
 
-	if (this.customConfigOverwrite)
-		json_request.annotation.custom = this.customConfigOverwrite;
+        // options.targetDiv could be div itself or id of div - lets deal with that
+        if (typeof this.options.targetDiv === "string") {
+            if (this.options.targetDiv.charAt(0) === "#") this.options.targetDiv = this.options.targetDiv.substr(1);
+            this.options.targetDiv = document.getElementById(this.options.targetDiv);
+        }
 
-	// this.SpectrumModel.customConfig = data.customConfig;
-	this.originalMatchRequest = $.extend(true, {}, json_request);
-	this.SpectrumModel.set('changedAnnotation', false);
-	this.SpectrumModel.reset_all_modifications();
-	this.request_annotation(json_request, true);
+        // event listeners
+        this.listenTo(xiSPECUI.vent, 'loadSpectrum', this.setData);
+        this.listenTo(xiSPECUI.vent, 'requestAnnotation', this.requestAnnotation);
+        this.listenTo(xiSPECUI.vent, 'revertAnnotation', this.revertAnnotation);
+        this.listenTo(xiSPECUI.vent, 'setCustomConfigOverwrite', this.setCustomConfigOverwrite);
+        this.listenTo(xiSPECUI.vent, 'addSpectrum', this.addSpectrum);
+        this.listenTo(xiSPECUI.vent, 'closeSpecPanel', this.closeSpectrum);
+        this.listenTo(xiSPECUI.vent, 'activateSpecPanel', this.activateSpectrum);
 
-};
+        // HTML elements
+        let d3el = d3.select(this.options.targetDiv)
+        // empty the targetDiv
+        d3el.selectAll("*").remove();
+        // create elements
+        let spectrumPanelDiv = d3el.append("div")
+            .attr("id", 'xispec_spectrumPanel')
+        ;
+        spectrumPanelDiv.append('div')
+            .attr('class', 'xispec_dynDiv')
+            .attr('id', 'xispec_dataSettingsWrapper')
+        ;
+        spectrumPanelDiv.append('div')
+            .attr('class', 'xispec_dynDiv')
+            .attr('id', 'xispec_appearanceSettingsWrapper')
+        ;
+        spectrumPanelDiv.append('div')
+            .attr('id', 'xispec_spectrumControls')
+        ;
+        this.spectraWrapperDiv = spectrumPanelDiv
+            .append('div')
+            .attr('class', 'xispec_spectra')
+            .attr('id', 'xispec_spectra')
+        ;
 
-xiSPEC.request_annotation = function(json_request, isOriginalMatchRequest, annotator){
+        // create the initial spectrum
+        this.spectra = [];
+        this.specIds = [];
+        this.activeSpectrum = this.addSpectrum();
 
-	// if (this.keepCustomConfig) {
-	// 	json_request['annotation']['custom'] = this.customConfig;
-	// }
+        // create the SpectrumControls and Settings views
+        this.SpectrumControlsView = new SpectrumControlsView({
+            model: this.activeSpectrum.models['Spectrum'],
+            el: "#xispec_spectrumControls",
+        });
+        this.DataSettingsView = new DataSettingsView({
+            model: this.activeSpectrum.models['SettingsSpectrum'],
+            displayModel: this.activeSpectrum.models['Spectrum'],
+            el: "#xispec_dataSettingsWrapper",
+            showCustomCfg: this.options.showCustomConfig,
+            title: 'Data Settings'
+        });
+        this.AppearanceSettingsView = new AppearanceSettingsView({
+            model: this.activeSpectrum.models['SettingsSpectrum'],
+            displayModel: this.activeSpectrum.models['Spectrum'],
+            el: "#xispec_appearanceSettingsWrapper",
+            showCustomCfg: this.options.showCustomConfig,
+            title: 'Appearance Settings'
+        });
+    },
 
-	if (json_request.annotation.requestID)
-		this.lastRequestedID = json_request.annotation.requestID;
+    setData: function (data) {
+        // EXAMPLE:
+        // xiSPEC.setData({
+        // sequence1: "KQTALVELVK",
+        // sequence2: "QNCcarbamidomethylELFEQLGEYKFQNALLVR",
+        // linkPos1: 1,
+        // linkPos2: 13,
+        // crossLinkerModMass: 0,
+        // modifications: [{id: 'carbamidomethyl', mass: 57.021464, aminoAcids: ['C']}],
+        // losses: [{ id: 'H2O', specificity: ['D', 'S', 'T', 'E', 'CTerm'], mass: 18.01056027}],
+        // precursorCharge: 3,
+        // fragmentTolerance: {"tolerance": '20.0', 'unit': 'ppm'},
+        // ionTypes: "peptide;b;y",
+        // precursorMz: 1012.1,
+        // peakList: [[mz, int], [mz, int], ...],
+        // requestId: 1,
+        // }
+        let json_request = this.convert_to_json_request(data);
 
-	var annotatorURL = "annotate/FULL";
-	if(annotator){
-		annotatorURL = annotator;
-	}
+        if (this.customConfigOverwrite)
+            json_request.annotation.custom = this.customConfigOverwrite;
 
-	this.SpectrumModel.trigger('request_annotation:pending');
-	console.log("annotation request:", json_request);
-	var self = this;
-	var response = $.ajax({
-		type: "POST",
-		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json'
-		},
-		data: JSON.stringify(json_request),
-		url: this.xiAnnotatorBaseURL + annotatorURL,
-		success: function(data) {
-			if (data && data.annotation && data.annotation.requestID && data.annotation.requestID === self.lastRequestedID) {
-				//ToDo: Error handling -> https://github.com/Rappsilber-Laboratory/xi3-issue-tracker/issues/330
-				console.log("annotation response:", data);
+        this.activeSpectrum.models['Spectrum'].set('butterfly', false);
+        this.activeSpectrum.originalMatchRequest = $.extend(true, {}, json_request);
+        this.activeSpectrum.models['Spectrum'].set('changedAnnotation', false);
+        this.activeSpectrum.models['Spectrum'].reset_all_modifications();
+        this.activeSpectrum.requestAnnotation(json_request, true);
+        this.activeSpectrum.setTitle(data.spectrum_title);
+    },
 
-				if(isOriginalMatchRequest){
-					self.originalSpectrumModel.set({"JSONdata": data, "JSONrequest": json_request});
-					self.originalMatchRequest = $.extend(true, {}, json_request);
-				}
+    requestAnnotation: function (...args) {
+        this.activeSpectrum.requestAnnotation(...args);
+    },
 
-				self.SpectrumModel.set({"JSONdata": data, "JSONrequest": json_request});
-				self.SettingsSpectrumModel.set({"JSONdata": data, "JSONrequest": json_request});
-				self.SettingsSpectrumModel.trigger("change:JSONdata");
-				self.SpectrumModel.trigger('request_annotation:done');
-			}
+    revertAnnotation: function (...args) {
+        this.activeSpectrum.revertAnnotation(...args);
+    },
 
-		}
-	});
-},
+    sanityChecks: function (data) {
 
-xiSPEC.revertAnnotation = function(){
-	if(!this.SpectrumModel.get('changedAnnotation'))
-		return;
-	else {
-		this.SpectrumModel.reset_all_modifications();
-		this.SettingsSpectrumModel.reset_all_modifications();
-		this.request_annotation(this.originalMatchRequest);
-		this.SpectrumModel.set('changedAnnotation', false);
-	}
-},
+        // ToDo: create sanityChecks
+        // if(data.sequence2 !== undefined){
+        // 	if(data.linkPos1 === undefined || data.linkPos2 === undefined){
+        // 		alert('sequence')
+        // 		return false;
+        // 	}
+        // }
 
-xiSPEC.reloadAnnotation = function(){
-	this.SpectrumModel.reset_all_modifications();
-	this.SettingsSpectrumModel.reset_all_modifications();
-	this.request_annotation(this.originalMatchRequest);
-	this.SpectrumModel.set('changedAnnotation', false);
-},
+        return true;
+    },
 
-xiSPEC.sanityChecks = function(data){
+    setCustomConfigOverwrite: function (customConfig) {
+        this.customConfigOverwrite = customConfig;
+    },
 
-	// ToDo: create sanityChecks
-	// if(data.sequence2 !== undefined){
-	// 	if(data.linkPos1 === undefined || data.linkPos2 === undefined){
-	// 		alert('sequence')
-	// 		return false;
-	// 	}
-	// }
+    arrayifyPeptide: function (seq_mods) {
+        let peptide = {};
+        peptide.sequence = [];
 
-	return true;
-};
+        const seq_AAonly = seq_mods.replace(/[^A-Z]/g, '')
+        let seq_length = seq_AAonly.length;
 
-xiSPEC.clear = function(){
-	this.SpectrumModel.clear();
-	this.SettingsSpectrumModel.clear();
-};
+        for (let i = 0; i < seq_length; i++) {
+            peptide.sequence[i] = {"aminoAcid": seq_AAonly[i], "Modification": ""}
+        }
 
-xiSPEC.convert_to_json_request = function (data) {
+        const re = /[^A-Z]+/g;
+        let offset = 1;
+        let result;
+        while (result = re.exec(seq_mods)) {
+            peptide.sequence[result.index - offset]["Modification"] = result[0];
+            offset += result[0].length;
+        }
+        return peptide;
+    },
 
-	if (!this.sanityChecks(data)) return false;
+    convert_to_json_request: function (data) {
 
+        if (!this.sanityChecks(data)) return false;
 
-	// defaults
-	if(data.ionTypes === undefined){
-		data.ionTypes = "peptide;b;y";
-	}
-	if(data.crossLinkerModMass === undefined){
-		data.crossLinkerModMass = 0;
-	}
-	if(data.modifications === undefined){
-		data.modifications = [];
-	}
-	if(data.losses === undefined){
-		data.losses === [];
-	}
-	if(data.fragmentTolerance === undefined){
-		data.fragmentTolerance = {"tolerance": '10.0', 'unit': 'ppm'};
-	}
-	if(data.requestID === undefined){
-		data.requestID = -1;
-	}
+        // defaults
+        if (data.ionTypes === undefined) {
+            data.ionTypes = "peptide;b;y";
+        }
+        if (data.crossLinkerModMass === undefined) {
+            data.crossLinkerModMass = 0;
+        }
+        if (data.modifications === undefined) {
+            data.modifications = [];
+        }
+        if (data.losses === undefined) {
+            data.losses = [];
+        }
+        if (data.fragmentTolerance === undefined) {
+            data.fragmentTolerance = {"tolerance": '10.0', 'unit': 'ppm'};
+        }
+        if (data.requestID === undefined) {
+            data.requestID = -1;
+        }
 
+        let annotationRequest = {};
+        let peptides = [];
+        let linkSites = [];
+        peptides[0] = this.arrayifyPeptide(data.sequence1);
 
-	var annotationRequest = {};
-	var peptides = [];
-	var linkSites = [];
-	peptides[0] = xiSPEC.arrayifyPeptide(data.sequence1);
+        if (data.linkPos1 !== undefined) {
+            linkSites[0] = {"id": 0, "peptideId": 0, "linkSite": data.linkPos1};
+        }
+        if (data.sequence2 !== undefined) {
+            peptides[1] = this.arrayifyPeptide(data.sequence2);
+            linkSites[1] = {"id": 0, "peptideId": 1, "linkSite": data.linkPos2}
+        }
 
-	if(data.linkPos1 !== undefined){
-		linkSites[0] = {"id":0, "peptideId":0, "linkSite": data.linkPos1};
-	}
-	if (data.sequence2 !== undefined) {
-		peptides[1] = xiSPEC.arrayifyPeptide(data.sequence2);
-		linkSites[1] = {"id":0, "peptideId":1, "linkSite": data.linkPos2}
-	}
+        let peaks = [];
+        for (let i = 0; i < data.peakList.length; i++) {
+            peaks.push(
+                {"intensity": data.peakList[i][1], "mz": data.peakList[i][0]}
+            );
+        }
 
-	var peaks = [];
-	for (var i = 0; i < data.peakList.length; i++) {
-		peaks.push(
-			{"intensity": data.peakList[i][1], "mz": data.peakList[i][0]}
-		);
-	}
+        annotationRequest.Peptides = peptides;
+        annotationRequest.LinkSite = linkSites;
+        annotationRequest.peaks = peaks;
+        annotationRequest.annotation = {};
 
-	annotationRequest.Peptides = peptides;
-	annotationRequest.LinkSite = linkSites;
-	annotationRequest.peaks = peaks;
-	annotationRequest.annotation = {};
+        let ionTypes = data.ionTypes.split(";");
+        //remove empty strings from list
+        ionTypes = ionTypes.filter(Boolean);
+        let ions = [];
+        for (let it = 0; it < ionTypes.length; it++) {
+            let ionType = ionTypes[it];
+            ions.push({"type": (ionType.charAt(0).toUpperCase() + ionType.slice(1) + "Ion")});
+        }
+        annotationRequest.annotation.fragmentTolerance = data.fragmentTolerance;
+        annotationRequest.annotation.modifications = data.modifications;
+        annotationRequest.annotation.ions = ions;
+        annotationRequest.annotation.crosslinker = {'modMass': data.crossLinkerModMass};
+        annotationRequest.annotation.precursorMZ = +data.precursorMZ;
+        annotationRequest.annotation.precursorCharge = +data.precursorCharge;
+        annotationRequest.annotation.losses = data.losses;
+        annotationRequest.annotation.requestID = data.requestID.toString();
+        annotationRequest.annotation.custom = data.customConfig;
 
-	var ionTypes = data.ionTypes.split(";");
-	//remove empty strings from list
-	ionTypes = ionTypes.filter(Boolean);
-	var ions = [];
-	for (var it = 0; it < ionTypes.length; it++) {
-		var ionType = ionTypes[it];
-		ions.push({"type": (ionType.charAt(0).toUpperCase() + ionType.slice(1) + "Ion")});
-	}
-	annotationRequest.annotation.fragmentTolerance = data.fragmentTolerance;
-	annotationRequest.annotation.modifications = data.modifications;
-	annotationRequest.annotation.ions = ions;
-	annotationRequest.annotation.crosslinker = {'modMass': data.crossLinkerModMass};
-	annotationRequest.annotation.precursorMZ = +data.precursorMZ;
-	annotationRequest.annotation.precursorCharge = +data.precursorCharge;
-	annotationRequest.annotation.losses = data.losses;
-	annotationRequest.annotation.requestID = data.requestID.toString();
-	annotationRequest.annotation.custom = data.customConfig;
+        console.log("request", annotationRequest);
+        return annotationRequest;
+    },
 
-	console.log("request", annotationRequest);
-	return annotationRequest;
+    updatePlotSplit: function () {
+        //  destroy the plotSplit if it exists
+        try{ this.plotSplit.destroy(); } catch (e) {}
 
-};
+        // stop if there is only a single spectrum
+        let numSpec = this.spectra.length;
+        if (numSpec < 2)
+            return
 
+        // prepare Split options
+        let splitSizes = [];
+        let splitIds = [];
+        let minSizes = [];
+        for (let i = 0; i < numSpec; i++) {
+            splitIds.push('#xispec_spec' + this.specIds[i]);
+            splitSizes.push(100.0 / numSpec);
+            minSizes.push(250);
+        }
 
-xiSPEC.setCustomConfigOverwrite = function(customConfig){
-	this.customConfigOverwrite = customConfig;
-};
+        // create Split
+        this.plotSplit = Split(splitIds, {
+            sizes: splitSizes,
+            minSize: minSizes,
+            gutterSize: 5,
+            direction: 'horizontal',
+            onDragEnd: function(){ xiSPECUI.vent.trigger('resize:spectrum'); }
+        });
+    },
 
-xiSPEC.arrayifyPeptide = function (seq_mods) {
-	var peptide = {};
-	peptide.sequence = [];
+    addSpectrum: function () {
 
-	var seq_AAonly = seq_mods.replace(/[^A-Z]/g, '')
-	var seq_length = seq_AAonly.length;
+        // create an unused id and append it to the plotIds arr
+        let specId = (this.specIds.length === 0) ? 0: this.specIds[this.specIds.length-1] + 1;
+        this.specIds.push(specId);
 
-	for (var i = 0; i < seq_length; i++) {
-		peptide.sequence[i] = {"aminoAcid":seq_AAonly[i], "Modification": ""}
-	}
+        // append a div for the new spectrum
+        this.spectraWrapperDiv.append('div')
+            .attr('class', 'xispec_plotsDiv')
+            .attr('id', 'xispec_spec' + specId)
+        ;
 
-	var re = /[^A-Z]+/g;
-	var offset = 1;
-	var result;
-	while (result = re.exec(seq_mods)) {
-		peptide.sequence[result.index - offset]["Modification"] = result[0];
-		offset += result[0].length;
-	}
-	return peptide;
-};
+        // create new SpectrumWrapper
+        let newSpec = new SpectrumWrapper({
+            el: '#xispec_spec' + specId,
+            opt: this.options,
+            id: specId,
+        });
+        this.spectra.push(newSpec);
 
-xiSPEC.matchMassToAA = function(mass, tolerance) {
+        // if there is already an activeSpectrum copy it's originalMatchRequest
+        if (this.activeSpectrum) {
+            newSpec.requestAnnotation(this.activeSpectrum.originalMatchRequest, true)
+            newSpec.setTitle(this.activeSpectrum.title);
+        }
 
-	if (tolerance === undefined) tolerance = 0.01;
+        // hide spectrumHeader if there's only one spectrumPanel visible
+        if (this.spectra.length === 1){
+            this.spectra[0].setHeaderVis(false);
+        }
+        else {
+            this.spectra[0].setHeaderVis(true);
+        }
 
-	var aminoAcids = [
-		{"aminoAcid": "A", "monoisotopicMass": 71.03711},
-		{"aminoAcid": "R", "monoisotopicMass": 156.10111},
-		{"aminoAcid": "N", "monoisotopicMass": 114.04293},
-		{"aminoAcid": "D", "monoisotopicMass": 115.02694},
-		{"aminoAcid": "C", "monoisotopicMass": 103.00919},
-		{"aminoAcid": "E", "monoisotopicMass": 129.04259},
-		{"aminoAcid": "Q", "monoisotopicMass": 128.05858},
-		{"aminoAcid": "G", "monoisotopicMass": 57.02146},
-		{"aminoAcid": "H", "monoisotopicMass": 137.05891},
-		{"aminoAcid": "I", "monoisotopicMass": 113.08406},
-		{"aminoAcid": "L", "monoisotopicMass": 113.08406},
-		{"aminoAcid": "K", "monoisotopicMass": 128.09496},
-		{"aminoAcid": "M", "monoisotopicMass": 131.04049},
-		{"aminoAcid": "F", "monoisotopicMass": 147.06841},
-		{"aminoAcid": "P", "monoisotopicMass": 97.05276},
-		{"aminoAcid": "S", "monoisotopicMass": 87.03203},
-		{"aminoAcid": "T", "monoisotopicMass": 101.04768},
-		{"aminoAcid": "W", "monoisotopicMass": 186.07931},
-		{"aminoAcid": "Y", "monoisotopicMass": 163.06333},
-		{"aminoAcid": "V", "monoisotopicMass": 99.06841}
-	]
+        // update the div splitting
+        this.updatePlotSplit();
 
-	var aaArray = aminoAcids.filter(function(d){
-		if (Math.abs(mass - d.monoisotopicMass) < tolerance)
-			return true;
-	}).map(function(d){return d.aminoAcid});
+        // trigger resizing
+        xiSPECUI.vent.trigger('resize:spectrum');
 
-	return aaArray.join();
+        return newSpec;
+    },
+
+    closeSpectrum: function (id) {
+        if (id === this.activeSpectrum.id){
+            xiSPECUI.vent.trigger('activateSpecPanel', 0);
+        }
+        let specIndex = this.spectra.map(function(x) {return x.id; }).indexOf(id);
+        this.spectra.splice(specIndex, 1);
+        this.specIds.splice(specIndex, 1)
+        this.updatePlotSplit();
+        xiSPECUI.vent.trigger('resize:spectrum');
+    },
+
+    activateSpectrum: function (id) {
+        let specIndex = this.spectra.map(function(x) {return x.id; }).indexOf(id);
+        this.activeSpectrum = this.spectra[specIndex];
+        this.SpectrumControlsView.model = this.activeSpectrum.models['Spectrum'];
+        this.DataSettingsView.model = this.activeSpectrum.models['SettingsSpectrum'];
+        this.DataSettingsView.displayModel = this.activeSpectrum.models['Spectrum'];
+        this.AppearanceSettingsView.model = this.activeSpectrum.models['SettingsSpectrum'];
+        this.AppearanceSettingsView.displayModel = this.activeSpectrum.models['Spectrum'];
+        xiSPECUI.vent.trigger('activeSpecPanel:changed');
+    },
+});
+
+xiSPECUI.matchMassToAA = function (mass, tolerance) {
+
+    if (tolerance === undefined) tolerance = 0.01;
+
+    const aminoAcids = [
+        {"aminoAcid": "A", "monoisotopicMass": 71.03711},
+        {"aminoAcid": "R", "monoisotopicMass": 156.10111},
+        {"aminoAcid": "N", "monoisotopicMass": 114.04293},
+        {"aminoAcid": "D", "monoisotopicMass": 115.02694},
+        {"aminoAcid": "C", "monoisotopicMass": 103.00919},
+        {"aminoAcid": "E", "monoisotopicMass": 129.04259},
+        {"aminoAcid": "Q", "monoisotopicMass": 128.05858},
+        {"aminoAcid": "G", "monoisotopicMass": 57.02146},
+        {"aminoAcid": "H", "monoisotopicMass": 137.05891},
+        {"aminoAcid": "I", "monoisotopicMass": 113.08406},
+        {"aminoAcid": "L", "monoisotopicMass": 113.08406},
+        {"aminoAcid": "K", "monoisotopicMass": 128.09496},
+        {"aminoAcid": "M", "monoisotopicMass": 131.04049},
+        {"aminoAcid": "F", "monoisotopicMass": 147.06841},
+        {"aminoAcid": "P", "monoisotopicMass": 97.05276},
+        {"aminoAcid": "S", "monoisotopicMass": 87.03203},
+        {"aminoAcid": "T", "monoisotopicMass": 101.04768},
+        {"aminoAcid": "W", "monoisotopicMass": 186.07931},
+        {"aminoAcid": "Y", "monoisotopicMass": 163.06333},
+        {"aminoAcid": "V", "monoisotopicMass": 99.06841}
+    ]
+
+    let aaArray = aminoAcids.filter(function (d) {
+        if (Math.abs(mass - d.monoisotopicMass) < tolerance)
+            return true;
+    }).map(function (d) {
+        return d.aminoAcid
+    });
+
+    return aaArray.join();
 };

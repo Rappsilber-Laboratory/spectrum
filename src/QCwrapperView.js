@@ -21,12 +21,10 @@
 
 // ToDo: move Splitting to parent view?
 
-var QCwrapperView = Backbone.View.extend({
+let QCwrapperView = Backbone.View.extend({
 
 	events : {
-		'click .toggle' : 'toggleView',
-		'click #xispec_minQC' : 'minView',
-		'click #xispec_dockQC' : 'showView',
+		'click .xispec_toggleQCWrapper' : 'toggleWrapper',
 		'click .xispec_dockRight' : 'dockRight',
 		'click .xispec_dockBottom' : 'dockBottom',
 		'change .xispec_plotSelectChkbox': 'updatePlots',
@@ -35,8 +33,7 @@ var QCwrapperView = Backbone.View.extend({
 
 	initialize: function(viewOptions) {
 
-		var defaultOptions = {
-			splitIds: ['#xispec_spectrumMainPlotDiv', '#xispec_QCdiv'],
+		const defaultOptions = {
 			showQualityControl: "bottom",
 		};
 		this.options = _.extend(defaultOptions, viewOptions);
@@ -46,12 +43,13 @@ var QCwrapperView = Backbone.View.extend({
 			minSize: [250, 150],
 			gutterSize: 5,
 			direction: 'vertical',
-			onDragEnd: function(){ xiSPEC.vent.trigger('resize:spectrum'); }
+			onDragEnd: function(){ xiSPECUI.vent.trigger('resize:spectrum'); }
 		});
 
 		this.dock = this.options.showQualityControl;
-		// this.isVisible = true;
+		this.isVisible = (this.dock !== 'min');
 
+		this.headerDiv = d3.select(this.el.getElementsByClassName("xispec_subViewHeader")[0]);
 		this.headerDiv = d3.select(this.el.getElementsByClassName("xispec_subViewHeader")[0]);
 		this.contentDiv = d3.select(this.el.getElementsByClassName("xispec_subViewContent")[0]);
 
@@ -61,16 +59,16 @@ var QCwrapperView = Backbone.View.extend({
 
 		this.controlsDiv = this.headerDiv.append("span");
 
-		var plotSelector = this.controlsDiv.append("div").attr("class", "xispec_multiSelect_dropdown")
+		let plotSelector = this.controlsDiv.append("div").attr("class", "xispec_multiSelect_dropdown")
 		;
 		plotSelector.append("span")
 			.attr("type", "text")
 			.attr("class", "xispec_btn xispec_btn-1a")
 			.html('<i class="fa fa-chevron-down" aria-hidden="true"></i>')
 		;
-		var plotSelectorDropdown = plotSelector.append("div").attr("class", "xispec_multiSelect_dropdown-content mutliSelect");
-		var plotSelectorList = plotSelectorDropdown.append("ul");
-		var plotOptions = [
+		let plotSelectorDropdown = plotSelector.append("div").attr("class", "xispec_multiSelect_dropdown-content mutliSelect");
+		let plotSelectorList = plotSelectorDropdown.append("ul");
+		const plotOptions = [
 			{value: "int", text: "Intensity"},
 			{value: "mz", text: "m/z"},
 		];
@@ -89,14 +87,14 @@ var QCwrapperView = Backbone.View.extend({
 			.text(function(d) { return d.text; })
 		;
 
-		var downloadButton = this.controlsDiv.append('i')
+		let downloadButton = this.controlsDiv.append('i')
 		 	.attr("class", "xispec_btn xispec_btn-1a xispec_btn-topNav fa fa-download pointer")
 			.attr("aria-hidden", "true")
 			.attr("id", "xispec_dl_QC_SVG")
 			.attr("title", "download SVG(s)")
 		;
 
-		var rightControls = this.controlsDiv.append('div')
+		let rightControls = this.controlsDiv.append('div')
 			.attr('class', 'xispec_rightControls')
 		;
 
@@ -112,35 +110,33 @@ var QCwrapperView = Backbone.View.extend({
 			.attr('title', 'dock to right')
 		;
 
-		// <i class="fa fa-window-maximize" aria-hidden="true"></i>
-
 		this.dockQCxispec_btn = this.headerDiv.append('i')
-			.attr('class', 'fa fa-angle-double-up pointer minMax')
+			.attr('class', 'fa fa-angle-double-up pointer xispec_toggleQCWrapper')
 			.attr('id', 'xispec_dockQC')
 			.attr('aria-hidden', 'true')
 			.attr('title', 'show QC plots')
 			.attr('style', 'display: none;')
 		;
 		this.minQCxispec_btn = this.headerDiv.append('i')
-			.attr('class', 'fa fa-angle-double-down pointer minMax')
+			.attr('class', 'fa fa-angle-double-down pointer xispec_toggleQCWrapper')
 			.attr('id', 'xispec_minQC')
 			.attr('aria-hidden', 'true')
 			.attr('title', 'hide QC plots')
 		;
 
-		if(this.options.showQualityControl == 'bottom'){
+		if(this.options.showQualityControl === 'bottom'){
 			this.dockBottom();
 		}
-		else if (this.options.showQualityControl == 'side') {
+		else if (this.options.showQualityControl === 'side') {
 			this.dockRight();
 		}
-		else if (this.options.showQualityControl == 'min') {
-			this.minView();
+		else if (this.options.showQualityControl === 'min') {
+			this.toggleQCView();
 		}
 	},
 
 	downloadQCSVG: function(){
-		xiSPEC.vent.trigger('downloadQCSVG');
+		xiSPECUI.vent.trigger('downloadQCSVG');
 	},
 
 	splitHorizontal: function(){
@@ -153,7 +149,7 @@ var QCwrapperView = Backbone.View.extend({
 			minSize: [500, 220],
 			gutterSize: 4,
 			direction: 'horizontal',
-			onDragEnd: function(){ xiSPEC.vent.trigger('resize:spectrum'); }
+			onDragEnd: function(){ xiSPECUI.vent.trigger('resize:spectrum'); }
 		});
 	},
 
@@ -167,42 +163,40 @@ var QCwrapperView = Backbone.View.extend({
 			minSize: [250, 200],
 			gutterSize: 4,
 			direction: 'vertical',
-			onDragEnd: function(){ xiSPEC.vent.trigger('resize:spectrum'); }
+			onDragEnd: function(){ xiSPECUI.vent.trigger('resize:spectrum'); }
 		});
 	},
 
-	showView: function(){
-		// this.isVisible = true;
-		xiSPEC.vent.trigger('show:QC', true);
-		$(this.controlsDiv[0]).show();
-		$(this.dockQCxispec_btn[0]).hide();
-		$(this.minQCxispec_btn[0]).show();
-		$(this.contentDiv[0]).show();
-		if (this.dock == 'side'){
-			this.splitHorizontal();
-			this.dockRight();
+	toggleWrapper: function(){
+		this.isVisible = !this.isVisible;
+		xiSPECUI.vent.trigger('QCWrapperShow', this.options.specPanelId);
+		if (this.isVisible){
+			$(this.controlsDiv[0]).show();
+			$(this.dockQCxispec_btn[0]).hide();
+			$(this.minQCxispec_btn[0]).show();
+			$(this.contentDiv[0]).show();
+			if (this.dock === 'side'){
+				this.splitHorizontal();
+				this.dockRight();
+			}
+			else{
+				this.splitVertical();
+			}
 		}
 		else{
-			this.splitVertical();
+			if(this.dock === 'side'){
+				$(this.el).parent().css('flex-direction', 'column');
+				$(this.el).removeClass('xispec_QCdiv-right');
+				$(this.contentDiv[0]).css('flex-direction', 'row');
+			}
+			$(this.controlsDiv[0]).hide();
+			$(this.dockQCxispec_btn[0]).show();
+			$(this.minQCxispec_btn[0]).hide();
+			$(this.contentDiv[0]).hide();
+			if(this.plotSplit)
+				this.plotSplit.destroy();
 		}
-		xiSPEC.vent.trigger('resize:spectrum');
-	},
-
-	minView: function(){
-		// this.isVisible = false;
-		xiSPEC.vent.trigger('show:QC', false);
-		if(this.dock == 'side'){
-			$(this.el).parent().css('flex-direction', 'column');
-			$(this.el).removeClass('xispec_QCdiv-right');
-			$(this.contentDiv[0]).css('flex-direction', 'row');
-		}
-		$(this.controlsDiv[0]).hide();
-		$(this.dockQCxispec_btn[0]).show();
-		$(this.minQCxispec_btn[0]).hide();
-		$(this.contentDiv[0]).hide();
-		if(this.plotSplit)
-			this.plotSplit.destroy();
-		xiSPEC.vent.trigger('resize:spectrum');
+		xiSPECUI.vent.trigger('resize:spectrum');
 	},
 
 	dockSide: function(){
@@ -210,7 +204,7 @@ var QCwrapperView = Backbone.View.extend({
 		$(this.el).parent().css('flex-direction', 'row');
 		$(this.contentDiv[0]).css('flex-direction', 'column');
 		this.splitHorizontal();
-		xiSPEC.vent.trigger('resize:spectrum');
+		xiSPECUI.vent.trigger('resize:spectrum');
 	},
 
 	dockRight: function(){
@@ -231,14 +225,13 @@ var QCwrapperView = Backbone.View.extend({
 		$(this.el).removeClass('xispec_QCdiv-right');
 		$(this.contentDiv[0]).css('flex-direction', 'row');
 		this.splitVertical();
-		xiSPEC.vent.trigger('resize:spectrum');
+		xiSPECUI.vent.trigger('resize:spectrum');
 	},
 
 	updatePlots: function(e){
-		var plotId = $(e.target).attr('id');
-		var checked = $(e.target).is('checked');
-		xiSPEC.vent.trigger('QCPlotToggle', plotId);
-		xiSPEC.vent.trigger('resize:spectrum');
+		let plotId = $(e.target).attr('id');
+		xiSPECUI.vent.trigger('QCPlotToggle', this.options.specPanelId, plotId);
+		xiSPECUI.vent.trigger('resize:spectrum');
 	}
 
 });

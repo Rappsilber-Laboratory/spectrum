@@ -43,7 +43,7 @@
   margin: 2px 3px;
 }
 
-.xispec_subViewHeader .minMax{
+.xispec_subViewHeader .xispec_toggleQCWrapper{
   position: absolute;
   right: 5px;
 }
@@ -72,26 +72,25 @@
     transform: rotate(-90deg);
 }
 
-#xispec_QCdiv{
+.xispec_QCdiv{
 	position: relative;
 }
 
 .xispec_subViewHeader .xispec_rightControls{
-  order;
+  /* order; */
   float: right;
   margin-right: 20px;
 }
 
 
 .xispec_QCdiv-right{
-  order: 1;
   border-left: 1px solid;
+  order: 1;
 }
 
-.xispec_QCdiv-right .xispec_subViewContent-plot{
-  /* margin-top: 1em; */
-  flex-grow: 1;
+.xispec_subViewContent-plot{
   display: flex;
+  flex-grow: 1;
 }
 
 .xispec_QCdiv-left{
@@ -99,12 +98,12 @@
   border-right: 1px solid;
 }
 
-.xispec_QCdiv-left .xispec_subViewContent-plot{
+/* .xispec_QCdiv-left .xispec_subViewContent-plot{
   margin-top: 1em;
-}
+} */
 
 .xispec_rightControls{
-  order;
+  /* order; */
   float: right;
   margin-right: 20px;
 }

@@ -19,16 +19,16 @@
 //
 //		SpectrumView2.js
 
-var xiSPEC = xiSPEC || {};
+var xiSPECUI = xiSPECUI || {};
 var CLMSUI = CLMSUI || {};
 
-var SpectrumView = Backbone.View.extend({
+let SpectrumView = Backbone.View.extend({
 
 	events : {},
 
 	initialize: function(viewOptions) {
 
-		var defaultOptions = {
+		const defaultOptions = {
 			invert: false,
 			hidden: false,
 			xlabel: "m/z",
@@ -39,12 +39,12 @@ var SpectrumView = Backbone.View.extend({
 		};
 
 		this.options = _.extend(defaultOptions, viewOptions);
+		this.initialOrientation = this.options.invert;
 
 		this.spinner = new Spinner({scale: 5});
-		// this.svg = d3.select(this.el.getElementsByTagName("svg")[0]);
 		this.svg = d3.select(this.el);
 
-		//create graph
+		// create graph
 		this.graph = new Graph (this.svg, this.model, this.options);
 
 		$(this.el).css('background-color', '#fff');
@@ -54,27 +54,27 @@ var SpectrumView = Backbone.View.extend({
 		this.listenTo(this.model, 'change:JSONdata', this.render);
 		this.listenTo(this.model, 'change:measureMode', this.measuringTool);
 		this.listenTo(this.model, 'change:moveLabels', this.moveLabels);
+		this.listenTo(this.model, 'change:zoomLocked', this.lockZoomToggle);
+		this.listenTo(this.model, 'change:butterfly', this.butterflyToggle);
 		this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
 		this.listenTo(this.model, 'change:highlightColor', this.updateHighlightColors);
 		this.listenTo(this.model, 'changed:ColorScheme', this.updateColors);
 		this.listenTo(this.model, 'change:mzRange', this.updateMzRange);
+		this.listenTo(this.model, 'butterflySwap', this.butterflySwap);
 
-		this.listenTo(xiSPEC.vent, 'butterflyToggle', this.butterflyToggle);
-		this.listenTo(xiSPEC.vent, 'butterflySwap', this.butterflySwap);
-		this.listenTo(xiSPEC.vent, 'AccentuateCrossLinkContainingFragments', this.accentuateCLcontainingToggle);
-		this.listenTo(xiSPEC.vent, 'labelFragmentCharge', this.labelFragmentChargeToggle);
-		this.listenTo(xiSPEC.vent, 'downloadSpectrumSVG', this.downloadSVG);
-		this.listenTo(xiSPEC.vent, 'resize:spectrum', this.resize);
-		this.listenTo(xiSPEC.vent, 'clearSpectrumHighlights', this.clearHighlights);
-		this.listenTo(xiSPEC.vent, 'lockZoomToggle', this.lockZoom);
+		this.listenTo(xiSPECUI.vent, 'AccentuateCrossLinkContainingFragments', this.accentuateCLcontainingToggle);
+		this.listenTo(xiSPECUI.vent, 'labelFragmentCharge', this.labelFragmentChargeToggle);
+		this.listenTo(xiSPECUI.vent, 'downloadSpectrumSVG', this.downloadSVG);
+		this.listenTo(xiSPECUI.vent, 'resize:spectrum', this.resize);
+		this.listenTo(xiSPECUI.vent, 'clearSpectrumHighlights', this.clearHighlights);
 
 		this.listenTo(this.model, 'resetZoom', this.resetZoom);
 		this.listenTo(this.model, 'changed:Highlights', this.updateHighlights);
 		this.listenTo(this.model, 'changed:lossyShown', this.showLossy);
 		this.listenTo(this.model, 'changed:labelCutoff', this.labelCutoff);
 		this.listenTo(this.model, 'changed:labelFontSize', this.changeLabelFontSize);
-		this.listenTo(this.model, 'request_annotation:pending', this.showSpinner);
-		this.listenTo(this.model, 'request_annotation:done', this.hideSpinner);
+		this.listenTo(this.model, 'requestAnnotation:pending', this.showSpinner);
+		this.listenTo(this.model, 'requestAnnotation:done', this.hideSpinner);
 		this.listenTo(this.model, 'changed:fragHighlighting', this.updatePeakHighlighting);
 		//this.listenTo(this.model, 'destroy', this.remove);
 	},
@@ -86,7 +86,7 @@ var SpectrumView = Backbone.View.extend({
 			return this;
 		}else{
 			this.graph.show();}
-		if(!xiSPEC.lockZoom){
+		if(!this.model.get('zoomLocked')){
 			this.graph.resize(this.model.xminPrimary, this.model.xmaxPrimary, this.model.ymin, this.model.ymaxPrimary);}
 		if (this.model.get("JSONdata")){
 			this.graph.setData();}
@@ -109,20 +109,19 @@ var SpectrumView = Backbone.View.extend({
 	},
 
 	resize: function(){
-		var mzRange = this.model.get('mzRange');
+		let mzRange = this.model.get('mzRange');
 		if (mzRange === undefined)
 			return;
 		this.graph.resize(mzRange[0], mzRange[1], this.model.ymin, this.model.ymax);
 	},
 
-	showLossy: function(e){
+	showLossy: function(){
 		this.graph.lossyShown = this.model.lossyShown;
 		this.graph.updatePeakLabels();
 	},
 
-	lockZoom: function(){
-
-		if(xiSPEC.lockZoom){
+	lockZoomToggle: function(){
+		if(this.model.get('zoomLocked')){
 			this.graph.disableZoom();
 		}
 		else{
@@ -148,15 +147,13 @@ var SpectrumView = Backbone.View.extend({
 	},
 
 	updateHighlights: function(){
-
-		var peaks = this.graph.peaks;
-
-		for(p = 0; p < peaks.length; p++){
+		let peaks = this.graph.peaks;
+		for(let p=0; p < peaks.length; p++){
 			if(peaks[p].fragments.length > 0)
 				peaks[p].highlight(false);
 
-			var highlightFragments = _.intersection(peaks[p].fragments, this.model.highlights);
-			if(highlightFragments.length != 0){
+			let highlightFragments = _.intersection(peaks[p].fragments, this.model.highlights);
+			if(highlightFragments.length !== 0){
 				peaks[p].highlight(true, highlightFragments);
 			}
 		}
@@ -168,13 +165,15 @@ var SpectrumView = Backbone.View.extend({
 		this.graph.measure(this.model.get('measureMode'));
 	},
 
-	butterflyToggle: function(toggle){
-		this.graph.options.butterfly = toggle;
+	butterflyToggle: function(){
+		let butterfly = this.model.get('butterfly');
+		this.graph.options.butterfly = butterfly;
+		this.options.invert = this.initialOrientation;
 		if(this.options.invert){
 			this.model.clearStickyHighlights();
-			this.options.hidden = !toggle;
-			this.render();
+			this.options.hidden = !butterfly;
 		}
+		this.render();
 		this.resize();
 	},
 
@@ -195,7 +194,7 @@ var SpectrumView = Backbone.View.extend({
 
 	moveLabels: function(){
 
-		var peaks = this.graph.peaks;
+		let peaks = this.graph.peaks;
 
 		if (this.model.get('moveLabels')){
 			// for(p = 0; p < peaks.length; p++){
@@ -206,7 +205,7 @@ var SpectrumView = Backbone.View.extend({
 			// 		}
 			// 	}
 			// }
-			for(p = 0; p < peaks.length; p++){
+			for(let p=0; p < peaks.length; p++){
 				if(peaks[p].labels.length){
 						peaks[p].labels
 							.call(peaks[p].labelDrag)
@@ -215,7 +214,7 @@ var SpectrumView = Backbone.View.extend({
 			}
 		}
 		else{
-			for(p = 0; p < peaks.length; p++){
+			for(let p=0; p < peaks.length; p++){
 				if(peaks[p].labels.length){
 					peaks[p].labels
 						.on(".drag", null)

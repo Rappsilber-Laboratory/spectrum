@@ -58,7 +58,7 @@ Graph = function(targetSvg, model, options) {
 		.attr("pointer-events", "all")
 	;
 
-	var backgroundLabel = (this.options.identifier === 'originalSpectrum') ? 'original' : 're-annotation';
+	let backgroundLabel = (this.options.id === 'originalSpectrum') ? 'original' : 're-annotation';
 
 	this.plotBackgroundLabel = this.g.append('text')
 		.attr('visibility', 'hidden')
@@ -221,7 +221,7 @@ Graph.prototype.setData = function(){
 
 	this.g.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
-	if(xiSPEC.lockZoom){
+	if(this.model.get('zoomLocked')){
 		this.resize(this.model.get('mzRange')[0], this.model.get('mzRange')[1], this.model.ymin, this.model.ymax);
 		this.disableZoom();
 	}
@@ -608,7 +608,7 @@ Graph.prototype.measure = function(on){
 			for(i=1; i<7; i++){
 				var massObj = new Object();
 				massObj.mass = distance * i;
-				massObj.matchAA = xiSPEC.matchMassToAA(distance * i);
+				massObj.matchAA = xiSPECUI.matchMassToAA(distance * i);
 				massArr.push(massObj);
 			};
 
