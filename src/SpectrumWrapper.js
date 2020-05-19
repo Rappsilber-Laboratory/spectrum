@@ -338,8 +338,17 @@ let SpectrumWrapper = Backbone.View.extend({
 		}
 	},
 
+	setHeaderVis: function (visible) {
+	if (visible)
+		this.headerDiv.style('display', 'block');
+	else
+		this.headerDiv.style('display', 'none');
+	},
+
 	setTitle: function (title) {
-		this.title = title;
-		this.headerTitle.html(this.title);
+		if (title){
+			this.title = title;
+			this.headerTitle.html(this.title);
+		}
 	}
 });

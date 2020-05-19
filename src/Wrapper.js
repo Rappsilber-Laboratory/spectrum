@@ -302,6 +302,14 @@ let xiSPEC_wrapper = Backbone.View.extend({
             newSpec.setTitle(this.activeSpectrum.title);
         }
 
+        // hide spectrumHeader if there's only one spectrumPanel visible
+        if (this.spectra.length === 1){
+            this.spectra[0].setHeaderVis(false);
+        }
+        else {
+            this.spectra[0].setHeaderVis(true);
+        }
+
         // update the div splitting
         this.updatePlotSplit();
 
