@@ -302,6 +302,7 @@ let DataSettingsView = SettingsView.extend({
         ;
         annotatorDropdown.append("option").attr("value", "annotate/FULL").text("classic");
         annotatorDropdown.append("option").attr("value", "test/FULL").text("test");
+        annotatorDropdown.append("option").attr("value", "isotopes/FULL").text("isotope_test");
         let annotatorBottom = annotatorTab.append("div")
             .attr("class", "xispec_settings-bottom");
         let annotatorSubmit = annotatorBottom.append("input")
@@ -754,7 +755,7 @@ let DataSettingsView = SettingsView.extend({
         let self = this;
         this.modTable.clear();
 
-        if (modifications.length == 0) {
+        if (modifications.length === 0) {
             this.modTable.draw(false);
             this.hideModTable();
         } else {
