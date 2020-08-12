@@ -99,9 +99,15 @@ let SettingsView = Backbone.View.extend({
     cancel: function () {
         this.isVisible = false;
         this.wrapper.style('display', 'none');
+        this.reset();
     },
 
+    // dummy function overwritten by children that have a reset option
+    reset: function () {},
+
     changeTab: function (e) {
+        this.reset();
+        this.render();
         let $target =  $(e.target);
         let activeTab = $target.data('tab');
         this.wrapper.selectAll(".xispec_settings-tab").style('display', 'none');

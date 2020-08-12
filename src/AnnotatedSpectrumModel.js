@@ -21,17 +21,18 @@
 
 let AnnotatedSpectrumModel = Backbone.Model.extend({
 
-	defaults: function() {
-	return {
-	  baseDir:  './',
-	  knownModifications: [],
-	  knownModificationsURL: false,
-	  highlightColor: '#FFFF00',
-	  highlightWidth: 8,
-	  peakColor: "#a6a6a6",
-	  colorScheme: colorbrewer.RdBu[8],
-	};
-  },
+	defaults: function () {
+		return {
+			baseDir: './',
+			knownModifications: [],
+			knownModificationsURL: false,
+			highlightColor: '#FFFF00',
+			highlightWidth: 8,
+			peakColor: "#a6a6a6",
+			colorScheme: colorbrewer.RdBu[8],
+			annotatorURL: "annotate/FULL",
+		};
+	},
 
 	initialize: function(){
 
@@ -315,7 +316,7 @@ let AnnotatedSpectrumModel = Backbone.Model.extend({
 		if(this.get("JSONrequest") !== undefined){
 			let json_req = $.extend(true, {}, this.get("JSONrequest"));
 			json_req.LinkSite = newLinkSites;
-			xiSPECUI.vent.trigger('requestAnnotation', json_req);
+			xiSPECUI.vent.trigger('requestAnnotation', json_req, this.get('annotatorURL'));
 		}
 		else{
 			this.get('JSONdata').LinkSite = newLinkSites;
@@ -341,7 +342,7 @@ let AnnotatedSpectrumModel = Backbone.Model.extend({
 				if (annotationMod[0].aminoAcids.indexOf(myNew.aminoAcid) === -1)
 					annotationMod[0].aminoAcids.push(myNew.aminoAcid);
 			}
-			xiSPECUI.vent.trigger('requestAnnotation', json_req);
+			xiSPECUI.vent.trigger('requestAnnotation', json_req, this.get('annotatorURL'));
 		}
 		else{
 			//Preview

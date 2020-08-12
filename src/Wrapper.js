@@ -122,11 +122,12 @@ let xiSPEC_wrapper = Backbone.View.extend({
         if (this.customConfigOverwrite)
             json_request.annotation.custom = this.customConfigOverwrite;
 
-        this.activeSpectrum.models['Spectrum'].set('butterfly', false);
+        let activeSpecModel = this.activeSpectrum.models['Spectrum']
+        activeSpecModel.set('butterfly', false);
+        activeSpecModel.set('changedAnnotation', false);
+        activeSpecModel.reset_all_modifications();
         this.activeSpectrum.originalMatchRequest = $.extend(true, {}, json_request);
-        this.activeSpectrum.models['Spectrum'].set('changedAnnotation', false);
-        this.activeSpectrum.models['Spectrum'].reset_all_modifications();
-        this.activeSpectrum.requestAnnotation(json_request, true);
+        this.activeSpectrum.requestAnnotation(json_request, activeSpecModel.get('annotatorURL'), true);
         this.activeSpectrum.setTitle(data.spectrum_title);
     },
 
@@ -296,7 +297,8 @@ let xiSPEC_wrapper = Backbone.View.extend({
 
         // if there is already an activeSpectrum copy it's originalMatchRequest
         if (this.activeSpectrum) {
-            newSpec.requestAnnotation(this.activeSpectrum.originalMatchRequest, true)
+            newSpec.requestAnnotation(this.activeSpectrum.originalMatchRequest,
+                this.activeSpectrum.models['Spectrum'].get('annotatorURL'), true)
             newSpec.setTitle(this.activeSpectrum.title);
         }
 

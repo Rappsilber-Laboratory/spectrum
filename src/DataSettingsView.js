@@ -295,14 +295,14 @@ let DataSettingsView = SettingsView.extend({
             .attr("class", "xispec_label")
             .text("Choose Annotator to use: ");
 
-        let annotatorDropdown = annotatorWrapper.append("select")
+        this.annotatorDropdown = annotatorWrapper.append("select")
             .attr("name", "annotator")
             .attr("class", "xispec_form-control")
             .attr('id', 'xispec_annotatorDropdown')
         ;
-        annotatorDropdown.append("option").attr("value", "annotate/FULL").text("classic");
-        annotatorDropdown.append("option").attr("value", "test/FULL").text("test");
-        annotatorDropdown.append("option").attr("value", "isotopes/FULL").text("isotope_test");
+        this.annotatorDropdown.append("option").attr("value", "annotate/FULL").text("classic");
+        this.annotatorDropdown.append("option").attr("value", "test/FULL").text("test");
+        this.annotatorDropdown.append("option").attr("value", "isotopes/FULL").text("isotope_test");
         let annotatorBottom = annotatorTab.append("div")
             .attr("class", "xispec_settings-bottom");
         let annotatorSubmit = annotatorBottom.append("input")
@@ -360,7 +360,7 @@ let DataSettingsView = SettingsView.extend({
         this.toleranceValue[0][0].value = this.model.MSnTolerance.tolerance;
         this.toleranceUnit[0][0].value = this.model.MSnTolerance.unit;
         this.crossLinkerModMass[0][0].value = this.model.crossLinkerModMass;
-
+        this.annotatorDropdown[0][0].value = this.displayModel.get('annotatorURL');
         if (this.model.isLinear)
             $(this.crossLinkerModMassWrapper[0][0]).hide();
         else
@@ -374,8 +374,7 @@ let DataSettingsView = SettingsView.extend({
         // this.updateStepSize($(this.crossLinkerModMass[0][0]));
     },
 
-    cancel: function () {
-        DataSettingsView.__super__.cancel.apply(this);
+    reset: function(){
         // resetModel: ToDo: move to xiSPEC Wrapper? change to cloning of models?
         // used to reset SettingsModel
         if (this.displayModel.get("JSONdata") == null) return;
@@ -389,7 +388,7 @@ let DataSettingsView = SettingsView.extend({
     applyCustomCfg: function (e) {
         let json = this.model.get("JSONrequest");
         json.annotation.custom = $("#xispec_settingsCustomCfg-input").val().split("\n");
-        xiSPECUI.vent.trigger('requestAnnotation', json);
+        xiSPECUI.vent.trigger('requestAnnotation', json, this.displayModel.get('annotatorURL'));
         this.displayModel.set('changedAnnotation', true);
         // this.render();
     },
@@ -413,7 +412,7 @@ let DataSettingsView = SettingsView.extend({
                 // overwrite customConfig on current wrapper
                 xiSPECUI.vent.trigger('setCustomConfigOverwrite', customConfig);
                 // request current spectrum with updated custom config as original annotation
-                xiSPECUI.vent.trigger('requestAnnotation', json_req, true);
+                xiSPECUI.vent.trigger('requestAnnotation', json_req, this.displayModel.get('annotatorURL'), true);
             }
         });
     },
@@ -421,9 +420,8 @@ let DataSettingsView = SettingsView.extend({
     applyAnnotator: function (e) {
         e.preventDefault();
         let json = this.model.get("JSONrequest");
-        let annotatorURL = $('#xispec_annotatorDropdown').val();
-        xiSPECUI.vent.trigger('requestAnnotation', json, false, annotatorURL);
-        this.displayModel.set('changedAnnotation', true);
+        this.displayModel.set('annotatorURL', $('#xispec_annotatorDropdown').val());
+        xiSPECUI.vent.trigger('requestAnnotation', json, this.displayModel.get('annotatorURL'));
     },
 
     applyData: function (e) {
@@ -455,7 +453,7 @@ let DataSettingsView = SettingsView.extend({
                 json['annotation']['custom'] = self.displayModel.get("JSONdata").annotation.custom;
                 json['annotation']['precursorMZ'] = self.displayModel.precursor.expMz;
                 json['annotation']['requestID'] = xiSPECUI.lastRequestedID + Date.now();
-                xiSPECUI.vent.trigger('requestAnnotation', json);
+                xiSPECUI.vent.trigger('requestAnnotation', json, self.displayModel.get('annotatorURL'));
                 self.displayModel.set('changedAnnotation', true);
                 self.displayModel.knownModifications = $.extend(true, [], self.model.knownModifications);
                 spinner.stop();

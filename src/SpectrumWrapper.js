@@ -250,14 +250,9 @@ let SpectrumWrapper = Backbone.View.extend({
 			xiSPECUI.vent.trigger('QCWrapperShow', this.id);
 	},
 
-	requestAnnotation: function (json_request, isOriginalMatchRequest, annotator) {
+	requestAnnotation: function (json_request, annotatorURL, isOriginalMatchRequest, ) {
 		if (json_request.annotation.requestID)
 			xiSPECUI.lastRequestedID = json_request.annotation.requestID;
-
-		let annotatorURL = "annotate/FULL";
-		if (annotator) {
-			annotatorURL = annotator;
-		}
 
 		this.models['Spectrum'].trigger('requestAnnotation:pending');
 		console.log("annotation request:", json_request);
@@ -271,7 +266,8 @@ let SpectrumWrapper = Backbone.View.extend({
 			data: JSON.stringify(json_request),
 			url: this.xiAnnotatorBaseURL + annotatorURL,
 			success: function (data) {
-				if (data && data.annotation && data.annotation.requestID && data.annotation.requestID === xiSPECUI.lastRequestedID) {
+				if (data && data.annotation && data.annotation.requestID &&
+					data.annotation.requestID === xiSPECUI.lastRequestedID) {
 					//ToDo: Error handling -> https://github.com/Rappsilber-Laboratory/xi3-issue-tracker/issues/330
 					console.log("annotation response:", data);
 
@@ -294,16 +290,9 @@ let SpectrumWrapper = Backbone.View.extend({
 		if (this.models['Spectrum'].get('changedAnnotation')) {
 			this.models['Spectrum'].reset_all_modifications();
 			this.models['SettingsSpectrum'].reset_all_modifications();
-			this.requestAnnotation(this.originalMatchRequest);
+			this.requestAnnotation(this.originalMatchRequest, this.models['Spectrum'].get('annotatorURL'));
 			this.models['Spectrum'].set('changedAnnotation', false);
 		}
-	},
-
-	reloadAnnotation: function () {
-		this.models['Spectrum'].reset_all_modifications();
-		this.models['SettingsSpectrum'].reset_all_modifications();
-		this.requestAnnotation(this.originalMatchRequest);
-		this.models['Spectrum'].set('changedAnnotation', false);
 	},
 
 	toggleActive: function () {
