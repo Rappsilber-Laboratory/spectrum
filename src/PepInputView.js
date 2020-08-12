@@ -78,9 +78,10 @@ var PepInputView = Backbone.View.extend({
 
         //update model with input data
         if (this.model.get("JSONdata") !== undefined && this.model.get("JSONdata") !== null) {
-            this.model.get("JSONdata").Peptides = peptides;
-            this.model.get("JSONdata").LinkSite = linkSites;
-            this.model.trigger("change:JSONdata");
+            let new_json = $.extend(true, {}, this.model.get("JSONdata"));
+            new_json.Peptides = peptides;
+            new_json.LinkSite = linkSites;
+            this.model.set('JSONdata', new_json);
         } else
             this.model.set({JSONdata: {'Peptides': peptides, 'LinkSite': linkSites}});
     },
