@@ -253,8 +253,6 @@ let xiSPEC_wrapper = Backbone.View.extend({
 
         // stop if there is only a single spectrum
         let numSpec = this.spectra.length;
-        if (numSpec < 2)
-            return
 
         // prepare Split options
         let splitSizes = [];
