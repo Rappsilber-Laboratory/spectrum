@@ -57,7 +57,7 @@ let SettingsView = Backbone.View.extend({
             .attr('class', 'xispec_dynTitle')
             .html(this.options.title)
         ;
-        titleElement.append('i').attr('class', 'fa fa-times-circle xispec_settingsCancel');
+        titleElement.append('i').attr('class', 'fa fa-times-circle panelMenuButton xispec_settingsCancel');
         // dynDiv resize corners
         this.wrapper.append('div').attr('class', 'xispec_dynDiv_resizeDiv_tl draggableCorner');
         this.wrapper.append('div').attr('class', 'xispec_dynDiv_resizeDiv_tr draggableCorner');
