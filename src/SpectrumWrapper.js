@@ -43,9 +43,6 @@ let SpectrumWrapper = Backbone.View.extend({
 		this.xiAnnotatorBaseURL = options.opt.xiAnnotatorBaseURL;
 		this.id = options.id;
 
-		// event listeners
-		this.listenTo(xiSPECUI.vent, 'activateSpecPanel', this.updateHeader);
-
 		// init models
 		let SpectrumModel = new AnnotatedSpectrumModel(model_options);
 		let SettingsSpectrumModel = new AnnotatedSpectrumModel(model_options);
@@ -55,6 +52,10 @@ let SpectrumWrapper = Backbone.View.extend({
 			'SettingsSpectrum': SettingsSpectrumModel,
 			'originalSpectrum': originalSpectrumModel,
 		}
+
+		// event listeners
+		this.listenTo(xiSPECUI.vent, 'activateSpecPanel', this.updateHeader);
+		this.listenTo(SpectrumModel, 'activate', this.toggleActive);
 
 		// ToDo: create SpectrumPanel model to have these synced
 		// sync model event listeners between original and spectrumModel

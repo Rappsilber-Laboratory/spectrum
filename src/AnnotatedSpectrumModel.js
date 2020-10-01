@@ -313,6 +313,9 @@ let AnnotatedSpectrumModel = Backbone.Model.extend({
 
 	changeLinkPos: function(newLinkSites){
 
+		// make sure this model is in the activated SpectrumWrapper
+		this.trigger('activate');
+
 		if(this.get("JSONrequest") !== undefined){
 			let json_req = $.extend(true, {}, this.get("JSONrequest"));
 			json_req.LinkSite = newLinkSites;
@@ -327,6 +330,9 @@ let AnnotatedSpectrumModel = Backbone.Model.extend({
 	},
 
 	changeMod: function(oldPos, newPos, oldPepIndex, newPepIndex){
+
+		// make sure this model is in the activated SpectrumWrapper
+		this.trigger('activate');
 
 		if(this.get("JSONrequest") !== undefined){
 			let json_req = $.extend(true, {}, this.get("JSONrequest"));
