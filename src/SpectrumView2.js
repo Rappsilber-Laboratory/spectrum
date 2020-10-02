@@ -58,11 +58,12 @@ let SpectrumView = Backbone.View.extend({
 		this.listenTo(this.model, 'change:butterfly', this.butterflyToggle);
 		this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
 		this.listenTo(this.model, 'change:highlightColor', this.updateHighlightColors);
-		this.listenTo(this.model, 'changed:ColorScheme', this.updateColors);
+		this.listenTo(this.model, 'changed:ColorScheme', this.setColors);
 		this.listenTo(this.model, 'change:mzRange', this.updateMzRange);
 		this.listenTo(this.model, 'butterflySwap', this.butterflySwap);
 
 		this.listenTo(xiSPECUI.vent, 'AccentuateCrossLinkContainingFragments', this.accentuateCLcontainingToggle);
+		this.listenTo(xiSPECUI.vent, 'changePepFragmentsVis', this.changePepFragmentsVis);
 		this.listenTo(xiSPECUI.vent, 'labelFragmentCharge', this.labelFragmentChargeToggle);
 		this.listenTo(xiSPECUI.vent, 'downloadSpectrumSVG', this.downloadSVG);
 		this.listenTo(xiSPECUI.vent, 'resize:spectrum', this.resize);
@@ -100,7 +101,7 @@ let SpectrumView = Backbone.View.extend({
 
 	updateMzRange: function(){
 		//resize if the mzRange is not up to date
-		var mzRange = this.model.get('mzRange');
+		let mzRange = this.model.get('mzRange');
 		if (mzRange === undefined)
 			return;
 		if (mzRange[0] == this.graph.xscale.domain()[0] && mzRange[1] == this.graph.xscale.domain()[1])
@@ -133,8 +134,8 @@ let SpectrumView = Backbone.View.extend({
 		this.model.clearStickyHighlights();
 	},
 
-	updateColors: function(){
-		this.graph.updateColors();
+	setColors: function(){
+		this.graph.setColors();
 	},
 
 	updatePeakHighlighting: function(){
@@ -227,14 +228,14 @@ let SpectrumView = Backbone.View.extend({
 	},
 
 	downloadSVG: function(){
-		var svgSel = d3.select(this.el.parentNode);
-		var svgArr = svgSel[0];
-		var svgStrings = CLMSUI.svgUtils.capture (svgArr);
-		var svgXML = CLMSUI.svgUtils.makeXMLStr (new XMLSerializer(), svgStrings[0]);
+		let svgSel = d3.select(this.el.parentNode);
+		let svgArr = svgSel[0];
+		let svgStrings = CLMSUI.svgUtils.capture (svgArr);
+		let svgXML = CLMSUI.svgUtils.makeXMLStr (new XMLSerializer(), svgStrings[0]);
 
-		var charge = this.model.get("JSONdata").annotation.precursorCharge;
-		var pepStrs = this.model.pepStrsMods;
-		var linkSites = Array(this.model.get("JSONdata").LinkSite.length);
+		let charge = this.model.get("JSONdata").annotation.precursorCharge;
+		let pepStrs = this.model.pepStrsMods;
+		let linkSites = Array(this.model.get("JSONdata").LinkSite.length);
 
 		this.model.get("JSONdata").LinkSite.forEach(function(ls){
 			linkSites[ls.peptideId] = ls.linkSite;
@@ -242,22 +243,19 @@ let SpectrumView = Backbone.View.extend({
 
 		//insert CL sites with #
 		if (linkSites.length > 0){
-
-			var ins_pepStrs = Array();
 			pepStrs.forEach(function(pepStr, index){
-				var positions = [];
-				for(var i=0; i<pepStr.length; i++){
+				let positions = [];
+				for(let i=0; i<pepStr.length; i++){
 					if(pepStr[i].match(/[A-Z]/) != null){
 						positions.push(i);
-					};
+					}
 				}
-				var clAA_index = positions[linkSites[index]]+1;
-				var ins_pepStr = pepStr.slice(0, clAA_index) + "#" + pepStr.slice(clAA_index, pepStr.length);
-				pepStrs[index] = ins_pepStr;
+				let clAA_index = positions[linkSites[index]]+1;
+				pepStrs[index] = pepStr.slice(0, clAA_index) + "#" + pepStr.slice(clAA_index, pepStr.length);
 			})
 		}
 
-		var svg_name = pepStrs.join("-") + "_z=" + charge;
+		let svg_name = pepStrs.join("-") + "_z=" + charge;
 		svg_name += svgSel.node().id;
 		svg_name += ".svg";
 		download (svgXML, 'application/svg', svg_name);

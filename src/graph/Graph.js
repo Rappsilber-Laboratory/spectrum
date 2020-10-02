@@ -148,7 +148,7 @@ Graph = function(targetSvg, model, options) {
 		.attr("stroke", "rgb(100,100,100)")
 	;
 
-	this.measureTooltipText = new Array();
+	this.measureTooltipText = [];
 	this.measureTooltipText['from'] = this.measureTooltip.append("text");
 	this.measureTooltipText['to'] = this.measureTooltip.append("text");
 	this.measureTooltipText['match'] = this.measureTooltip.append("text");
@@ -194,22 +194,21 @@ Graph = function(targetSvg, model, options) {
 
 Graph.prototype.setData = function(){
 	//create peaks array with Peaks
-	this.peaks = new Array();
+	this.peaks = [];
 	if (this.model.get("JSONdata")) {
-		for (var i = 0; i < this.model.get("JSONdata").peaks.length; i++){
-			// var peak = this.model.get("JSONdata").peaks[i];
+		for (let i = 0; i < this.model.get("JSONdata").peaks.length; i++){
 			this.peaks.push(new Peak(i, this));
 		}
 
 		// draw non_fragment_peaks first then add fragment_peaks on top
 		// for correct z-layering
-		var non_fragment_peaks = this.peaks.filter(
-			function(p){if (p.fragments.length == 0) return true;});
-		non_fragment_peaks.forEach(function(p){ p.draw();});
+		this.non_fragment_peaks = this.peaks.filter(
+			function(p){if (p.fragments.length === 0) return true;});
+		this.non_fragment_peaks.forEach(function(p){ p.draw();});
 
-		var fragment_peaks = this.peaks.filter(
+		this.fragment_peaks = this.peaks.filter(
 			function(p){if (p.fragments.length > 0) return true;});
-		fragment_peaks.forEach(function(p){ p.draw();});
+		this.fragment_peaks.forEach(function(p){ p.draw();});
 
 		this.updatePeakColors();
 
@@ -432,7 +431,7 @@ Graph.prototype.measure = function(on){
 			var peakCount = self.peaks.length;
 			for (var p = 0; p < peakCount; p++) {
 				var peak = self.peaks[p];
-				if (_.intersection(self.model.highlights, peak.fragments).length != 0 && Math.abs(peak.x - mouseX)  < highlighttrigger){
+				if (_.intersection(self.model.highlights, peak.fragments).length !== 0 && Math.abs(peak.x - mouseX)  < highlighttrigger){
 					self.measureStartPeak = peak;
 					break;
 				}
@@ -694,7 +693,7 @@ Graph.prototype.measureShow = function(){
 }
 
 Graph.prototype.redraw = function(){
-	var self = this;
+	let self = this;
 	//self.measure();
 	return function (){
 		if(self.options.butterfly){
@@ -707,8 +706,8 @@ Graph.prototype.redraw = function(){
 		// adjust y scale to new highest intensity
 		if (self.peaks.length > 0) {
 			if (!self.yZoomed){
-				var xDomain = self.xscale.domain();
-				var ymax = d3.max(self.peaks, function(p) {
+				let xDomain = self.xscale.domain();
+				let ymax = d3.max(self.peaks, function(p) {
 					if (p.x > xDomain[0] && p.x < xDomain[1])
 						return p.y;
 				});
@@ -716,8 +715,8 @@ Graph.prototype.redraw = function(){
 				self.yscale_right.domain([0, (ymax/(self.model.ymaxPrimary*0.95))*100]);
 			}
 			else{
-				var yDomain = self.yscale.domain();
-				var ymax = d3.min([yDomain[1], self.model.ymaxPrimary]);
+				let yDomain = self.yscale.domain();
+				let ymax = d3.min([yDomain[1], self.model.ymaxPrimary]);
 				self.model.ymax = ymax;
 				self.yscale.domain([0, ymax]);
 				self.yscale_right.domain([0, (ymax/(self.model.ymaxPrimary))*100]);
@@ -726,7 +725,7 @@ Graph.prototype.redraw = function(){
 			self.yAxisLeftSVG.call(self.yAxisLeft);
 			self.yAxisRightSVG.call(self.yAxisRight);
 
-			for (var i = 0; i < self.peaks.length; i++){
+			for (let i=0; i < self.peaks.length; i++){
 				self.peaks[i].update();
 			}
 		}
@@ -746,9 +745,8 @@ Graph.prototype.clear = function(){
 	this.annotations.selectAll("*").remove();
 }
 
-Graph.prototype.clearHighlights = function(peptide, pepI){
-	var peakCount = this.peaks.length;
-	for (var p = 0; p < peakCount; p++) {
+Graph.prototype.clearHighlights = function(){
+	for (let p = 0; p < this.peaks.length; p++) {
 		if (this.peaks[p].fragments.length > 0 && !_.contains(this.model.sticky, this.peaks[p].fragments[0])) {
 			this.peaks[p].highlight(false);
 		}
@@ -756,30 +754,46 @@ Graph.prototype.clearHighlights = function(peptide, pepI){
 }
 
 Graph.prototype.updatePeakColors = function(){
-	var peakCount = this.peaks.length;
+	let model = this.model;
 
-	if (this.model.highlights.length == 0 || this.model.showAllFragmentsHighlight){
-		for (var p = 0; p < peakCount; p++) {
-			this.peaks[p].line.attr("stroke", this.peaks[p].colour);
-		}
+	// standard mode
+	if (model.highlights.length === 0 || model.showAllFragmentsHighlight){
+
+		// color all fragment peaks
+		this.fragment_peaks.forEach(function(p){ p.line.attr("stroke", p.colour); })
+
+		// let pepFragVis = model.get('pepFragmentVis');
+		// if (pepFragVis === 'pep1'){
+		// 	let p2FragPeaks = this.fragment_peaks.filter(function(p){
+		// 		return p.fragments.filter(function(f){ return f.peptideId === 1}).length > 0;
+		// 	})
+		// 	p2FragPeaks.forEach(function(p){ p.line.attr("stroke", model.get('peakColor')); });
+		// }
+		// else if (pepFragVis === 'pep2'){
+		// 	let p1FragPeaks = this.fragment_peaks.filter(function(p){
+		// 		return p.fragments.filter(function(f){ return f.peptideId === 0}).length > 0;
+		// 	})
+		// 	p1FragPeaks.forEach(function(p){ p.line.attr("stroke", model.get('peakColor')); });
+		// }
 	}
+	// only highlighted fragments are colored
 	else{
-		var self = this;
-		var highlightClusterIds = [].concat.apply([], this.model.highlights.map(function(h){ return h.clusterIds;}));
+		let self = this;
+		let highlightClusterIds = [].concat.apply([], model.highlights.map(function(h){ return h.clusterIds;}));
 		this.peaks.forEach(function(p){
 			if (_.intersection(self.model.highlights, p.fragments).length > 0 || _.intersection(highlightClusterIds, p.clusterIds).length > 0)
 				p.line.attr("stroke", p.colour);
 			else
-				p.line.attr("stroke", self.model.get('peakColor'));
+				p.line.attr("stroke", model.get('peakColor'));
 		});
 	}
 }
 
 Graph.prototype.updatePeakLabels = function(){
-	var peakCount = this.peaks.length;
+	let peakCount = this.peaks.length;
 
-	if (this.model.highlights.length == 0){
-		for (var p = 0; p < peakCount; p++) {
+	if (this.model.highlights.length === 0){
+		for (let p = 0; p < peakCount; p++) {
 			if (this.peaks[p].fragments.length > 0) {
 				this.peaks[p].removeLabels();
 				this.peaks[p].showLabels();
@@ -787,9 +801,9 @@ Graph.prototype.updatePeakLabels = function(){
 		}
 	}
 	else{
-		for (var p = 0; p < peakCount; p++) {
+		for (let p = 0; p < peakCount; p++) {
 			// if it's not a fragment from the highlight selection
-			if (_.intersection(this.model.highlights, this.peaks[p].fragments).length == 0){
+			if (_.intersection(this.model.highlights, this.peaks[p].fragments).length === 0){
 				// show it if allFragmentHighlights is true (dependent on lossyShown)
 				if (this.model.showAllFragmentsHighlight){
 					this.peaks[p].removeLabels();
@@ -808,21 +822,19 @@ Graph.prototype.updatePeakLabels = function(){
 	}
 }
 
-Graph.prototype.updateColors = function(){
-	var peakCount = this.peaks.length;
-		for (var p = 0; p < peakCount; p++) {
-			this.peaks[p].updateColor();
-		}
+Graph.prototype.setColors = function(){
+	for (let p = 0; p < this.peaks.length; p++) {
+		this.peaks[p].setColor();
+	}
 }
 
 Graph.prototype.updateHighlightColors = function(){
-	var peakCount = this.peaks.length;
-		for (var p = 0; p < peakCount; p++) {
-			if(this.peaks[p].highlightLine !== undefined){
-				this.peaks[p].highlightLine.attr("stroke", this.model.get('highlightColor'));
-				this.peaks[p].labelHighlights.attr("stroke", this.model.get('highlightColor'));
-			}
+	for (let p=0; p < this.peaks.length; p++) {
+		if(this.peaks[p].highlightLine !== undefined){
+			this.peaks[p].highlightLine.attr("stroke", this.model.get('highlightColor'));
+			this.peaks[p].labelHighlights.attr("stroke", this.model.get('highlightColor'));
 		}
+	}
 }
 
 Graph.prototype.show = function(){

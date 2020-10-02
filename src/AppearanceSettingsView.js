@@ -36,6 +36,7 @@ let AppearanceSettingsView = SettingsView.extend({
             'change #xispec_settingsDecimals': 'changeDecimals',
             'change #highlightColor': 'updateJsColor',
             'change #xispec_peakHighlightMode': 'changePeakHighlightMode',
+            'change #xispec_pepFragSelector': 'changePepFragmentsVis',
         });
     },
 
@@ -44,7 +45,7 @@ let AppearanceSettingsView = SettingsView.extend({
     initialize: function (options) {
         // load default options and super initialize the parent view
         const defaultOptions = {
-            tabs: ["general", "labels"]
+            tabs: ["general", "labels", "fragments"]
         };
         this.options = _.extend(defaultOptions, options);
         arguments[0] = this.options;
@@ -54,12 +55,30 @@ let AppearanceSettingsView = SettingsView.extend({
         // event listeners
         this.listenTo(xiSPECUI.vent, 'appearanceSettingsToggle', this.toggleView);
 
-        // general
+        // HTML elements
+        //
+        // general tab
         let generalTab = this.mainDiv.append("div")
             .attr("class", "xispec_settings-tab xispec_flex-column")
             .attr("id", "xispec_general_tab")
         ;
-        let colorSchemeSelector = generalTab.append("label").text("Color scheme: ")
+        generalTab.append("label").text("Color: ")
+            .append("select").attr("id", 'xispec_pepFragSelector').attr("class", 'xispec_form-control pointer')
+        ;
+        let pepFragOptions = [
+            {value: "both", text: "both peptides"},
+            {value: "pep1", text: "only peptide 1"},
+            {value: "pep2", text: "only peptide 2"}
+        ];
+        d3.select("#xispec_pepFragSelector").selectAll("option").data(pepFragOptions)
+            .enter()
+            .append("option")
+            .attr("value", function (d) { return d.value; })
+            .text(function (d) { return d.text; })
+        ;
+
+        // color selector
+        generalTab.append("label").text("Color scheme: ")
             .append("select").attr("id", 'xispec_colorSelector').attr("class", 'xispec_form-control pointer')
         ;
         let colOptions = [
@@ -89,43 +108,50 @@ let AppearanceSettingsView = SettingsView.extend({
         ;
         jscolor.installByClassName("jscolor");
 
-        let highlightingModeChkBx = generalTab.append("label").text("Hide not selected fragments: ")
-            .append("input").attr("type", "checkbox").attr("id", "xispec_peakHighlightMode")
-        ;
         this.decimals = generalTab.append("label").text("Number of decimals to display: ")
             .append("input").attr("type", "number").attr("id", "xispec_settingsDecimals")
             .attr("min", "1").attr("max", "10").attr("autocomplete", "off")
         ;
-        this.absoluteError = generalTab.append("label").text("Absolute error values (QC): ")
+        generalTab.append("label").text("Absolute error values (QC): ")
             .append("input").attr("type", "checkbox").attr("id", "xispec_absErrChkBx")
         ;
-        this.accentuateCrossLinkContaining = generalTab.append("label").text("accentuate crosslink containing fragments: ")
-            .append("input").attr("type", "checkbox").attr("id", "xispec_accentuateCLcontainingChkBx")
-        ;
-        // label tab
+
+        // labels tab
         let labelsTab = this.mainDiv.append("div")
             .attr("class", "xispec_settings-tab xispec_flex-column")
             .attr("id", "xispec_labels_tab")
             .style('display', 'none')
         ;
-        let lossyChkBx = labelsTab.append("label").text("Show neutral loss labels: ")
+        labelsTab.append("label").text("Show neutral loss labels: ")
             .append("input").attr("type", "checkbox").attr("id", "xispec_lossyChkBx")
         ;
         this.labelFragmentCharge = labelsTab.append("label").text("label fragment charge: ")
             .append("input").attr("type", "checkbox").attr("id", "xispec_labelFragmentCharge")
         ;
-
-        this.labelFilter = labelsTab.append("label").text("labeling cutoff (% base peak): ")
+        labelsTab.append("label").text("labeling cutoff (% base peak): ")
             .append("input").attr("type", "number").attr("id", "xispec_settingsLabelingCutoff")
             .attr("min", "0").attr("max", "100").attr("autocomplete", "off")
             .attr("value", 0)
         ;
-
         this.labelFontSize = labelsTab.append("label").text("label font size (px): ")
             .append("input").attr("type", "number").attr("id", "xispec_settingsLabelFontSize")
             .attr("min", "1").attr("max", "50").attr("autocomplete", "off")
             .attr("value", this.model.labelFontSize)
         ;
+
+        // fragments tab
+        let fragmentsTab = this.mainDiv.append("div")
+            .attr("class", "xispec_settings-tab xispec_flex-column")
+            .attr("id", "xispec_fragments_tab")
+            .style('display', 'none')
+        ;
+        fragmentsTab.append("label").text("accentuate crosslink containing fragments: ")
+            .append("input").attr("type", "checkbox").attr("id", "xispec_accentuateCLcontainingChkBx")
+        ;
+        fragmentsTab.append("label").text("Hide not selected fragments: ")
+            .append("input").attr("type", "checkbox").attr("id", "xispec_peakHighlightMode")
+        ;
+
         // end Tabs
 
         let d3el = d3.select(this.el);
@@ -181,6 +207,11 @@ let AppearanceSettingsView = SettingsView.extend({
     accentuateCLcontainingToggle: function (e) {
         let selected = $(e.target).is(':checked');
         xiSPECUI.vent.trigger('AccentuateCrossLinkContainingFragments', selected);
+    },
+
+    changePepFragmentsVis: function (e) {
+        let model = this.displayModel; //apply changes directly for now
+        model.setVisFragments(e.target.value);
     },
 
     chargeLabelToggle: function (e) {

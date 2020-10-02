@@ -19,14 +19,14 @@
 //		graph/Peak.js
 
 function Peak (id, graph){
-	var peak = graph.model.get("JSONdata").peaks[id];
+	let peak = graph.model.get("JSONdata").peaks[id];
 	this.id = id;
 	this.x = peak.mz;
 	this.y = peak.intensity;
 	this.IsotopeClusters = [];
 	this.labels = [];
-	for (i=0; i<peak.clusterIds.length; i++){
-		cluster = graph.model.get("JSONdata").clusters[peak.clusterIds[i]]
+	for (let i=0; i<peak.clusterIds.length; i++){
+		let cluster = graph.model.get("JSONdata").clusters[peak.clusterIds[i]]
 		cluster.id = peak.clusterIds[i]
 		this.IsotopeClusters.push(cluster);
 	}
@@ -39,14 +39,14 @@ function Peak (id, graph){
 	this.isotopenumbers = [];
 	//this.isMonoisotopic = false;	//monoisotopic peak for at least one fragment
 
-	var fragments = graph.model.fragments;
-	for (var f = 0; f < fragments.length; f++) {
-		if(_.intersection(fragments[f].clusterIds, this.clusterIds).length != 0){
-			//monoisotopic peak for this fragment
-			intersect = _.intersection(fragments[f].clusterIds, this.clusterIds)
-				for (var i = 0; i < intersect.length; i++) {
+	let fragments = graph.model.fragments;
+	for (let f=0; f < fragments.length; f++) {
+		if(_.intersection(fragments[f].clusterIds, this.clusterIds).length !== 0){
+			// monoisotopic peak for this fragment
+			let intersect = _.intersection(fragments[f].clusterIds, this.clusterIds)
+				for (let i=0; i < intersect.length; i++) {
 					fragments[f].isMonoisotopic = false;
-					for (var j = 0; j < this.IsotopeClusters.length; j++) {
+					for (let j=0; j < this.IsotopeClusters.length; j++) {
 						var isotope = id - this.IsotopeClusters[j].firstPeakId;
 						if (this.IsotopeClusters[j].id == intersect[i] && this.IsotopeClusters[j].firstPeakId == id){
 							fragments[f].isMonoisotopic = true;
@@ -62,7 +62,7 @@ function Peak (id, graph){
 				this.isotopenumbers.push(isotope);
 			}
 		}
-	};
+	}
 }
 
 Peak.prototype.draw = function(){
@@ -85,7 +85,7 @@ Peak.prototype.draw = function(){
 
 		this.lineGroup
 			.on("mouseover", function() {
-				var evt = d3.event;
+				let evt = d3.event;
 				if (evt.ctrlKey){
 					self.line.style("cursor", "copy");
 					self.highlightLine.style("cursor", "copy");
@@ -103,7 +103,7 @@ Peak.prototype.draw = function(){
 				endHighlight();
 			})
 			.on("touchstart", function() {
-				var evt = d3.event;
+				let evt = d3.event;
 				showTooltip(evt.layerX, evt.layerY);
 				startHighlight();
 			})
@@ -112,28 +112,24 @@ Peak.prototype.draw = function(){
 				endHighlight();
 			})
 			.on("click", function() {
-				var evt = d3.event;
+				let evt = d3.event;
 				stickyHighlight(evt.ctrlKey);
 			})
 			;
 
 		function showTooltip(x, y, fragId){
-			var contents = [["m/z", self.x.toFixed(self.graph.model.showDecimals)], ["Int", self.y.toFixed(self.graph.model.showDecimals)]];
-			var header = [];
+			let contents = [["m/z", self.x.toFixed(self.graph.model.showDecimals)], ["Int", self.y.toFixed(self.graph.model.showDecimals)]];
+			let header = [];
 
 			//filter fragments shown in tooltip (only fraglabel is hovered over)
-			if(fragId){
-				fragId = parseInt(fragId);
-				var fragments = self.fragments.filter(function(d) { return d.id == fragId; });
-			}
-			else
-				var fragments = self.fragments;
+			let fragments = (fragId) ? self.fragments.filter(function (d) {
+				return d.id === parseInt(fragId);
+			}) : self.fragments;
 
-			var fragCount = fragments.length;
-			for (var f = 0; f < fragCount; f++){
-					//get right cluster for peak
-					for (var i = 0; i < self.clusterIds.length; i++) {
-						if(fragments[f].clusterIds.indexOf(self.clusterIds[i]) != -1){
+			for (let f=0; f < fragments.length; f++){
+					// get right cluster for peak
+					for (let i=0; i < self.clusterIds.length; i++) {
+						if (fragments[f].clusterIds.indexOf(self.clusterIds[i]) !== -1){
 							var index = fragments[f].clusterIds.indexOf(self.clusterIds[i]);
 							var cluster = self.graph.model.get("JSONdata").clusters[self.clusterIds[i]];
 						}
@@ -150,7 +146,7 @@ Peak.prototype.draw = function(){
 
 					var fragmentBodyText = [fragName, fragInfo];
 					contents.push(fragmentBodyText);
-			};
+			}
 
 			//Tooltip
 			if (CLMSUI.compositeModelInst !== undefined){
@@ -161,7 +157,7 @@ Peak.prototype.draw = function(){
 			}
 			else{
 				var html = header.join("; ");
-				for (var i = contents.length - 1; i >= 0; i--) {
+				for (let i = contents.length - 1; i >= 0; i--) {
 					html += "</br>";
 					html += contents[i].join(": ");
 				}
@@ -172,14 +168,14 @@ Peak.prototype.draw = function(){
 
 				//if cursor is too close to left window edge change tooltip to other side
 				if (window.innerWidth - x < 250){
-					var x = x - 250;
-					var y = y + 20;
+					x = x - 250;
+					y = y + 20;
 				}
 
 				self.graph.tooltip.style("left", (x + 15) + "px")
 					.style("top", y + "px");
 			}
-		};
+		}
 
 		function hideTooltip(){
 			if (CLMSUI.compositeModelInst !== undefined)
@@ -188,7 +184,7 @@ Peak.prototype.draw = function(){
 				self.graph.tooltip.style("opacity", 0);
 				self.graph.tooltip.html("");
 			}
-		};
+		}
 
 		function startHighlight(fragId){
 			var fragments = [];
@@ -432,47 +428,18 @@ Peak.prototype.draw = function(){
 
 
 	this.colour = this.graph.model.get('peakColor');
-	if (this.fragments.length > 0){
-
-		var lossy = true;
-		var index = 0;
-		for (var i = 0; i < this.fragments.length; i++) {
-			if (this.fragments[i].class == "non-lossy"){
-				lossy = false;
-				index = i;
-			}
-		}
-		if (this.fragments[index].peptideId == 0) {
-			if (!lossy)
-				this.colour = this.graph.model.p1color;
-			else
-				this.colour = this.graph.model.p1color_loss;
-		}
-		else if (this.fragments[index].peptideId == 1) {
-			if (!lossy)
-				this.colour = this.graph.model.p2color;
-			else
-				this.colour = this.graph.model.p2color_loss;
-		}
-	}
-	else if (this.isotopes.length > 0) {
-		if(this.isotopes[0].peptideId == 0)
-			this.colour = this.graph.model.p1color_cluster;
-		if(this.isotopes[0].peptideId == 1)
-			this.colour = this.graph.model.p2color_cluster;
-	}
-	this.line.attr("stroke", this.colour);
+	this.setColor();
 }
 
 Peak.prototype.highlight = function(show, fragments){
-	if (show == true) {
+	if (show === true) {
 		this.highlightLine.attr("opacity","1");
 		if (this.labels.length) {
-			var fragMap = d3.set (fragments.map (function (frag) { return frag.id; }));
-			var ffunc = function (d) { return fragMap.has (d.id); };
+			let fragMap = d3.set (fragments.map (function (frag) { return frag.id; }));
+			let ffunc = function (d) { return fragMap.has (d.id); };
 			this.labelHighlights.filter(ffunc)
 				.attr("opacity", 1)
-				.attr("display", "inline");
+				.attr("display", "inline")
 			;
 			this.labels.filter(ffunc).attr("display", "inline");
 		}
@@ -528,7 +495,7 @@ Peak.prototype.updateX = function(xDomain){
 
 		return (peakObj.graph.lossyShown === true || d.class == "non-lossy" || isSticky)	//lossy enabled OR not lossy OR isStickyFrag
 			 && (isSticky || model.sticky.length == 0 || model.showAllFragmentsHighlight)	//isStickyFrag OR no StickyFrags or showAll
-	};
+	}
 	var self = this;
 	if (labelCount) {
 		this.labels
@@ -616,41 +583,40 @@ Peak.prototype.showLabels = function(lossyOverride){
 	}
 }
 
-Peak.prototype.updateColor = function(){
-	this.colour = this.graph.model.get('peakColor');
+Peak.prototype.setColor = function(){
+	let model = this.graph.model
+	this.colour = model.get('peakColor');	// standard color
+	// fragment peak
+	// let fragments = _.intersection(this.fragments, model.visFragments)	// only use visible fragments
 	if (this.fragments.length > 0){
-		if (this.fragments[0].peptideId == 0) {
-			if (this.fragments[0].class == "non-lossy")
-				this.colour = this.graph.model.p1color;
-
-			else if (this.fragments[0].class == "lossy")
-				this.colour = this.graph.model.p1color_loss;
+		// prioritize non-lossy fragments for color
+		let non_lossy = this.fragments.filter(function(f) { return !f.lossy; });
+		if (non_lossy.length > 0){
+			this.colour = (non_lossy[0].peptideId === 0) ? model.p1color : model.p2color;
 		}
-		else if (this.fragments[0].peptideId == 1) {
-			if (this.fragments[0].class == "non-lossy")
-				this.colour = this.graph.model.p2color;
-			else if (this.fragments[0].class == "lossy")
-				this.colour = this.graph.model.p2color_loss;
+		else{
+			this.colour = (this.fragments[0].peptideId === 0) ? model.p1color_loss : model.p2color_loss;
 		}
 	}
 	else if(this.isotopes.length > 0) {
-		if(this.isotopes[0].peptideId == 0)
-			this.colour = this.graph.model.p1color_cluster;
-		if(this.isotopes[0].peptideId == 1)
-			this.colour = this.graph.model.p2color_cluster;
+		if(this.isotopes[0].peptideId === 0)
+			this.colour = model.p1color_cluster;
+		if(this.isotopes[0].peptideId === 1)
+			this.colour = model.p2color_cluster;
 	}
 	this.line.attr("stroke", this.colour);
-	if(this.labels.length){
 
-		var filter_p1 = function(label){ return label.peptideId == 0};
-		var filter_p2 = function(label){ return label.peptideId == 1};
-		var filter_lossy = function(label){ return label.class == "lossy"};
-		var filter_nonLossy = function(label){ return label.class == "non-lossy"};
+	if(this.labels.length > 0){
 
-		this.labels.filter(filter_p1).filter(filter_nonLossy).attr("fill", this.graph.model.p1color);
-		this.labels.filter(filter_p1).filter(filter_lossy).attr("fill", this.graph.model.p1color_loss);
-		this.labels.filter(filter_p2).filter(filter_nonLossy).attr("fill", this.graph.model.p2color);
-		this.labels.filter(filter_p2).filter(filter_lossy).attr("fill", this.graph.model.p2color_loss);
+		let filter_p1 = function(label){ return label.peptideId === 0};
+		let filter_p2 = function(label){ return label.peptideId === 1};
+		let filter_lossy = function(label){ return label.class === "lossy"};
+		let filter_nonLossy = function(label){ return label.class === "non-lossy"};
+
+		this.labels.filter(filter_p1).filter(filter_nonLossy).attr("fill", model.p1color);
+		this.labels.filter(filter_p1).filter(filter_lossy).attr("fill", model.p1color_loss);
+		this.labels.filter(filter_p2).filter(filter_nonLossy).attr("fill", model.p2color);
+		this.labels.filter(filter_p2).filter(filter_lossy).attr("fill", model.p2color_loss);
 
 	}
 
