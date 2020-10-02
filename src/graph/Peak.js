@@ -121,34 +121,32 @@ Peak.prototype.draw = function(){
 			let contents = [["m/z", self.x.toFixed(self.graph.model.showDecimals)], ["Int", self.y.toFixed(self.graph.model.showDecimals)]];
 			let header = [];
 
-			//filter fragments shown in tooltip (only fraglabel is hovered over)
+			// filter fragments shown in tooltip (only fraglabel is hovered over)
 			let fragments = (fragId) ? self.fragments.filter(function (d) {
 				return d.id === parseInt(fragId);
 			}) : self.fragments;
 
 			for (let f=0; f < fragments.length; f++){
-					// get right cluster for peak
-					for (let i=0; i < self.clusterIds.length; i++) {
-						if (fragments[f].clusterIds.indexOf(self.clusterIds[i]) !== -1){
-							var index = fragments[f].clusterIds.indexOf(self.clusterIds[i]);
-							var cluster = self.graph.model.get("JSONdata").clusters[self.clusterIds[i]];
-						}
-					}
-					var matchedMissingMonoIsotopic = fragments[f].clusterInfo[index].matchedMissingMonoIsotopic;
-					var charge = cluster.charge;
-					var error = fragments[f].clusterInfo[index].error.toFixed(self.graph.model.showDecimals)+" "+fragments[f].clusterInfo[index].errorUnit;
-					var chargeStr = "+".repeat(charge);
-					header.push(fragments[f].name + chargeStr);
+				// get the right clusterId for this peak
+				let clusterId = _.intersection(self.clusterIds, fragments[f].clusterIds)[0];
+				let clusterInfoIdx = fragments[f].clusterIds.indexOf(clusterId);
+				let clusterInfo = fragments[f].clusterInfo[clusterInfoIdx]
 
-					var fragName = fragments[f].name + " (" + fragments[f].sequence + ")";
-					var fragInfo = "charge: " + charge + ", error: " + error;
-					if (matchedMissingMonoIsotopic) fragInfo += ", missing monoisotopic peak";
+				let matchedMissingMonoIsotopic = clusterInfo.matchedMissingMonoIsotopic;
+				let charge = clusterInfo.matchedCharge;
+				let error = clusterInfo.error.toFixed(self.graph.model.showDecimals) + " " + clusterInfo.errorUnit;
+				let chargeStr = "+".repeat(charge);
+				header.push(fragments[f].name + chargeStr);
 
-					var fragmentBodyText = [fragName, fragInfo];
-					contents.push(fragmentBodyText);
+				let fragName = fragments[f].name + " (" + fragments[f].sequence + ")";
+				let fragInfo = "charge: " + charge + ", error: " + error;
+				if (matchedMissingMonoIsotopic) fragInfo += ", missing monoisotopic peak";
+
+				let fragmentBodyText = [fragName, fragInfo];
+				contents.push(fragmentBodyText);
 			}
 
-			//Tooltip
+			// Tooltip
 			if (CLMSUI.compositeModelInst !== undefined){
 				self.graph.tooltip.set("contents", contents )
 					.set("header", header.join(" "))
@@ -156,7 +154,7 @@ Peak.prototype.draw = function(){
 					//.set("location", {pageX: d3.event.pageX, pageY: d3.event.pageY})
 			}
 			else{
-				var html = header.join("; ");
+				let html = header.join("; ");
 				for (let i = contents.length - 1; i >= 0; i--) {
 					html += "</br>";
 					html += contents[i].join(": ");
@@ -196,12 +194,12 @@ Peak.prototype.draw = function(){
 				fragments = self.fragments;
 			}
 			self.graph.model.addHighlight(fragments);
-		};
+		}
 
 		function endHighlight(){
 			//hideTooltip();
 			self.graph.model.clearHighlight(self.fragments);
-		};
+		}
 
 		function stickyHighlight(ctrl, fragId){
 			var fragments = [];
@@ -212,7 +210,7 @@ Peak.prototype.draw = function(){
 			else
 				fragments = self.fragments;
 			self.graph.model.updateStickyHighlight(fragments, ctrl);
-		};
+		}
 
 		//create frag labels
 		//labeldrag

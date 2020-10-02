@@ -23,7 +23,7 @@ function Fragment (fragment, all_clusters){
 	this.clusterIds = fragment.clusterIds;
 	this.clusterInfo = fragment.clusterInfo;
 	this.clusters = [];
-	for (var i = 0; i < this.clusterIds.length; i++) {
+	for (let i=0; i < this.clusterIds.length; i++) {
 		this.clusters.push(all_clusters[this.clusterIds[i]]);
 	}
 	this.id = fragment.id;
@@ -35,40 +35,39 @@ function Fragment (fragment, all_clusters){
 	this.sequence = fragment.sequence;
 	this.type = fragment.type;
 
-	var ion = this.name.split('')[0];
-	if (ion == 'a' || ion == 'b' || ion == 'c') {
+	let ion = this.name.split('')[0];
+	if (ion === 'a' || ion === 'b' || ion === 'c') {
 		this.byType = 'bLike';
-	} else if (ion == 'x' || ion == 'y' || ion == 'z'){
+	} else if (ion === 'x' || ion === 'y' || ion === 'z'){
 		this.byType = 'yLike';
 	}
 	else {
 		this.byType = null;
 	}
 
-	var fragRegex = /[abcxyz]([0-9]+)(?:_.*)?/g;
-	var regexMatch = fragRegex.exec(this.name);
-	if(regexMatch)
-		this.ionNumber = regexMatch[1] - 0;
-	else
-		this.ionNumber = null;
+	let fragRegex = /[abcxyz]([0-9]+)(?:_.*)?/g;
+	let regexMatch = fragRegex.exec(this.name);
+	this.ionNumber = (regexMatch) ? regexMatch[1] - 0 : null;
 
-    this.lossy = false;
-    if (this.class == "lossy"){
-		this.lossy = true;
-	}
+    this.lossy = this.class === "lossy";
 
-	var crossLinkContainingRegex = /CrossLink\(.*n\|PeptideIon\)/g;
-
-	this.crossLinkContaining = false;
-	if(crossLinkContainingRegex.test(this.type))
-		this.crossLinkContaining = true;
+	let crossLinkContainingRegex = /CrossLink\(.*n\|PeptideIon\)/g;
+	this.crossLinkContaining = crossLinkContainingRegex.test(this.type);
 
 }
 
 Fragment.prototype.get_charge = function(peak_id){
+
+	// let clusterId = _.intersection(, this.clusterIds)[0];
+	// let clusterInfoIdx = fragments[f].clusterIds.indexOf(clusterId);
+	// let clusterInfo = fragments[f].clusterInfo[clusterInfoIdx]
+
 	// returns the charge state of this fragment for a given peak_id
-	var cluster = this.clusters.filter(
+	let cluster = this.clusters.filter(
 		function(c){ if (c.firstPeakId == peak_id) return true;});
 
-	return cluster[0].charge;
+	let clusterId = cluster[0].id;
+	let clusterInfo = this.clusterInfo.filter(function(c){ return c.Clusterid === clusterId })
+
+	return clusterInfo[0].matchedCharge;
 }
