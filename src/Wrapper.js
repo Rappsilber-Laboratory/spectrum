@@ -191,9 +191,6 @@ let xiSPEC_wrapper = Backbone.View.extend({
         if (data.modifications === undefined) {
             data.modifications = [];
         }
-        if (data.losses === undefined) {
-            data.losses = [];
-        }
         if (data.fragmentTolerance === undefined) {
             data.fragmentTolerance = {"tolerance": '10.0', 'unit': 'ppm'};
         }
