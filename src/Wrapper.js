@@ -126,6 +126,8 @@ let xiSPEC_wrapper = Backbone.View.extend({
         activeSpecModel.set('butterfly', false);
         activeSpecModel.set('changedAnnotation', false);
         activeSpecModel.reset_all_modifications();
+        activeSpecModel.set('spectrum_id', data.spectrum_id);
+        activeSpecModel.set('spectrum_title', data.spectrum_title);
         this.activeSpectrum.originalMatchRequest = $.extend(true, {}, json_request);
         this.activeSpectrum.requestAnnotation(json_request, activeSpecModel.get('annotatorURL'), true);
         this.activeSpectrum.setTitle(data.spectrum_title);
