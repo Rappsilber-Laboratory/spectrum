@@ -422,6 +422,7 @@ let DataSettingsView = SettingsView.extend({
         let json = this.model.get("JSONrequest");
         this.displayModel.set('annotatorURL', $('#xispec_annotatorDropdown').val());
         xiSPECUI.vent.trigger('requestAnnotation', json, this.displayModel.get('annotatorURL'));
+        this.displayModel.set('changedAnnotation', true);
     },
 
     applyData: function (e) {

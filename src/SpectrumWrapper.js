@@ -275,6 +275,7 @@ let SpectrumWrapper = Backbone.View.extend({
 					if (isOriginalMatchRequest) {
 						self.models['originalSpectrum'].set({"JSONdata": data, "JSONrequest": json_request});
 						self.originalMatchRequest = $.extend(true, {}, json_request);
+						self.originalAnnotator = annotatorURL;
 					}
 
 					self.models['Spectrum'].set({"JSONdata": data, "JSONrequest": json_request});
@@ -291,6 +292,7 @@ let SpectrumWrapper = Backbone.View.extend({
 		if (this.models['Spectrum'].get('changedAnnotation')) {
 			this.models['Spectrum'].reset_all_modifications();
 			this.models['SettingsSpectrum'].reset_all_modifications();
+			this.models['Spectrum'].set('annotatorURL', this.originalAnnotator);
 			this.requestAnnotation(this.originalMatchRequest, this.models['Spectrum'].get('annotatorURL'));
 			this.models['Spectrum'].set('changedAnnotation', false);
 		}

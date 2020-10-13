@@ -46,7 +46,6 @@ let SpectrumControlsView = Backbone.View.extend({
     	// event listeners
         this.listenTo(this.model, 'change:mzRange', this.renderMzRange);
         this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
-        this.listenTo(this.model, 'change:butterfly', this.renderButterfly);
         this.listenTo(xiSPECUI.vent, 'activeSpecPanel:changed', this.changedModel);
 
         // create HTML elements
@@ -217,7 +216,7 @@ let SpectrumControlsView = Backbone.View.extend({
         this.renderMzRange();
         this.changedAnnotation();
         this.renderLockZoom();
-        this.renderButterfly();
+        this.renderButterflyChkbox();
         this.moveLabelsChkbox.property('checked', this.model.get('moveLabels'))
         this.measureModeChkbox.property('checked', this.model.get('measureMode'))
     },
@@ -242,7 +241,7 @@ let SpectrumControlsView = Backbone.View.extend({
         $("#xispec_xright").val(mzRange[1].toFixed(0));
     },
 
-    renderButterfly: function () {
+    renderButterflyChkbox: function () {
         let checked = this.model.get('butterfly');
         $('#xispec_butterflyChkbx').prop('checked', checked);
         if (checked) {
@@ -279,6 +278,7 @@ let SpectrumControlsView = Backbone.View.extend({
     toggleButterfly: function (e) {
         let selected = $(e.target).is(':checked');
         this.model.set('butterfly', selected);
+        this.renderButterflyChkbox();
     },
 
     butterflySwap: function () {

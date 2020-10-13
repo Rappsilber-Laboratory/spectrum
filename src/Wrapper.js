@@ -297,7 +297,7 @@ let xiSPEC_wrapper = Backbone.View.extend({
         // if there is already an activeSpectrum copy it's originalMatchRequest
         if (this.activeSpectrum) {
             newSpec.requestAnnotation(this.activeSpectrum.originalMatchRequest,
-                this.activeSpectrum.models['Spectrum'].get('annotatorURL'), true)
+                this.activeSpectrum.originalAnnotator, true)
             newSpec.setTitle(this.activeSpectrum.title);
         }
 
