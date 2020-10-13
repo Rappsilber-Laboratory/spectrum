@@ -58,15 +58,17 @@ Graph = function(targetSvg, model, options) {
 		.attr("pointer-events", "all")
 	;
 
-	let backgroundLabel = (this.options.id === 'originalSpectrum') ? 'original' : 're-annotation';
-
 	this.plotBackgroundLabel = this.g.append('text')
 		.attr('visibility', 'hidden')
-		.text(backgroundLabel)
 		.attr('opacity','0.4')
-		.attr('fill', 'grey')
 		.attr('style', 'text-anchor: middle; pointer-events: none; font-size: 2em;')
 	;
+	if (this.options.id === 'originalSpectrum'){
+		this.plotBackgroundLabel.text('original').attr('fill', 'grey');
+	}
+	else{
+		this.plotBackgroundLabel.text('re-annotation').attr('fill', 'rgb(53 117 255)');
+	}
 
 	this.measureBackground = this.g.append("rect")
 		.attr("width", "0")
@@ -694,9 +696,8 @@ Graph.prototype.measureShow = function(){
 
 Graph.prototype.redraw = function(){
 	let self = this;
-	//self.measure();
 	return function (){
-		if(self.options.butterfly){
+		if(self.options.butterfly || self.model.get('changedAnnotation')){
 			self.plotBackgroundLabel.attr('visibility', 'visible');
 		}
 		else{

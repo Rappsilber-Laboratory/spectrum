@@ -56,7 +56,6 @@ let SpectrumView = Backbone.View.extend({
 		this.listenTo(this.model, 'change:moveLabels', this.moveLabels);
 		this.listenTo(this.model, 'change:zoomLocked', this.lockZoomToggle);
 		this.listenTo(this.model, 'change:butterfly', this.butterflyToggle);
-		this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
 		this.listenTo(this.model, 'change:highlightColor', this.updateHighlightColors);
 		this.listenTo(this.model, 'changed:ColorScheme', this.setColors);
 		this.listenTo(this.model, 'change:mzRange', this.updateMzRange);
@@ -268,15 +267,6 @@ let SpectrumView = Backbone.View.extend({
 
 	hideSpinner: function(){
 		this.spinner.stop();
-	},
-
-	changedAnnotation: function(){
-		if(this.model.get('changedAnnotation')){
-			$(this.el.parentNode).attr('style', 'background-color:#9abaff;');
-		}
-		else{
-			$(this.el.parentNode).attr('style', 'background-color:#fff;');
-		}
 	},
 
 	labelCutoff: function(){
