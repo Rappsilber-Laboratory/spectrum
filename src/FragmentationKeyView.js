@@ -865,6 +865,7 @@ let FragmentationKeyView = Backbone.View.extend({
     butterflySwap: function () {
         this.options.invert = !this.options.invert;
         this.render();
+        this.updateHighlights();
     },
 
     accentuateCLcontainingToggle: function (toggle) {

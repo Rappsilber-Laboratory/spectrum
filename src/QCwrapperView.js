@@ -66,7 +66,7 @@ let QCwrapperView = Backbone.View.extend({
 			.attr("class", "xispec_btn xispec_btn-1a")
 			.html('<i class="fa fa-chevron-down" aria-hidden="true"></i>')
 		;
-		let plotSelectorDropdown = plotSelector.append("div").attr("class", "xispec_multiSelect_dropdown-content mutliSelect");
+		let plotSelectorDropdown = plotSelector.append("div").attr("class", "xispec_multiSelect_dropdown-content");
 		let plotSelectorList = plotSelectorDropdown.append("ul");
 		const plotOptions = [
 			{value: "int", text: "Intensity"},

@@ -37,7 +37,8 @@ let SpectrumControlsView = Backbone.View.extend({
         'click #xispec_revertAnnotation': 'revertAnnotation',
         'click #xispec_toggleSpecList': 'toggleSpecList',
         'click #xispec_butterflyChkbx': 'toggleButterfly',
-        'click #xispec_butterflySwapBtn': 'butterflySwap',
+        'click #xispec_butterflySwap': 'butterflySwap',
+        'click #xispec_butterflyHighlightBtn': 'butterflyHighlight',
         'click #xispec_addSpectrum': 'addSpectrum',
     },
 
@@ -46,6 +47,7 @@ let SpectrumControlsView = Backbone.View.extend({
     	// event listeners
         this.listenTo(this.model, 'change:mzRange', this.renderMzRange);
         this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
+        this.listenTo(this.model, 'change:butterfly', this.renderButterflyChkbox);
         this.listenTo(xiSPECUI.vent, 'activeSpecPanel:changed', this.changedModel);
 
         // create HTML elements
@@ -173,27 +175,42 @@ let SpectrumControlsView = Backbone.View.extend({
 		// butterflyControls
         this.butterflyControls = this.wrapper.append('div')
             .attr('id', 'xispec_butterflyControls')
+            // .attr('class', )
             .attr('style', 'display:none;')
         ;
-		// butterflySwapBtn
-        this.butterflySwapBtn = this.butterflyControls.append('i')
-            .attr('class', 'xispec_btn xispec_btn-topNav fa fa-exchange xispec_disabled')
-            .attr('aria-hidden', 'true')
-            .attr('id', 'xispec_butterflySwapBtn')
-            .attr('title', 'swap position of original and re-annotated spectrum')
-        ;
-		// butterflyToggleLabel
-        let butterflyToggleLabel = this.butterflyControls.append('label')
-            .attr('class', 'xispec_btn')
-            .attr('title', 'Display original annotation as butterfly plot')
-            .text("Butterfly")
-        ;
-		// butterflyCheckbox
+        let butterflyMenu = this.butterflyControls.append("div")
+            .attr("class", "xispec_multiSelect_dropdown");
+        let butterflyToggleLabel = butterflyMenu.append('label').text('Butterly').attr('class', 'xispec_btn')
+
+        // butterflyCheckbox
         butterflyToggleLabel.append('input')
             .attr('class', 'pointer')
             .attr('id', 'xispec_butterflyChkbx')
             .attr('type', 'checkbox')
         ;
+
+        this.butterflyMenuIcon = butterflyToggleLabel.append('i')
+            .attr('class', 'fa fa-chevron-down')
+            .attr('aria-hidden', 'true')
+            .style('display', 'none')
+        ;
+
+        this.butterflyMenuContent = butterflyMenu.append('div')
+        this.butterflyMenuContentList = this.butterflyMenuContent.append('ul').style('display', 'none');
+        let butterflySwap = this.butterflyMenuContentList.append('li')
+            .text('Swap spectra')
+            .attr('title', 'swap position of original and re-annotated spectrum')
+            .attr('id', 'xispec_butterflySwap')
+        ;
+
+        let butterflyHighlight = this.butterflyMenuContentList.append('li')
+            .text('Highlight differences')
+            .attr('title', 'Highlight fragments that are in one annotation but not the other')
+            .attr('id', 'xispec_butterflyHighlightBtn')
+        ;
+        this.butterflyMenuContentList.selectAll("li").classed ("xispec_btn xispec_btn-1a", true);
+
+
 		// extra_controls_after
         this.wrapper.append('span')
             .attr("id", "xispec_extra_spectrumControls_after")
@@ -245,9 +262,13 @@ let SpectrumControlsView = Backbone.View.extend({
         let checked = this.model.get('butterfly');
         $('#xispec_butterflyChkbx').prop('checked', checked);
         if (checked) {
-            this.butterflySwapBtn.classed('xispec_disabled', false);
+            this.butterflyMenuContent.classed('xispec_multiSelect_dropdown-content', true)
+            this.butterflyMenuContentList.style('display', 'inherit');
+            this.butterflyMenuIcon.style('display', 'inherit');
         } else {
-            this.butterflySwapBtn.classed('xispec_disabled', true);
+            this.butterflyMenuContent.classed('xispec_multiSelect_dropdown-content', false)
+            this.butterflyMenuIcon.style('display', 'none');
+            this.butterflyMenuContentList.style('display', 'none');
         }
     },
 
@@ -285,6 +306,10 @@ let SpectrumControlsView = Backbone.View.extend({
         if ($('#xispec_butterflyChkbx').is(':checked')){
             this.model.trigger('butterflySwap');
         }
+    },
+
+    butterflyHighlight: function () {
+        xiSPECUI.vent.trigger('butterflyHighlight');
     },
 
     setRange: function (e) {

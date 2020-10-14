@@ -167,9 +167,8 @@
     margin-bottom: 0px;
 }
 
-#xispec_spectrumControls #xispec_butterflySwapBtn{
+#xispec_spectrumControls #xispec_butterflySwapIcon{
     transform: rotate(90deg);
-    margin-right: -11px;
 }
 
 #xispec_spectrumControls label {

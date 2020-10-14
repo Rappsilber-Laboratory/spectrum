@@ -29,11 +29,11 @@
 
 .xispec_multiSelect_dropdown DIV UL {
     list-style-type: none;
-    padding: 0 5px;
+    padding: 0;
     margin: 2px;
 }
 
-.xispec_multiSelect_dropdown label {
+.xispec_multiSelect_dropdown li label {
     cursor: pointer;
     display: block;
     line-height: 1em!important;
@@ -53,4 +53,11 @@
     border-top: 1px dotted white;
     margin: 0;
     padding: 0;
+}
+
+.xispec_multiSelect_dropdown .xispec_btn {
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-left: 0;
+    margin-right: 0;
 }

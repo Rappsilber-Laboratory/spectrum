@@ -56,6 +56,7 @@ let SpectrumWrapper = Backbone.View.extend({
 		// event listeners
 		this.listenTo(xiSPECUI.vent, 'activateSpecPanel', this.updateHeader);
 		this.listenTo(SpectrumModel, 'activate', this.toggleActive);
+		this.listenTo(xiSPECUI.vent, 'butterflyHighlight', this.butterflyHighlight);
 
 		// ToDo: create SpectrumPanel model to have these synced
 		// sync model event listeners between original and spectrumModel
@@ -342,5 +343,21 @@ let SpectrumWrapper = Backbone.View.extend({
 			this.title = title;
 			this.headerTitle.html(this.title);
 		}
+	},
+
+	butterflyHighlight: function () {
+		// get fragments from original and re-annotated spectrum and highlight non-overlap
+		let spec_frags = this.models["Spectrum"].fragments;
+		let orig_frags = this.models["originalSpectrum"].fragments;
+		let spec_fragIdStrs = _.pluck(spec_frags, 'idStr');
+		let orig_fragIdStrs = _.pluck(orig_frags, 'idStr');
+
+		let spec_highlightFrags = spec_frags.filter(function (f){ return orig_fragIdStrs.indexOf(f.idStr) === -1 });
+		let orig_highlightFrags = orig_frags.filter(function (f){ return spec_fragIdStrs.indexOf(f.idStr) === -1 });
+
+		this.models['Spectrum'].addHighlight(spec_highlightFrags);
+		this.models['Spectrum'].updateStickyHighlight(spec_highlightFrags, false);
+		this.models['originalSpectrum'].addHighlight(orig_highlightFrags);
+		this.models['originalSpectrum'].updateStickyHighlight(orig_highlightFrags, false);
 	}
 });

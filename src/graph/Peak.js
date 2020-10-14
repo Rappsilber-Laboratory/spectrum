@@ -185,7 +185,7 @@ Peak.prototype.draw = function(){
 		}
 
 		function startHighlight(fragId){
-			var fragments = [];
+			let fragments;
 			if(fragId){
 				fragId = parseInt(fragId);
 				fragments = self.fragments.filter(function(d) { return d.id == fragId; });

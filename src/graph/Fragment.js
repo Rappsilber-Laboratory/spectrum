@@ -54,6 +54,8 @@ function Fragment (fragment, all_clusters){
 	let crossLinkContainingRegex = /CrossLink\(.*n\|PeptideIon\)/g;
 	this.crossLinkContaining = crossLinkContainingRegex.test(this.type);
 
+	this.idStr = this.peptideId + this.name
+
 }
 
 Fragment.prototype.get_charge = function(peak_id){

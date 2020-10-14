@@ -107,7 +107,7 @@ let DataSettingsView = SettingsView.extend({
             .attr("id", "xispec_ionSelection")
             .attr("readonly", "")
         ;
-        let ionSelectorDropdown = ionSelector.append("div").attr("class", "xispec_multiSelect_dropdown-content mutliSelect");
+        let ionSelectorDropdown = ionSelector.append("div").attr("class", "xispec_multiSelect_dropdown-content");
         let ionSelectorList = ionSelectorDropdown.append("ul").attr("id", 'xispec_ionList');
         const ionOptions = [
             {value: "peptide", text: "Peptide Ion"},
@@ -302,7 +302,6 @@ let DataSettingsView = SettingsView.extend({
         ;
         this.annotatorDropdown.append("option").attr("value", "annotate/FULL").text("classic");
         this.annotatorDropdown.append("option").attr("value", "test/FULL").text("test");
-        this.annotatorDropdown.append("option").attr("value", "isotopes/FULL").text("isotope_test");
         let annotatorBottom = annotatorTab.append("div")
             .attr("class", "xispec_settings-bottom");
         let annotatorSubmit = annotatorBottom.append("input")
