@@ -61,10 +61,9 @@ let FragmentationKeyView = Backbone.View.extend({
         this.listenTo(this.model, 'change:highlightColor', this.updateColors);
         this.listenTo(this.model, 'change:butterfly', this.butterflyToggle);
         this.listenTo(this.model, 'butterflySwap', this.butterflySwap);
-        this.listenTo(this.model, 'change')
         this.listenTo(window, 'resize', _.debounce(this.resize));
         this.listenTo(xiSPECUI.vent, 'resize:spectrum', this.resize);
-        this.listenTo(xiSPECUI.vent, 'AccentuateCrossLinkContainingFragments', this.accentuateCLcontainingToggle);
+        this.listenTo(this.model, 'change:accentuateCrossLinkContainingFragments', this.accentuateCLcontainingToggle);
 
         this.tooltip = d3.select("body").append("span")
             .attr("class", "xispec_tooltip")
@@ -868,8 +867,8 @@ let FragmentationKeyView = Backbone.View.extend({
         this.updateHighlights();
     },
 
-    accentuateCLcontainingToggle: function (toggle) {
-        this.options.accentuateCLcontainingFragments = toggle;
+    accentuateCLcontainingToggle: function () {
+        this.options.accentuateCLcontainingFragments = this.model.get('accentuateCrossLinkContainingFragments');
         this.render();
     },
 

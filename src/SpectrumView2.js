@@ -60,22 +60,23 @@ let SpectrumView = Backbone.View.extend({
 		this.listenTo(this.model, 'changed:ColorScheme', this.setColors);
 		this.listenTo(this.model, 'change:mzRange', this.updateMzRange);
 		this.listenTo(this.model, 'butterflySwap', this.butterflySwap);
+		this.listenTo(this.model, 'change:labelFragmentCharge', this.labelFragmentChargeToggle);
+		this.listenTo(this.model, 'change:labelCutoff', this.labelCutoff);
+		this.listenTo(this.model, 'change:labelFontSize', this.changeLabelFontSize);
+		this.listenTo(this.model, 'change:accentuateCrossLinkContainingFragments', this.accentuateCLcontainingToggle);
+		this.listenTo(this.model, 'change:hideNotSelectedFragments', this.updatePeakHighlighting);
+		this.listenTo(this.model, 'change:showLossLabels', this.showLossy);
 
-		this.listenTo(xiSPECUI.vent, 'AccentuateCrossLinkContainingFragments', this.accentuateCLcontainingToggle);
-		this.listenTo(xiSPECUI.vent, 'changePepFragmentsVis', this.changePepFragmentsVis);
-		this.listenTo(xiSPECUI.vent, 'labelFragmentCharge', this.labelFragmentChargeToggle);
 		this.listenTo(xiSPECUI.vent, 'downloadSpectrumSVG', this.downloadSVG);
 		this.listenTo(xiSPECUI.vent, 'resize:spectrum', this.resize);
 		this.listenTo(xiSPECUI.vent, 'clearSpectrumHighlights', this.clearHighlights);
 
 		this.listenTo(this.model, 'resetZoom', this.resetZoom);
 		this.listenTo(this.model, 'changed:Highlights', this.updateHighlights);
-		this.listenTo(this.model, 'changed:lossyShown', this.showLossy);
-		this.listenTo(this.model, 'changed:labelCutoff', this.labelCutoff);
-		this.listenTo(this.model, 'changed:labelFontSize', this.changeLabelFontSize);
+
 		this.listenTo(this.model, 'requestAnnotation:pending', this.showSpinner);
 		this.listenTo(this.model, 'requestAnnotation:done', this.hideSpinner);
-		this.listenTo(this.model, 'changed:fragHighlighting', this.updatePeakHighlighting);
+
 		//this.listenTo(this.model, 'destroy', this.remove);
 	},
 
@@ -116,7 +117,7 @@ let SpectrumView = Backbone.View.extend({
 	},
 
 	showLossy: function(){
-		this.graph.lossyShown = this.model.lossyShown;
+		this.graph.lossyShown = this.model.get('showLossLabels');
 		this.graph.updatePeakLabels();
 	},
 
@@ -183,13 +184,13 @@ let SpectrumView = Backbone.View.extend({
 		this.updateHighlights();
 	},
 
-	accentuateCLcontainingToggle: function(toggle){
-		this.options.accentuateCLcontainingFragments = toggle;
+	accentuateCLcontainingToggle: function(){
+		this.options.accentuateCLcontainingFragments = this.model.get('accentuateCrossLinkContainingFragments');
 		this.render();
 	},
 
-	labelFragmentChargeToggle: function(toggle){
-		this.options.labelFragmentCharge = toggle;
+	labelFragmentChargeToggle: function(){
+		this.options.labelFragmentCharge = this.model.get('labelFragmentCharge');
 		this.render();
 	},
 
@@ -275,6 +276,6 @@ let SpectrumView = Backbone.View.extend({
 	},
 
 	changeLabelFontSize: function(){
-		this.graph.peaksSVG.selectAll('g.xispec_label text').style("font-size", this.model.labelFontSize);
+		this.graph.peaksSVG.selectAll('g.xispec_label text').style("font-size", this.model.get('labelFontSize'));
 	},
 });

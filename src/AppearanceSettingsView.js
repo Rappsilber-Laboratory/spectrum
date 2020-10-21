@@ -34,8 +34,8 @@ let AppearanceSettingsView = SettingsView.extend({
             'change #xispec_settingsLabelFontSize': 'setLabelFontSize',
             'change #xispec_colorSelector': 'changeColorScheme',
             'change #xispec_settingsDecimals': 'changeDecimals',
-            'change #highlightColor': 'updateJsColor',
-            'change #xispec_peakHighlightMode': 'changePeakHighlightMode',
+            'change #xispec_highlightColor': 'changeHighlightColor',
+            'change #xispec_hideNotSelectedFragments': 'changePeakHighlightMode',
             'change #xispec_pepFragSelector': 'changePepFragmentsVis',
         });
     },
@@ -125,7 +125,7 @@ let AppearanceSettingsView = SettingsView.extend({
         labelsTab.append("label").text("Show neutral loss labels: ")
             .append("input").attr("type", "checkbox").attr("id", "xispec_lossyChkBx")
         ;
-        this.labelFragmentCharge = labelsTab.append("label").text("label fragment charge: ")
+        labelsTab.append("label").text("label fragment charge: ")
             .append("input").attr("type", "checkbox").attr("id", "xispec_labelFragmentCharge")
         ;
         labelsTab.append("label").text("labeling cutoff (% base peak): ")
@@ -136,7 +136,7 @@ let AppearanceSettingsView = SettingsView.extend({
         this.labelFontSize = labelsTab.append("label").text("label font size (px): ")
             .append("input").attr("type", "number").attr("id", "xispec_settingsLabelFontSize")
             .attr("min", "1").attr("max", "50").attr("autocomplete", "off")
-            .attr("value", this.model.labelFontSize)
+            .attr("value", this.model.get('labelFontSize'))
         ;
 
         // fragments tab
@@ -149,7 +149,7 @@ let AppearanceSettingsView = SettingsView.extend({
             .append("input").attr("type", "checkbox").attr("id", "xispec_accentuateCLcontainingChkBx")
         ;
         fragmentsTab.append("label").text("Hide not selected fragments: ")
-            .append("input").attr("type", "checkbox").attr("id", "xispec_peakHighlightMode")
+            .append("input").attr("type", "checkbox").attr("id", "xispec_hideNotSelectedFragments")
         ;
 
         // end Tabs
@@ -173,6 +173,16 @@ let AppearanceSettingsView = SettingsView.extend({
     render: function () {
         if (!this.isVisible) return;
         this.decimals[0][0].value = this.model.showDecimals;
+        $('#xispec_colorSelector').val(this.displayModel.get('colorScheme'));
+        $('#xispec_pepFragSelector').val(this.displayModel.visFragments);
+        $('#xispec_lossyChkBx').prop('checked', this.displayModel.get('showLossLabels'));
+        $('#xispec_labelFragmentCharge').prop('checked', this.displayModel.get('labelFragmentCharge'));
+        $('#xispec_settingsLabelingCutoff').val(this.displayModel.get('labelCutoff'));
+        $('#xispec_settingsLabelFontSize').val(this.displayModel.get('labelFontSize'));
+        $('#xispec_accentuateCLcontainingChkBx').prop('checked', this.displayModel.get('accentuateCrossLinkContainingFragments'));
+        $('#xispec_hideNotSelectedFragments').prop('checked', this.displayModel.get('hideNotSelectedFragments'));
+        $('#xispec_absErrChkBx').prop('checked', this.displayModel.get('QCabsErr'));
+        document.getElementById('xispec_highlightColor').jscolor.fromString(this.displayModel.get('highlightColor'));
     },
 
     cancel: function (){
@@ -180,43 +190,42 @@ let AppearanceSettingsView = SettingsView.extend({
         AppearanceSettingsView.__super__.cancel.apply(this);
     },
 
-    updateJsColor: function (e) {
+    changeHighlightColor: function (e) {
         let color = '#' + e.originalEvent.srcElement.value;
         //for now change color of model directly
-        //ToDo: Maybe change this also to apply/cancel and/or put in reset to default values
         this.displayModel.set('highlightColor', color);
     },
 
     changePeakHighlightMode: function (e) {
         let selected = $(e.target).is(':checked');
-        this.displayModel.showAllFragmentsHighlight = !selected;
-        this.displayModel.trigger("changed:fragHighlighting");
+        this.displayModel.set('hideNotSelectedFragments', selected);
     },
 
     showLossy: function (e) {
-        let model = this.displayModel; //apply changes directly for now
-        model.lossyShown = $(e.target).is(':checked');
-        model.trigger("changed:lossyShown");
+        let selected = $(e.target).is(':checked');
+        this.displayModel.set('showLossLabels', selected);
     },
 
     absErrToggle: function (e) {
         let selected = $(e.target).is(':checked');
-        xiSPECUI.vent.trigger('QCabsErr', selected);
+        this.displayModel.set('QCabsErr', selected);
+        // xiSPECUI.vent.trigger('QCabsErr', selected);
     },
 
     accentuateCLcontainingToggle: function (e) {
         let selected = $(e.target).is(':checked');
-        xiSPECUI.vent.trigger('AccentuateCrossLinkContainingFragments', selected);
+        this.displayModel.set('accentuateCrossLinkContainingFragments', selected);
+        // xiSPECUI.vent.trigger('accentuateCrossLinkContainingFragments', selected);
     },
 
     changePepFragmentsVis: function (e) {
-        let model = this.displayModel; //apply changes directly for now
-        model.setVisFragments(e.target.value);
+        this.displayModel.setVisFragments(e.target.value);
     },
 
     chargeLabelToggle: function (e) {
         let selected = $(e.target).is(':checked');
-        xiSPECUI.vent.trigger('labelFragmentCharge', selected);
+        this.displayModel.set('labelFragmentCharge', selected);
+        // xiSPECUI.vent.trigger('labelFragmentCharge', selected);
     },
 
     changeColorScheme: function (e) {
@@ -225,14 +234,10 @@ let AppearanceSettingsView = SettingsView.extend({
     },
 
     setLabelCutoff: function (e) {
-        let model = this.displayModel;
-        model.labelCutoff = parseInt(e.target.value);
-        model.trigger("changed:labelCutoff");
+        this.displayModel.set('labelCutoff', parseInt(e.target.value));
     },
 
     setLabelFontSize: function (e) {
-        let model = this.displayModel;
-        model.labelFontSize = parseInt(e.target.value);
-        model.trigger("changed:labelFontSize");
+        this.displayModel.set('labelFontSize', parseInt(e.target.value));
     },
 });

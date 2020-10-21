@@ -758,7 +758,7 @@ Graph.prototype.updatePeakColors = function(){
 	let model = this.model;
 
 	// standard mode
-	if (model.highlights.length === 0 || model.showAllFragmentsHighlight){
+	if (model.highlights.length === 0 || !this.model.get('hideNotSelectedFragments')){
 
 		// color all fragment peaks
 		this.fragment_peaks.forEach(function(p){ p.line.attr("stroke", p.colour); })
@@ -806,7 +806,7 @@ Graph.prototype.updatePeakLabels = function(){
 			// if it's not a fragment from the highlight selection
 			if (_.intersection(this.model.highlights, this.peaks[p].fragments).length === 0){
 				// show it if allFragmentHighlights is true (dependent on lossyShown)
-				if (this.model.showAllFragmentsHighlight){
+				if (!this.model.get('hideNotSelectedFragments')){
 					this.peaks[p].removeLabels();
 					this.peaks[p].showLabels();
 				}

@@ -24,7 +24,7 @@ let ErrorPlotView = Backbone.View.extend({
 
     initialize: function (viewOptions) {
 
-        this.listenTo(xiSPECUI.vent, 'QCabsErr', this.toggleAbsErr);
+        this.listenTo(this.model, 'change:QCabsErr', this.toggleAbsErr);
         this.listenTo(xiSPECUI.vent, 'QCPlotToggle', this.toggleView);
         this.listenTo(window, 'resize', _.debounce(this.render));
         this.listenTo(xiSPECUI.vent, 'resize:spectrum', this.render);
@@ -422,8 +422,8 @@ let ErrorPlotView = Backbone.View.extend({
         }
     },
 
-    toggleAbsErr: function (checked) {
-        this.absolute = checked;
+    toggleAbsErr: function () {
+        this.absolute = this.model.get('QCabsErr');
         this.render();
     },
 });
