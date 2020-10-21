@@ -134,6 +134,8 @@ let ErrorPlotView = Backbone.View.extend({
         let self = this;
         this.data = [];
 
+        // ToDo: creating the points via the fragments->clusterInfos leads to hidden points when
+        //  a peak has two annotations
         fragments.forEach(function (fragment) {
             let peptideId = fragment.peptideId;
             let fragId = fragment.id;
@@ -142,15 +144,19 @@ let ErrorPlotView = Backbone.View.extend({
                 lossy = true;
             fragment.clusterInfo.forEach(function (cluster) {
                 let firstPeakId = self.model.get("JSONdata").clusters[cluster.Clusterid].firstPeakId;
+                let intensity = self.model.get("JSONdata").peaks[firstPeakId].intensity;
+                let mz =  self.model.get("JSONdata").peaks[firstPeakId].mz
+                let x_value = self.options.xData === 'Intensity' ? intensity : mz;
+
                 let point = {
                     fragId: fragId,
                     peptideId: peptideId,
                     lossy: lossy,
-                    x: self.options.xData == 'Intensity' ? self.model.get("JSONdata").peaks[firstPeakId].intensity : self.model.get("JSONdata").peaks[firstPeakId].mz,
+                    x: x_value,
                     error: cluster.error,
                     errorUnit: cluster.errorUnit,
                     y: self.absolute ? Math.abs(cluster.error) : cluster.error,
-                    charge: self.model.get("JSONdata").clusters[cluster.Clusterid].charge,
+                    charge: cluster.matchedCharge,
                     //mz: self.model.get("JSONdata").peaks[firstPeakId].mz
                 }
                 self.data.push(point);
@@ -316,17 +322,20 @@ let ErrorPlotView = Backbone.View.extend({
 
     showTooltip: function (x, y, data) {
 
+        let fragId = data.fragId;
+        let fragments = this.model.fragments.filter(function (d) {
+            return parseInt(d.id) === fragId;
+        });
+        let fragment = fragments[0];
+
+        let header = [[fragment.name]];
         let contents = [
             ["charge", data.charge],
             ["error", data.error.toFixed(this.model.showDecimals) + ' ' + data.errorUnit],
             [this.options.xData, data.x.toFixed(this.model.showDecimals)]
         ];
 
-        let fragId = data.fragId;
-        let fragments = this.model.fragments.filter(function (d) {
-            return parseInt(d.id) === fragId;
-        });
-        let header = [[fragments[0].name]];
+
 
         //Tooltip
         if (CLMSUI.compositeModelInst !== undefined) {
@@ -335,9 +344,11 @@ let ErrorPlotView = Backbone.View.extend({
                 .set("location", {pageX: x, pageY: y});
         } else {
             let html = header.join(" ");
-            for (let i = 0; i < data.charge; i++) {
-                html += "+";
-            }
+
+            let charge = data.charge;
+            // clusterInfo.matchedCharge;
+            let chargeStr = (charge > 1) ? charge: '';
+            html += '<span style="vertical-align:super;font-size: 0.8em;">'+ chargeStr + '+</span>';
 
             for (let i = contents.length - 1; i >= 0; i--) {
                 html += "</br>";

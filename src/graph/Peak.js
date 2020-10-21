@@ -134,9 +134,9 @@ Peak.prototype.draw = function(){
 
 				let matchedMissingMonoIsotopic = clusterInfo.matchedMissingMonoIsotopic;
 				let charge = clusterInfo.matchedCharge;
+				let chargeStr = (charge > 1) ? charge: '';
 				let error = clusterInfo.error.toFixed(self.graph.model.showDecimals) + " " + clusterInfo.errorUnit;
-				let chargeStr = "+".repeat(charge);
-				header.push(fragments[f].name + chargeStr);
+				header.push(fragments[f].name + '<span style="vertical-align:super;font-size: 0.8em;">'+ chargeStr + '+</span>');
 
 				let fragName = fragments[f].name + " (" + fragments[f].sequence + ")";
 				let fragInfo = "charge: " + charge + ", error: " + error;
