@@ -48,7 +48,7 @@ let xiSPEC_wrapper = Backbone.View.extend({
         this.listenTo(xiSPECUI.vent, 'addSpectrum', this.addSpectrum);
         this.listenTo(xiSPECUI.vent, 'closeSpecPanel', this.closeSpectrum);
         this.listenTo(xiSPECUI.vent, 'activateSpecPanel', this.activateSpectrum);
-
+        this.listenTo(xiSPECUI.vent, 'butterflyHighlight', this.butterflyHighlight);
         // HTML elements
         let d3el = d3.select(this.options.targetDiv)
         // empty the targetDiv
@@ -341,6 +341,11 @@ let xiSPEC_wrapper = Backbone.View.extend({
         this.AppearanceSettingsView.displayModel = this.activeSpectrum.models['Spectrum'];
         xiSPECUI.vent.trigger('activeSpecPanel:changed');
     },
+
+    butterflyHighlight: function () {
+        this.activeSpectrum.butterflyHighlight();
+    },
+
 });
 
 xiSPECUI.matchMassToAA = function (mass, tolerance) {

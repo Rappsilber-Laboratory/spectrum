@@ -56,7 +56,6 @@ let SpectrumWrapper = Backbone.View.extend({
 		// event listeners
 		this.listenTo(xiSPECUI.vent, 'activateSpecPanel', this.updateHeader);
 		this.listenTo(SpectrumModel, 'activate', this.toggleActive);
-		this.listenTo(xiSPECUI.vent, 'butterflyHighlight', this.butterflyHighlight);
 
 		// ToDo: create SpectrumPanel model to have these synced
 		// sync model event listeners between original and spectrumModel
