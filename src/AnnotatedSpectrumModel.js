@@ -51,7 +51,7 @@ let AnnotatedSpectrumModel = Backbone.Model.extend({
 			this.knownModifications = AnnotatedSpectrumModel.prototype.cachedKnownModifications || this.get('knownModifications');
 		}
 
-		this.showDecimals = 2;
+		this.set('showDecimals', 2);
 		this.set('moveLabels', false);
 		this.set('measureMode', false);
 		this.set('zoomLocked', false);
@@ -59,7 +59,7 @@ let AnnotatedSpectrumModel = Backbone.Model.extend({
 		this.set('changedAnnotation', false);
 		// this.keepCustomConfig = false;
 
-		this.visFragments = 'both';
+		this.set('visFragments', 'both');
 		this.changeColorScheme(this.get('colorScheme'));
 
 		this.labelFontSize = 10;
@@ -285,38 +285,43 @@ let AnnotatedSpectrumModel = Backbone.Model.extend({
 
 	changeColorScheme: function(schemeStr){
 		this.set('colorScheme', schemeStr);
-		let scheme = colorbrewer.RdBu[8]; // default
+		this.colorPalette = colorbrewer.RdBu[8]; // default
 		switch(schemeStr) {
 			case "RdBu":
-				scheme = colorbrewer.RdBu[8];
+				this.colorPalette = colorbrewer.RdBu[8];
 				break;
 			case "BrBG":
-				scheme = colorbrewer.BrBG[8];
+				this.colorPalette = colorbrewer.BrBG[8];
 				break;
 			case "PiYG":
-				scheme = colorbrewer.PiYG[8];
+				this.colorPalette = colorbrewer.PiYG[8];
 				break;
 			case "PRGn":
-				scheme = colorbrewer.PRGn[8];
+				this.colorPalette = colorbrewer.PRGn[8];
 				break;
 			case "PuOr":
-				scheme = colorbrewer.PuOr[8];
+				this.colorPalette = colorbrewer.PuOr[8];
 				break;
 		}
 
-		switch(this.visFragments) {
+		this.updateColors();
+		// this.trigger("changed:ColorScheme");
+	},
+
+	updateColors: function(){
+		switch(this.get('visFragments')) {
 			case 'both':
-				this.p1color = scheme[0];
-				this.p1color_cluster = scheme[2];
-				this.p1color_loss = scheme[1];
-				this.p2color = scheme[7];
-				this.p2color_cluster = scheme[5];
-				this.p2color_loss = scheme[6];
+				this.p1color = this.colorPalette[0];
+				this.p1color_cluster = this.colorPalette[2];
+				this.p1color_loss = this.colorPalette[1];
+				this.p2color = this.colorPalette[7];
+				this.p2color_cluster = this.colorPalette[5];
+				this.p2color_loss = this.colorPalette[6];
 				break;
 			case 'pep1':
-				this.p1color = scheme[0];
-				this.p1color_cluster = scheme[2];
-				this.p1color_loss = scheme[1];
+				this.p1color = this.colorPalette[0];
+				this.p1color_cluster = this.colorPalette[2];
+				this.p1color_loss = this.colorPalette[1];
 				this.p2color = this.get('peakColor');
 				this.p2color_cluster = this.get('peakColor');
 				this.p2color_loss = this.get('peakColor');
@@ -325,13 +330,12 @@ let AnnotatedSpectrumModel = Backbone.Model.extend({
 				this.p1color = this.get('peakColor');
 				this.p1color_cluster = this.get('peakColor');
 				this.p1color_loss = this.get('peakColor');
-				this.p2color = scheme[7];
-				this.p2color_cluster = scheme[5];
-				this.p2color_loss = scheme[6];
+				this.p2color = this.colorPalette[7];
+				this.p2color_cluster = this.colorPalette[5];
+				this.p2color_loss = this.colorPalette[6];
 				break;
 		}
-
-		this.trigger("changed:ColorScheme");
+		this.trigger("change:colors");
 	},
 
 	changeLinkPos: function(newLinkSites){
@@ -533,11 +537,6 @@ let AnnotatedSpectrumModel = Backbone.Model.extend({
 		for (let i=0; i < this.knownModifications.length; i++) {
 			this.resetModification(this.knownModifications[i].id);
 		}
-	},
-
-	setVisFragments: function(filter){
-		this.visFragments = filter;
-		this.changeColorScheme(this.get('colorScheme'));
 	},
 
 	// saveUserModificationsToCookie: function(){

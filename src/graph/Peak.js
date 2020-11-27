@@ -118,7 +118,7 @@ Peak.prototype.draw = function(){
 			;
 
 		function showTooltip(x, y, fragId){
-			let contents = [["m/z", self.x.toFixed(self.graph.model.showDecimals)], ["Int", self.y.toFixed(self.graph.model.showDecimals)]];
+			let contents = [["m/z", self.x.toFixed(self.graph.model.get('showDecimals'))], ["Int", self.y.toFixed(self.graph.model.get('showDecimals'))]];
 			let header = [];
 
 			// filter fragments shown in tooltip (only fraglabel is hovered over)
@@ -135,7 +135,7 @@ Peak.prototype.draw = function(){
 				let matchedMissingMonoIsotopic = clusterInfo.matchedMissingMonoIsotopic;
 				let charge = clusterInfo.matchedCharge;
 				let chargeStr = (charge > 1) ? charge: '';
-				let error = clusterInfo.error.toFixed(self.graph.model.showDecimals) + " " + clusterInfo.errorUnit;
+				let error = clusterInfo.error.toFixed(self.graph.model.get('showDecimals')) + " " + clusterInfo.errorUnit;
 				header.push(fragments[f].name + '<span style="vertical-align:super;font-size: 0.8em;">'+ chargeStr + '+</span>');
 
 				let fragName = fragments[f].name + " (" + fragments[f].sequence + ")";

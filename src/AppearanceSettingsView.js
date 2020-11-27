@@ -165,16 +165,14 @@ let AppearanceSettingsView = SettingsView.extend({
 
     changeDecimals: function () {
         let showDecimals = parseInt(this.decimals[0][0].value);
-        this.model.showDecimals = showDecimals;
-        this.displayModel.showDecimals = showDecimals; //apply changes directly for now
-        this.displayModel.trigger('change'); //necessary for PrecursorInfoView update
+        this.displayModel.set('showDecimals', showDecimals);
     },
 
     render: function () {
         if (!this.isVisible) return;
-        this.decimals[0][0].value = this.model.showDecimals;
+        this.decimals[0][0].value = this.model.get('showDecimals');
         $('#xispec_colorSelector').val(this.displayModel.get('colorScheme'));
-        $('#xispec_pepFragSelector').val(this.displayModel.visFragments);
+        $('#xispec_pepFragSelector').val(this.displayModel.get('visFragments'));
         $('#xispec_lossyChkBx').prop('checked', this.displayModel.get('showLossLabels'));
         $('#xispec_labelFragmentCharge').prop('checked', this.displayModel.get('labelFragmentCharge'));
         $('#xispec_settingsLabelingCutoff').val(this.displayModel.get('labelCutoff'));
@@ -219,7 +217,8 @@ let AppearanceSettingsView = SettingsView.extend({
     },
 
     changePepFragmentsVis: function (e) {
-        this.displayModel.setVisFragments(e.target.value);
+        this.displayModel.set('visFragments', e.target.value);
+        this.displayModel.updateColors();
     },
 
     chargeLabelToggle: function (e) {

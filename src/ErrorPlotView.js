@@ -61,7 +61,7 @@ let ErrorPlotView = Backbone.View.extend({
         }
 
         this.listenTo(this.model, 'change', this.render);
-        this.listenTo(this.model, 'changed:ColorScheme', this.render);
+        this.listenTo(this.model, 'change:colors', this.render);
         this.listenTo(this.model, 'change:highlightColor', this.render);
         this.listenTo(this.model, 'changed:Highlights', this.updateHighlights);
     },
@@ -331,8 +331,8 @@ let ErrorPlotView = Backbone.View.extend({
         let header = [[fragment.name]];
         let contents = [
             ["charge", data.charge],
-            ["error", data.error.toFixed(this.model.showDecimals) + ' ' + data.errorUnit],
-            [this.options.xData, data.x.toFixed(this.model.showDecimals)]
+            ["error", data.error.toFixed(this.model.get('showDecimals')) + ' ' + data.errorUnit],
+            [this.options.xData, data.x.toFixed(this.model.get('showDecimals'))]
         ];
 
 

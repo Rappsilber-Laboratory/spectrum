@@ -57,7 +57,7 @@ let FragmentationKeyView = Backbone.View.extend({
         this.listenTo(this.model, 'change', this.render);
         this.listenTo(this.model, 'destroy', this.remove);
         this.listenTo(this.model, 'changed:Highlights', this.updateHighlights);
-        this.listenTo(this.model, 'changed:ColorScheme', this.updateColors);
+        this.listenTo(this.model, 'change:colors', this.updateColors);
         this.listenTo(this.model, 'change:highlightColor', this.updateColors);
         this.listenTo(this.model, 'change:butterfly', this.butterflyToggle);
         this.listenTo(this.model, 'butterflySwap', this.butterflySwap);
@@ -126,6 +126,7 @@ let FragmentationKeyView = Backbone.View.extend({
                     this.pepModsArray[p][i] = self.model.peptides[p].sequence[i].Modification;
             }
         }
+
 
         this.tooltip.style("opacity", 0);
 
@@ -796,7 +797,8 @@ let FragmentationKeyView = Backbone.View.extend({
 // 		}
 // 		this.colorLetters("all");
         this.render();
-        this.updateHighlights();
+        if (!this.options.hidden)
+            this.updateHighlights();
     },
 
 // 	updateHighlightColors: function(){

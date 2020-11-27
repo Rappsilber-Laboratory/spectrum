@@ -48,7 +48,7 @@ let PrecursorInfoView = Backbone.View.extend({
             .attr("y", 13)
             .attr("font-size", 12);
 
-        this.listenTo(this.model, 'change', this.render);
+        this.listenTo(this.model, 'change:showDecimals', this.render);
     },
 
     clear: function () {
@@ -92,13 +92,13 @@ let PrecursorInfoView = Backbone.View.extend({
         if (precursor.intensity !== undefined && precursor.intensity != -1)
             dataArr.push("Intensity=" + precursor.intensity);
         if (precursor.expMz !== undefined && precursor.expMz != -1)
-            dataArr.push("exp m/z=" + precursor.expMz.toFixed(this.model.showDecimals));
+            dataArr.push("exp m/z=" + precursor.expMz.toFixed(this.model.get('showDecimals')));
         if (precursor.calcMz !== undefined)
-            dataArr.push("calc m/z=" + precursor.calcMz.toFixed(this.model.showDecimals));
+            dataArr.push("calc m/z=" + precursor.calcMz.toFixed(this.model.get('showDecimals')));
         if (precursor.charge !== undefined)
             dataArr.push("z=" + precursor.charge);
         if (precursor.error !== undefined && precursor.error.tolerance && precursor.error.unit)
-            dataArr.push("error=" + precursor.error.tolerance.toFixed(this.model.showDecimals) + ' ' + precursor.error.unit);
+            dataArr.push("error=" + precursor.error.tolerance.toFixed(this.model.get('showDecimals')) + ' ' + precursor.error.unit);
 
         content += dataArr.join("; ");
         this.content.text(content);

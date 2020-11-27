@@ -57,7 +57,7 @@ let SpectrumView = Backbone.View.extend({
 		this.listenTo(this.model, 'change:zoomLocked', this.lockZoomToggle);
 		this.listenTo(this.model, 'change:butterfly', this.butterflyToggle);
 		this.listenTo(this.model, 'change:highlightColor', this.updateHighlightColors);
-		this.listenTo(this.model, 'changed:ColorScheme', this.setColors);
+		this.listenTo(this.model, 'change:colors', this.setColors);
 		this.listenTo(this.model, 'change:mzRange', this.updateMzRange);
 		this.listenTo(this.model, 'butterflySwap', this.butterflySwap);
 		this.listenTo(this.model, 'change:labelFragmentCharge', this.labelFragmentChargeToggle);

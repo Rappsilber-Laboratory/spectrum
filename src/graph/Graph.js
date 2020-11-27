@@ -538,7 +538,7 @@ Graph.prototype.measure = function(on){
 			else
 				var labelX = measureEndX + deltaX/2;
 
-			self.measureDistance.text(distance.toFixed(self.model.showDecimals)+" Th");
+			self.measureDistance.text(distance.toFixed(self.model.get('showDecimals'))+" Th");
 
 			var matrix = this.getScreenCTM()
 				.translate(+this.getAttribute("cx"),
@@ -583,22 +583,22 @@ Graph.prototype.measure = function(on){
 			//fromText
 			var fromTextColor = self.measureStartPeak.colour;
 			if(self.measureStartPeak.fragments.length > 0)
-					var fromText = "From: " + self.measureStartPeak.fragments[0].name +" (" + self.measureStartPeak.x.toFixed(self.model.showDecimals) + " m/z)";
+					var fromText = "From: " + self.measureStartPeak.fragments[0].name +" (" + self.measureStartPeak.x.toFixed(self.model.get('showDecimals')) + " m/z)";
 			else if (self.measureStartPeak.isotopes.length > 0)
-					var fromText = "From: " + self.measureStartPeak.isotopes[0].name + "+" + self.measureStartPeak.isotopenumbers[0]+ "(" + self.measureStartPeak.x.toFixed(self.model.showDecimals) + " m/z)";
+					var fromText = "From: " + self.measureStartPeak.isotopes[0].name + "+" + self.measureStartPeak.isotopenumbers[0]+ "(" + self.measureStartPeak.x.toFixed(self.model.get('showDecimals')) + " m/z)";
 			else{
-				var fromText = "From: Peak (" + self.measureStartPeak.x.toFixed(self.model.showDecimals) + " m/z)";
+				var fromText = "From: Peak (" + self.measureStartPeak.x.toFixed(self.model.get('showDecimals')) + " m/z)";
 				fromTextColor = "black";
 			}
 			//toText
 			if(endPeak){
 				var toTextColor = endPeak.colour;
 				if(endPeak.fragments.length > 0)
-						var toText = "To: " + endPeak.fragments[0].name +"(" + endPeak.x.toFixed(self.model.showDecimals) + " m/z)";
+						var toText = "To: " + endPeak.fragments[0].name +"(" + endPeak.x.toFixed(self.model.get('showDecimals')) + " m/z)";
 				else if(endPeak.isotopes.length > 0)
-						var toText = "To: " + endPeak.isotopes[0].name + "+" + endPeak.isotopenumbers[0]+ "(" + endPeak.x.toFixed(self.model.showDecimals) + " m/z)";
+						var toText = "To: " + endPeak.isotopes[0].name + "+" + endPeak.isotopenumbers[0]+ "(" + endPeak.x.toFixed(self.model.get('showDecimals')) + " m/z)";
 				else{
-					var toText= "To: Peak (" + endPeak.x.toFixed(self.model.showDecimals) + " m/z)";
+					var toText= "To: Peak (" + endPeak.x.toFixed(self.model.get('showDecimals')) + " m/z)";
 					toTextColor = "black";
 				}
 			}
@@ -637,7 +637,7 @@ Graph.prototype.measure = function(on){
 					var matchText = "";
 					if (d.matchAA.length > 0)
 						matchText = "("+d.matchAA+")";
-					return "z="+z+": " + d.mass.toFixed(self.model.showDecimals) + " Da " + matchText;
+					return "z="+z+": " + d.mass.toFixed(self.model.get('showDecimals')) + " Da " + matchText;
 				})
 				.attr("y", function (d) { return yText += 15; } )
 				.attr("class", function(d){ if(d.matchAA.length > 0) return 'matchedAA' })

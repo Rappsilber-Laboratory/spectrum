@@ -59,52 +59,99 @@ let SpectrumWrapper = Backbone.View.extend({
 
 		// ToDo: create SpectrumPanel model to have these synced
 		// sync model event listeners between original and spectrumModel
-		originalSpectrumModel.listenTo(SpectrumModel,
-			'change:moveLabels',
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:moveLabels',
 			function (spectrumModel) {
 				this.set('moveLabels', spectrumModel.get('moveLabels'));
 			}
 		);
 		// sync measureMode
-		originalSpectrumModel.listenTo(SpectrumModel,
-			'change:measureMode',
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:measureMode',
 			function (spectrumModel) {
 				this.set('measureMode', spectrumModel.get('measureMode'));
 			}
 		);
 		// sync zoomLock
-		originalSpectrumModel.listenTo(SpectrumModel,
-			'change:zoomLocked',
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:zoomLocked',
 			function (spectrumModel) {
 				this.set('zoomLocked', spectrumModel.get('zoomLocked'));
 			}
 		);
 		// sync butterfly
-		originalSpectrumModel.listenTo(SpectrumModel,
-			'change:butterfly',
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:butterfly',
 			function (spectrumModel) {
 				this.set('butterfly', spectrumModel.get('butterfly'));
 			}
 		);
-		originalSpectrumModel.listenTo(SpectrumModel,
-			'butterflySwap',
+		originalSpectrumModel.listenTo(SpectrumModel, 'butterflySwap',
 			function () {
 				this.trigger('butterflySwap');
 			}
 		);
 		// sync mzRange
-		originalSpectrumModel.listenTo(SpectrumModel,
-			'change:mzRange',
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:mzRange',
 			function (spectrumModel) {
 				this.setZoom(spectrumModel.get('mzRange'));
 			}
 		);
-		SpectrumModel.listenTo(originalSpectrumModel,
-			'change:mzRange',
+		SpectrumModel.listenTo(originalSpectrumModel, 'change:mzRange',
 			function (spectrumModel) {
 				this.setZoom(spectrumModel.get('mzRange'));
 			}
 		);
+		// sync appearanceSettings
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:showDecimals',
+			function (spectrumModel) {
+				this.set('showDecimals', spectrumModel.get('showDecimals'));
+			}
+		);
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:visFragments',
+			function (spectrumModel) {
+				this.set('visFragments', spectrumModel.get('visFragments'));
+				this.updateColors();
+			}
+		);
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:colorScheme',
+			function (spectrumModel) {
+				this.changeColorScheme(spectrumModel.get('colorScheme'));
+			}
+		);
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:highlightColor',
+			function (spectrumModel) {
+				this.set('highlightColor', spectrumModel.get('highlightColor'));
+			}
+		);
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:hideNotSelectedFragments',
+			function (spectrumModel) {
+				this.set('hideNotSelectedFragments', spectrumModel.get('hideNotSelectedFragments'));
+			}
+		);
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:accentuateCrossLinkContainingFragments',
+			function (spectrumModel) {
+				this.set('accentuateCrossLinkContainingFragments', spectrumModel.get('accentuateCrossLinkContainingFragments'));
+			}
+		);
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:showLossLabels',
+			function (spectrumModel) {
+				this.set('showLossLabels', spectrumModel.get('showLossLabels'));
+			}
+		);
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:labelFragmentCharge',
+			function (spectrumModel) {
+				this.set('labelFragmentCharge', spectrumModel.get('labelFragmentCharge'));
+			}
+		);
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:labelCutoff',
+			function (spectrumModel) {
+				this.set('labelCutoff', spectrumModel.get('labelCutoff'));
+			}
+		);
+		originalSpectrumModel.listenTo(SpectrumModel, 'change:labelFontSize',
+			function (spectrumModel) {
+				this.set('labelFontSize', spectrumModel.get('labelFontSize'));
+			}
+		);
+
+
 
 		// empty the el
 		d3.select(this.el).selectAll("*").remove();
