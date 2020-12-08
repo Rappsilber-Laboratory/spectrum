@@ -48,7 +48,7 @@ let PrecursorInfoView = Backbone.View.extend({
             .attr("y", 13)
             .attr("font-size", 12);
 
-        this.listenTo(this.model, 'change:showDecimals', this.render);
+        this.listenTo(this.model, 'change', this.render);
     },
 
     clear: function () {
