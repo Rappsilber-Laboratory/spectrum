@@ -1,28 +1,13 @@
-//		a spectrum viewer
-//
-//      Copyright  2015 Rappsilber Laboratory, Edinburgh University
-//
-// 		Licensed under the Apache License, Version 2.0 (the "License");
-// 		you may not use this file except in compliance with the License.
-// 		You may obtain a copy of the License at
-//
-// 		http://www.apache.org/licenses/LICENSE-2.0
-//
-//   	Unless required by applicable law or agreed to in writing, software
-//   	distributed under the License is distributed on an "AS IS" BASIS,
-//   	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   	See the License for the specific language governing permissions and
-//   	limitations under the License.
-//
-//		authors: Lars Kolbowski
-//
-//
-//		DataSettingsView.js
+import * as _ from 'underscore';
+import Backbone from "backbone";
+import * as $ from "jquery";
+import 'datatables';
+// import 'datatables.net-dt/css/jquery.dataTables.css';
 
-var xiSPECUI = xiSPECUI || {};
-var CLMSUI = CLMSUI || {};
+import {SettingsView} from "./SettingsView";
+import {PepInputView} from "./PepInputView";
 
-let DataSettingsView = SettingsView.extend({
+export const DataSettingsView = SettingsView.extend({
 
     events: function() {
         return _.extend({}, SettingsView.prototype.events, {
@@ -53,7 +38,7 @@ let DataSettingsView = SettingsView.extend({
 
         this.displayModel = this.options.displayModel;
         // event listeners
-        this.listenTo(xiSPECUI.vent, 'dataSettingsToggle', this.toggleView);
+        this.listenTo(window.xispecVent, 'dataSettingsToggle', this.toggleView);
 
         if (!this.options.showCustomCfg) {
             this.menu.selectAll('#custom_config').style("display", "none");
@@ -387,7 +372,7 @@ let DataSettingsView = SettingsView.extend({
     applyCustomCfg: function (e) {
         let json = this.model.get("JSONrequest");
         json.annotation.custom = $("#xispec_settingsCustomCfg-input").val().split("\n");
-        xiSPECUI.vent.trigger('requestAnnotation', json, this.displayModel.get('annotatorURL'));
+        window.xispecVent.trigger('requestAnnotation', json, this.displayModel.get('annotatorURL'));
         this.displayModel.set('changedAnnotation', true);
         // this.render();
     },
@@ -409,9 +394,9 @@ let DataSettingsView = SettingsView.extend({
                 let json = self.model.get("JSONrequest");
                 json.annotation.custom = customConfig;
                 // overwrite customConfig on current wrapper
-                xiSPECUI.vent.trigger('setCustomConfigOverwrite', customConfig);
+                window.xispecVent.trigger('setCustomConfigOverwrite', customConfig);
                 // request current spectrum with updated custom config as original annotation
-                xiSPECUI.vent.trigger('requestAnnotation', json_req, this.displayModel.get('annotatorURL'), true);
+                window.xispecVent.trigger('requestAnnotation', json_req, this.displayModel.get('annotatorURL'), true);
             }
         });
     },
@@ -420,7 +405,7 @@ let DataSettingsView = SettingsView.extend({
         e.preventDefault();
         let json = this.model.get("JSONrequest");
         this.displayModel.set('annotatorURL', $('#xispec_annotatorDropdown').val());
-        xiSPECUI.vent.trigger('requestAnnotation', json, this.displayModel.get('annotatorURL'));
+        window.xispecVent.trigger('requestAnnotation', json, this.displayModel.get('annotatorURL'));
         this.displayModel.set('changedAnnotation', true);
     },
 
@@ -453,7 +438,7 @@ let DataSettingsView = SettingsView.extend({
                 json['annotation']['custom'] = self.displayModel.get("JSONdata").annotation.custom;
                 json['annotation']['precursorMZ'] = self.displayModel.precursor.expMz;
                 json['annotation']['requestID'] = xiSPECUI.lastRequestedID + Date.now();
-                xiSPECUI.vent.trigger('requestAnnotation', json, self.displayModel.get('annotatorURL'));
+                window.xispecVent.trigger('requestAnnotation', json, self.displayModel.get('annotatorURL'));
                 self.displayModel.set('changedAnnotation', true);
                 self.displayModel.knownModifications = $.extend(true, [], self.model.knownModifications);
                 spinner.stop();

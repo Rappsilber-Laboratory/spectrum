@@ -1,27 +1,6 @@
-//		a spectrum viewer
-//
-//	  Copyright  2015 Rappsilber Laboratory, Edinburgh University
-//
-// 		Licensed under the Apache License, Version 2.0 (the "License");
-// 		you may not use this file except in compliance with the License.
-// 		You may obtain a copy of the License at
-//
-// 		http://www.apache.org/licenses/LICENSE-2.0
-//
-//   	Unless required by applicable law or agreed to in writing, software
-//   	distributed under the License is distributed on an "AS IS" BASIS,
-//   	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   	See the License for the specific language governing permissions and
-//   	limitations under the License.
-//
-//		authors: Colin Combe, Lars Kolbowski
-//
-//		graph/Graph.js
-//
-//		see http://bl.ocks.org/stepheneb/1182434
-//		and https://gist.github.com/mbostock/3019563
+import * as d3 from 'd3';
 
-Graph = function(targetSvg, model, options) {
+export const Graph = function(targetSvg, model, options) {
 	this.xscale = d3.scale.linear();
 	this.yscale = d3.scale.linear();
 	this.yscale_right = d3.scale.linear();
@@ -107,8 +86,8 @@ Graph = function(targetSvg, model, options) {
 	}.bind(this));
 
 	//Tooltip
-	if (CLMSUI.compositeModelInst !== undefined)
-		this.tooltip = CLMSUI.compositeModelInst.get("tooltipModel");
+	if (window.compositeModelInst !== undefined)
+		this.tooltip = window.compositeModelInst.get("tooltipModel");
 	else{
 		// target = this.g.node().parentNode.parentNode; //this would get you #spectrumPanel
 		this.tooltip = d3.select("body").append("span")

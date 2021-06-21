@@ -1,35 +1,18 @@
-//		a spectrum viewer
-//
-//	  Copyright  2015 Rappsilber Laboratory, Edinburgh University
-//
-// 		Licensed under the Apache License, Version 2.0 (the "License");
-// 		you may not use this file except in compliance with the License.
-// 		You may obtain a copy of the License at
-//
-// 		http://www.apache.org/licenses/LICENSE-2.0
-//
-//   	Unless required by applicable law or agreed to in writing, software
-//   	distributed under the License is distributed on an "AS IS" BASIS,
-//   	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   	See the License for the specific language governing permissions and
-//   	limitations under the License.
-//
-//		authors: Lars Kolbowski
-//
-//
-//		ErrorPlotView.js
-let ErrorPlotView = Backbone.View.extend({
+import * as _ from 'underscore';
+import Backbone from "backbone";
+
+export const ErrorPlotView = Backbone.View.extend({
 
     events: {},
 
     initialize: function (viewOptions) {
 
         this.listenTo(this.model, 'change:QCabsErr', this.toggleAbsErr);
-        this.listenTo(xiSPECUI.vent, 'QCPlotToggle', this.toggleView);
+        this.listenTo(window.xispecVent, 'QCPlotToggle', this.toggleView);
         this.listenTo(window, 'resize', _.debounce(this.render));
-        this.listenTo(xiSPECUI.vent, 'resize:spectrum', this.render);
-        this.listenTo(xiSPECUI.vent, 'downloadQCSVG', this.downloadSVG);
-        this.listenTo(xiSPECUI.vent, 'QCWrapperShow', this.wrapperVisToggle);
+        this.listenTo(window.xispecVent, 'resize:spectrum', this.render);
+        this.listenTo(window.xispecVent, 'downloadQCSVG', this.downloadSVG);
+        this.listenTo(window.xispecVent, 'QCWrapperShow', this.wrapperVisToggle);
 
         const defaultOptions = {};
         this.options = _.extend(defaultOptions, viewOptions);
@@ -52,8 +35,8 @@ let ErrorPlotView = Backbone.View.extend({
             .attr('height', height)
             .attr('class', 'wrapper')
 
-        if (CLMSUI.compositeModelInst !== undefined)
-            this.tooltip = CLMSUI.compositeModelInst.get("tooltipModel");
+        if (window.compositeModelInst !== undefined)
+            this.tooltip = window.compositeModelInst.get("tooltipModel");
         else {
             this.tooltip = d3.select("body").append("span")
                 .attr("class", "xispec_tooltip")
@@ -338,7 +321,7 @@ let ErrorPlotView = Backbone.View.extend({
 
 
         //Tooltip
-        if (CLMSUI.compositeModelInst !== undefined) {
+        if (window.compositeModelInst !== undefined) {
             this.tooltip.set("contents", contents)
                 .set("header", header.join(" "))
                 .set("location", {pageX: x, pageY: y});
@@ -370,7 +353,7 @@ let ErrorPlotView = Backbone.View.extend({
     },
 
     hideTooltip: function () {
-        if (CLMSUI.compositeModelInst !== undefined)
+        if (window.compositeModelInst !== undefined)
             this.tooltip.set("contents", null);
         else {
             this.tooltip.style("opacity", 0);

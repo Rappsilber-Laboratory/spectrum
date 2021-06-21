@@ -1,28 +1,11 @@
-//		a spectrum viewer
-//
-//      Copyright  2020 Rappsilber Laboratory, Edinburgh University
-//
-// 		Licensed under the Apache License, Version 2.0 (the "License");
-// 		you may not use this file except in compliance with the License.
-// 		You may obtain a copy of the License at
-//
-// 		http://www.apache.org/licenses/LICENSE-2.0
-//
-//   	Unless required by applicable law or agreed to in writing, software
-//   	distributed under the License is distributed on an "AS IS" BASIS,
-//   	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   	See the License for the specific language governing permissions and
-//   	limitations under the License.
-//
-//		authors: Lars Kolbowski
-//
-//
-//		AppearanceSettingsView.js
+import * as _ from 'underscore';
+import Backbone from "backbone";
+import * as $ from "jquery";
 
-var xiSPECUI = xiSPECUI || {};
-var CLMSUI = CLMSUI || {};
 
-let AppearanceSettingsView = SettingsView.extend({
+import {SettingsView} from "./SettingsView";
+
+export const AppearanceSettingsView = SettingsView.extend({
 
     events: function() {
         return _.extend({}, SettingsView.prototype.events, {
@@ -53,7 +36,7 @@ let AppearanceSettingsView = SettingsView.extend({
 
         this.displayModel = this.options.displayModel;
         // event listeners
-        this.listenTo(xiSPECUI.vent, 'appearanceSettingsToggle', this.toggleView);
+        this.listenTo(window.xispecVent, 'appearanceSettingsToggle', this.toggleView);
 
         // HTML elements
         //
@@ -207,13 +190,13 @@ let AppearanceSettingsView = SettingsView.extend({
     absErrToggle: function (e) {
         let selected = $(e.target).is(':checked');
         this.displayModel.set('QCabsErr', selected);
-        // xiSPECUI.vent.trigger('QCabsErr', selected);
+        // window.xispecVent.trigger('QCabsErr', selected);
     },
 
     accentuateCLcontainingToggle: function (e) {
         let selected = $(e.target).is(':checked');
         this.displayModel.set('accentuateCrossLinkContainingFragments', selected);
-        // xiSPECUI.vent.trigger('accentuateCrossLinkContainingFragments', selected);
+        // window.xispecVent.trigger('accentuateCrossLinkContainingFragments', selected);
     },
 
     changePepFragmentsVis: function (e) {
@@ -224,7 +207,7 @@ let AppearanceSettingsView = SettingsView.extend({
     chargeLabelToggle: function (e) {
         let selected = $(e.target).is(':checked');
         this.displayModel.set('labelFragmentCharge', selected);
-        // xiSPECUI.vent.trigger('labelFragmentCharge', selected);
+        // window.xispecVent.trigger('labelFragmentCharge', selected);
     },
 
     changeColorScheme: function (e) {

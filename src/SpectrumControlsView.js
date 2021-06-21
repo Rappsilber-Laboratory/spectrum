@@ -1,28 +1,7 @@
-//		a spectrum viewer
-//
-//	  Copyright  2015 Rappsilber Laboratory, Edinburgh University
-//
-// 		Licensed under the Apache License, Version 2.0 (the "License");
-// 		you may not use this file except in compliance with the License.
-// 		You may obtain a copy of the License at
-//
-// 		http://www.apache.org/licenses/LICENSE-2.0
-//
-//   	Unless required by applicable law or agreed to in writing, software
-//   	distributed under the License is distributed on an "AS IS" BASIS,
-//   	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   	See the License for the specific language governing permissions and
-//   	limitations under the License.
-//
-//		authors: Lars Kolbowski
-//
-//
-//		SpectrumControlView.js
+import * as _ from 'underscore';
+import Backbone from "backbone";
 
-var xiSPECUI = xiSPECUI || {};
-var CLMSUI = CLMSUI || {};
-
-let SpectrumControlsView = Backbone.View.extend({
+export const SpectrumControlsView = Backbone.View.extend({
 
     events: {
         'click #xispec_reset': 'resetZoom',
@@ -48,7 +27,7 @@ let SpectrumControlsView = Backbone.View.extend({
         this.listenTo(this.model, 'change:mzRange', this.renderMzRange);
         this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
         this.listenTo(this.model, 'change:butterfly', this.renderButterflyChkbox);
-        this.listenTo(xiSPECUI.vent, 'activeSpecPanel:changed', this.changedModel);
+        this.listenTo(window.xispecVent, 'activeSpecPanel:changed', this.changedModel);
 
         // create HTML elements
         this.wrapper = d3.select(this.el);
@@ -273,11 +252,11 @@ let SpectrumControlsView = Backbone.View.extend({
     },
 
     toggleDataSettings: function () {
-        xiSPECUI.vent.trigger('dataSettingsToggle');
+        window.xispecVent.trigger('dataSettingsToggle');
     },
 
     toggleAppearanceSettings: function () {
-        xiSPECUI.vent.trigger('appearanceSettingsToggle');
+        window.xispecVent.trigger('appearanceSettingsToggle');
     },
 
     toggleLockZoom: function (e) {
@@ -309,7 +288,7 @@ let SpectrumControlsView = Backbone.View.extend({
     },
 
     butterflyHighlight: function () {
-        xiSPECUI.vent.trigger('butterflyHighlight');
+        window.xispecVent.trigger('butterflyHighlight');
     },
 
     setRange: function (e) {
@@ -332,16 +311,16 @@ let SpectrumControlsView = Backbone.View.extend({
     },
 
     downloadSpectrumSVG: function () {
-        xiSPECUI.vent.trigger('downloadSpectrumSVG');
+        window.xispecVent.trigger('downloadSpectrumSVG');
     },
 
     toggleSpecList: function () {
-        xiSPECUI.vent.trigger('toggleTableView');
+        window.xispecVent.trigger('toggleTableView');
     },
 
     revertAnnotation: function () {
         if (this.model.get('changedAnnotation')) {
-            xiSPECUI.vent.trigger('revertAnnotation');
+            window.xispecVent.trigger('revertAnnotation');
             this.model.set('butterfly', false);
             $('#xispec_butterflyChkbx').prop('checked', false);
         }
@@ -362,7 +341,7 @@ let SpectrumControlsView = Backbone.View.extend({
     },
 
     addSpectrum: function () {
-        xiSPECUI.vent.trigger('addSpectrum');
+        window.xispecVent.trigger('addSpectrum');
     },
 
     changedModel: function () {

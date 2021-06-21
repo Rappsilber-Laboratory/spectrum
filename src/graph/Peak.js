@@ -147,7 +147,7 @@ Peak.prototype.draw = function(){
 			}
 
 			// Tooltip
-			if (CLMSUI.compositeModelInst !== undefined){
+			if (window.compositeModelInst !== undefined){
 				self.graph.tooltip.set("contents", contents )
 					.set("header", header.join(" "))
 					.set("location", {pageX: x, pageY: y});
@@ -176,7 +176,7 @@ Peak.prototype.draw = function(){
 		}
 
 		function hideTooltip(){
-			if (CLMSUI.compositeModelInst !== undefined)
+			if (window.compositeModelInst !== undefined)
 				self.graph.tooltip.set("contents", null);
 			else{
 				self.graph.tooltip.style("opacity", 0);
