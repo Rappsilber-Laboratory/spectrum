@@ -527,12 +527,12 @@ let DataSettingsView = SettingsView.extend({
                 })[0];
                 let inputAminoAcidsArr = inputMod.aminoAcids.split('');
 
-                if (formDataAminoAcidsArr.indexOf('*') != -1) {
+                if (formDataAminoAcidsArr.indexOf('*') !== -1) {
                     console.log('ok', formDataMods[i].value);
                     // return true;
                 } else {
                     for (let j=0; j < inputAminoAcidsArr.length; j++) {
-                        if (formDataAminoAcidsArr.indexOf(inputAminoAcidsArr[j]) == -1) {
+                        if (formDataAminoAcidsArr.indexOf(inputAminoAcidsArr[j]) === -1) {
                             console.log('not ok', formDataMods[i].value);
                             alert('Invalid modification specificity for: ' + formDataMods[i].value);
                             return false;
@@ -579,8 +579,6 @@ let DataSettingsView = SettingsView.extend({
                 },
                 {
                     "render": function (data, type, row, meta) {
-                        data = 0;
-
                         let rowNode = self.modTable.rows(meta.row).nodes().to$();
 
                         for (let i = 0; i < self.model.knownModifications.length; i++) {
@@ -759,12 +757,24 @@ let DataSettingsView = SettingsView.extend({
         } else {
             this.showModTable();
             modifications.forEach(function (mod) {
-                self.modTable.row.add([
+                let add_mod = [
                     mod.id,
                     mod.id,
                     0,
                     mod.aminoAcids,
-                ]).draw(false);
+                ];
+                let annotation_mod_match = self.model.annotationModifications.filter(
+                    function(m){ return m.id === mod.id; })
+                if (annotation_mod_match.length === 1){
+                    add_mod = [
+                        annotation_mod_match[0].id,
+                        annotation_mod_match[0].id,
+                        annotation_mod_match[0].massDifference,
+                        annotation_mod_match[0].aminoacid,
+                    ];
+                }
+
+                self.modTable.row.add(add_mod).draw(false);
             });
         }
     },
