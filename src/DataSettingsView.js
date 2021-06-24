@@ -38,7 +38,7 @@ export const DataSettingsView = SettingsView.extend({
 
         this.displayModel = this.options.displayModel;
         // event listeners
-        this.listenTo(window.xispecVent, 'dataSettingsToggle', this.toggleView);
+        this.listenTo(window.xiSPECUI.vent, 'dataSettingsToggle', this.toggleView);
 
         if (!this.options.showCustomCfg) {
             this.menu.selectAll('#custom_config').style("display", "none");
@@ -372,7 +372,7 @@ export const DataSettingsView = SettingsView.extend({
     applyCustomCfg: function (e) {
         let json = this.model.get("JSONrequest");
         json.annotation.custom = $("#xispec_settingsCustomCfg-input").val().split("\n");
-        window.xispecVent.trigger('requestAnnotation', json, this.displayModel.get('annotatorURL'));
+        window.xiSPECUI.vent.trigger('requestAnnotation', json, this.displayModel.get('annotatorURL'));
         this.displayModel.set('changedAnnotation', true);
         // this.render();
     },
@@ -394,9 +394,9 @@ export const DataSettingsView = SettingsView.extend({
                 let json = self.model.get("JSONrequest");
                 json.annotation.custom = customConfig;
                 // overwrite customConfig on current wrapper
-                window.xispecVent.trigger('setCustomConfigOverwrite', customConfig);
+                window.xiSPECUI.vent.trigger('setCustomConfigOverwrite', customConfig);
                 // request current spectrum with updated custom config as original annotation
-                window.xispecVent.trigger('requestAnnotation', json_req, this.displayModel.get('annotatorURL'), true);
+                window.xiSPECUI.vent.trigger('requestAnnotation', json_req, this.displayModel.get('annotatorURL'), true);
             }
         });
     },
@@ -405,7 +405,7 @@ export const DataSettingsView = SettingsView.extend({
         e.preventDefault();
         let json = this.model.get("JSONrequest");
         this.displayModel.set('annotatorURL', $('#xispec_annotatorDropdown').val());
-        window.xispecVent.trigger('requestAnnotation', json, this.displayModel.get('annotatorURL'));
+        window.xiSPECUI.vent.trigger('requestAnnotation', json, this.displayModel.get('annotatorURL'));
         this.displayModel.set('changedAnnotation', true);
     },
 
@@ -437,8 +437,8 @@ export const DataSettingsView = SettingsView.extend({
 // 				json['annotation']['custom'] = self.displayModel.customConfig;
                 json['annotation']['custom'] = self.displayModel.get("JSONdata").annotation.custom;
                 json['annotation']['precursorMZ'] = self.displayModel.precursor.expMz;
-                json['annotation']['requestID'] = xiSPECUI.lastRequestedID + Date.now();
-                window.xispecVent.trigger('requestAnnotation', json, self.displayModel.get('annotatorURL'));
+                json['annotation']['requestID'] = window.xiSPECUI.lastRequestedID + Date.now();
+                window.xiSPECUI.vent.trigger('requestAnnotation', json, self.displayModel.get('annotatorURL'));
                 self.displayModel.set('changedAnnotation', true);
                 self.displayModel.knownModifications = $.extend(true, [], self.model.knownModifications);
                 spinner.stop();

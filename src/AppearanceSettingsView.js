@@ -36,7 +36,7 @@ export const AppearanceSettingsView = SettingsView.extend({
 
         this.displayModel = this.options.displayModel;
         // event listeners
-        this.listenTo(window.xispecVent, 'appearanceSettingsToggle', this.toggleView);
+        this.listenTo(window.xiSPECUI.vent, 'appearanceSettingsToggle', this.toggleView);
 
         // HTML elements
         //
@@ -190,13 +190,13 @@ export const AppearanceSettingsView = SettingsView.extend({
     absErrToggle: function (e) {
         let selected = $(e.target).is(':checked');
         this.displayModel.set('QCabsErr', selected);
-        // window.xispecVent.trigger('QCabsErr', selected);
+        // window.xiSPECUI.vent.trigger('QCabsErr', selected);
     },
 
     accentuateCLcontainingToggle: function (e) {
         let selected = $(e.target).is(':checked');
         this.displayModel.set('accentuateCrossLinkContainingFragments', selected);
-        // window.xispecVent.trigger('accentuateCrossLinkContainingFragments', selected);
+        // window.xiSPECUI.vent.trigger('accentuateCrossLinkContainingFragments', selected);
     },
 
     changePepFragmentsVis: function (e) {
@@ -207,7 +207,7 @@ export const AppearanceSettingsView = SettingsView.extend({
     chargeLabelToggle: function (e) {
         let selected = $(e.target).is(':checked');
         this.displayModel.set('labelFragmentCharge', selected);
-        // window.xispecVent.trigger('labelFragmentCharge', selected);
+        // window.xiSPECUI.vent.trigger('labelFragmentCharge', selected);
     },
 
     changeColorScheme: function (e) {

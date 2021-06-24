@@ -1,5 +1,8 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
+import * as $ from "jquery";
+
+window.xiSPECUI = {};
 
 export const SettingsView = Backbone.View.extend({
 
@@ -21,7 +24,7 @@ export const SettingsView = Backbone.View.extend({
 
         // event listeners
         this.listenTo(this.model, 'change:JSONdata', this.render);
-        this.listenTo(window.xispecVent, 'activeSpecPanel:changed', this.modelChanged);
+        this.listenTo(window.xiSPECUI.vent, 'activeSpecPanel:changed', this.modelChanged);
 
         this.isVisible = false;
 

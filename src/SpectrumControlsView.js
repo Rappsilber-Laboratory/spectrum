@@ -1,5 +1,6 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
+import * as $ from "jquery";
 
 export const SpectrumControlsView = Backbone.View.extend({
 
@@ -27,7 +28,7 @@ export const SpectrumControlsView = Backbone.View.extend({
         this.listenTo(this.model, 'change:mzRange', this.renderMzRange);
         this.listenTo(this.model, 'change:changedAnnotation', this.changedAnnotation);
         this.listenTo(this.model, 'change:butterfly', this.renderButterflyChkbox);
-        this.listenTo(window.xispecVent, 'activeSpecPanel:changed', this.changedModel);
+        this.listenTo(window.xiSPECUI.vent, 'activeSpecPanel:changed', this.changedModel);
 
         // create HTML elements
         this.wrapper = d3.select(this.el);
@@ -252,11 +253,11 @@ export const SpectrumControlsView = Backbone.View.extend({
     },
 
     toggleDataSettings: function () {
-        window.xispecVent.trigger('dataSettingsToggle');
+        window.xiSPECUI.vent.trigger('dataSettingsToggle');
     },
 
     toggleAppearanceSettings: function () {
-        window.xispecVent.trigger('appearanceSettingsToggle');
+        window.xiSPECUI.vent.trigger('appearanceSettingsToggle');
     },
 
     toggleLockZoom: function (e) {
@@ -288,7 +289,7 @@ export const SpectrumControlsView = Backbone.View.extend({
     },
 
     butterflyHighlight: function () {
-        window.xispecVent.trigger('butterflyHighlight');
+        window.xiSPECUI.vent.trigger('butterflyHighlight');
     },
 
     setRange: function (e) {
@@ -311,16 +312,16 @@ export const SpectrumControlsView = Backbone.View.extend({
     },
 
     downloadSpectrumSVG: function () {
-        window.xispecVent.trigger('downloadSpectrumSVG');
+        window.xiSPECUI.vent.trigger('downloadSpectrumSVG');
     },
 
     toggleSpecList: function () {
-        window.xispecVent.trigger('toggleTableView');
+        window.xiSPECUI.vent.trigger('toggleTableView');
     },
 
     revertAnnotation: function () {
         if (this.model.get('changedAnnotation')) {
-            window.xispecVent.trigger('revertAnnotation');
+            window.xiSPECUI.vent.trigger('revertAnnotation');
             this.model.set('butterfly', false);
             $('#xispec_butterflyChkbx').prop('checked', false);
         }
@@ -341,7 +342,7 @@ export const SpectrumControlsView = Backbone.View.extend({
     },
 
     addSpectrum: function () {
-        window.xispecVent.trigger('addSpectrum');
+        window.xiSPECUI.vent.trigger('addSpectrum');
     },
 
     changedModel: function () {

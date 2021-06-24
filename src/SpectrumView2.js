@@ -51,9 +51,9 @@ export const SpectrumView = Backbone.View.extend({
 		this.listenTo(this.model, 'change:hideNotSelectedFragments', this.updatePeakHighlighting);
 		this.listenTo(this.model, 'change:showLossLabels', this.showLossy);
 
-		this.listenTo(window.xispecVent, 'downloadSpectrumSVG', this.downloadSVG);
-		this.listenTo(window.xispecVent, 'resize:spectrum', this.resize);
-		this.listenTo(window.xispecVent, 'clearSpectrumHighlights', this.clearHighlights);
+		this.listenTo(window.xiSPECUI.vent, 'downloadSpectrumSVG', this.downloadSVG);
+		this.listenTo(window.xiSPECUI.vent, 'resize:spectrum', this.resize);
+		this.listenTo(window.xiSPECUI.vent, 'clearSpectrumHighlights', this.clearHighlights);
 
 		this.listenTo(this.model, 'resetZoom', this.resetZoom);
 		this.listenTo(this.model, 'changed:Highlights', this.updateHighlights);

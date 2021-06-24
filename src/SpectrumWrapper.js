@@ -44,7 +44,7 @@ export const SpectrumWrapper = Backbone.View.extend({
 		}
 
 		// event listeners
-		this.listenTo(window.xispecVent, 'activateSpecPanel', this.updateHeader);
+		this.listenTo(window.xiSPECUI.vent, 'activateSpecPanel', this.updateHeader);
 		this.listenTo(SpectrumModel, 'activate', this.toggleActive);
 
 		// ToDo: create SpectrumPanel model to have these synced
@@ -285,12 +285,12 @@ export const SpectrumWrapper = Backbone.View.extend({
 
 		}
 		if (options.showQualityControl !== 'min')
-			window.xispecVent.trigger('QCWrapperShow', this.id);
+			window.xiSPECUI.vent.trigger('QCWrapperShow', this.id);
 	},
 
 	requestAnnotation: function (json_request, annotatorURL, isOriginalMatchRequest, ) {
 		if (json_request.annotation.requestID)
-			xiSPECUI.lastRequestedID = json_request.annotation.requestID;
+			window.xiSPECUI.lastRequestedID = json_request.annotation.requestID;
 
 		this.models['Spectrum'].trigger('requestAnnotation:pending');
 		console.log("annotation request:", json_request);
@@ -305,7 +305,7 @@ export const SpectrumWrapper = Backbone.View.extend({
 			url: this.xiAnnotatorBaseURL + annotatorURL,
 			success: function (data) {
 				if (data && data.annotation && data.annotation.requestID &&
-					data.annotation.requestID === xiSPECUI.lastRequestedID) {
+					data.annotation.requestID === window.xiSPECUI.lastRequestedID) {
 					//ToDo: Error handling -> https://github.com/Rappsilber-Laboratory/xi3-issue-tracker/issues/330
 					console.log("annotation response:", data);
 
@@ -336,12 +336,12 @@ export const SpectrumWrapper = Backbone.View.extend({
 	},
 
 	toggleActive: function () {
-		window.xispecVent.trigger('activateSpecPanel', this.id);
+		window.xiSPECUI.vent.trigger('activateSpecPanel', this.id);
 	},
 
 	close: function () {
 		this.destroy();
-		window.xispecVent.trigger('closeSpecPanel', this.id);
+		window.xiSPECUI.vent.trigger('closeSpecPanel', this.id);
 	},
 
 	// clear: function () {

@@ -1,5 +1,6 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
+import * as $ from "jquery";
 
 export const PepInputView = Backbone.View.extend({
 

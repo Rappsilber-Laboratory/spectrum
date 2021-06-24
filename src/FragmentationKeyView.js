@@ -45,7 +45,7 @@ export const FragmentationKeyView = Backbone.View.extend({
         this.listenTo(this.model, 'change:butterfly', this.butterflyToggle);
         this.listenTo(this.model, 'butterflySwap', this.butterflySwap);
         this.listenTo(window, 'resize', _.debounce(this.resize));
-        this.listenTo(window.xispecVent, 'resize:spectrum', this.resize);
+        this.listenTo(window.xiSPECUI.vent, 'resize:spectrum', this.resize);
         this.listenTo(this.model, 'change:accentuateCrossLinkContainingFragments', this.accentuateCLcontainingToggle);
 
         this.tooltip = d3.select("body").append("span")

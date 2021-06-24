@@ -1,5 +1,6 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
+import * as $ from "jquery";
 import Split from "split.js";
 
 import {SpectrumWrapper} from "./SpectrumWrapper";
@@ -8,8 +9,8 @@ import {DataSettingsView} from "./DataSettingsView";
 import {AppearanceSettingsView} from "./AppearanceSettingsView";
 
 // http://stackoverflow.com/questions/11609825/backbone-js-how-to-communicate-between-views
-window.xispecVent = {};
-_.extend(window.xispecVent, Backbone.Events);
+window.xiSPECUI.vent = {};
+_.extend(window.xiSPECUI.vent, Backbone.Events);
 
 _.extend(window, Backbone.Events);// what's this for - cc
 window.onresize = function () {
@@ -38,14 +39,14 @@ export const xiSPEC_wrapper = Backbone.View.extend({
         }
 
         // event listeners
-        this.listenTo(window.xispecVent, 'loadSpectrum', this.setData);
-        this.listenTo(window.xispecVent, 'requestAnnotation', this.requestAnnotation);
-        this.listenTo(window.xispecVent, 'revertAnnotation', this.revertAnnotation);
-        this.listenTo(window.xispecVent, 'setCustomConfigOverwrite', this.setCustomConfigOverwrite);
-        this.listenTo(window.xispecVent, 'addSpectrum', this.addSpectrum);
-        this.listenTo(window.xispecVent, 'closeSpecPanel', this.closeSpectrum);
-        this.listenTo(window.xispecVent, 'activateSpecPanel', this.activateSpectrum);
-        this.listenTo(window.xispecVent, 'butterflyHighlight', this.butterflyHighlight);
+        this.listenTo(window.xiSPECUI.vent, 'loadSpectrum', this.setData);
+        this.listenTo(window.xiSPECUI.vent, 'requestAnnotation', this.requestAnnotation);
+        this.listenTo(window.xiSPECUI.vent, 'revertAnnotation', this.revertAnnotation);
+        this.listenTo(window.xiSPECUI.vent, 'setCustomConfigOverwrite', this.setCustomConfigOverwrite);
+        this.listenTo(window.xiSPECUI.vent, 'addSpectrum', this.addSpectrum);
+        this.listenTo(window.xiSPECUI.vent, 'closeSpecPanel', this.closeSpectrum);
+        this.listenTo(window.xiSPECUI.vent, 'activateSpecPanel', this.activateSpectrum);
+        this.listenTo(window.xiSPECUI.vent, 'butterflyHighlight', this.butterflyHighlight);
         // HTML elements
         let d3el = d3.select(this.options.targetDiv)
         // empty the targetDiv
@@ -269,7 +270,7 @@ export const xiSPEC_wrapper = Backbone.View.extend({
             minSize: minSizes,
             gutterSize: 5,
             direction: 'horizontal',
-            onDragEnd: function(){ window.xispecVent.trigger('resize:spectrum'); }
+            onDragEnd: function(){ window.xiSPECUI.vent.trigger('resize:spectrum'); }
         });
     },
 
@@ -312,20 +313,20 @@ export const xiSPEC_wrapper = Backbone.View.extend({
         this.updatePlotSplit();
 
         // trigger resizing
-        window.xispecVent.trigger('resize:spectrum');
+        window.xiSPECUI.vent.trigger('resize:spectrum');
 
         return newSpec;
     },
 
     closeSpectrum: function (id) {
         if (id === this.activeSpectrum.id){
-            window.xispecVent.trigger('activateSpecPanel', 0);
+            window.xiSPECUI.vent.trigger('activateSpecPanel', 0);
         }
         let specIndex = this.spectra.map(function(x) {return x.id; }).indexOf(id);
         this.spectra.splice(specIndex, 1);
         this.specIds.splice(specIndex, 1)
         this.updatePlotSplit();
-        window.xispecVent.trigger('resize:spectrum');
+        window.xiSPECUI.vent.trigger('resize:spectrum');
     },
 
     activateSpectrum: function (id) {
@@ -336,7 +337,7 @@ export const xiSPEC_wrapper = Backbone.View.extend({
         this.DataSettingsView.displayModel = this.activeSpectrum.models['Spectrum'];
         this.AppearanceSettingsView.model = this.activeSpectrum.models['SettingsSpectrum'];
         this.AppearanceSettingsView.displayModel = this.activeSpectrum.models['Spectrum'];
-        window.xispecVent.trigger('activeSpecPanel:changed');
+        window.xiSPECUI.vent.trigger('activeSpecPanel:changed');
     },
 
     butterflyHighlight: function () {

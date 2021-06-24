@@ -1,3 +1,5 @@
+import * as _ from 'underscore';
+import Backbone from "backbone";
 import * as $ from "jquery";
 
 const colorbrewer = require('colorbrewer');
@@ -329,7 +331,7 @@ export const AnnotatedSpectrumModel = Backbone.Model.extend({
 		if(this.get("JSONrequest") !== undefined){
 			let json_req = $.extend(true, {}, this.get("JSONrequest"));
 			json_req.LinkSite = newLinkSites;
-			window.xispecVent.trigger('requestAnnotation', json_req, this.get('annotatorURL'));
+			window.xiSPECUI.vent.trigger('requestAnnotation', json_req, this.get('annotatorURL'));
 		}
 		else{
 			this.get('JSONdata').LinkSite = newLinkSites;
@@ -358,7 +360,7 @@ export const AnnotatedSpectrumModel = Backbone.Model.extend({
 				if (annotationMod[0].aminoAcids.indexOf(myNew.aminoAcid) === -1)
 					annotationMod[0].aminoAcids.push(myNew.aminoAcid);
 			}
-			window.xispecVent.trigger('requestAnnotation', json_req, this.get('annotatorURL'));
+			window.xiSPECUI.vent.trigger('requestAnnotation', json_req, this.get('annotatorURL'));
 		}
 		else{
 			//Preview

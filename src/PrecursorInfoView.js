@@ -1,5 +1,6 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
+import * as $ from "jquery";
 
 export const PrecursorInfoView = Backbone.View.extend({
 
@@ -18,7 +19,7 @@ export const PrecursorInfoView = Backbone.View.extend({
         // event listeners
         this.listenTo(this.model, 'change:butterfly', this.butterflyToggle);
         this.listenTo(this.model, 'butterflySwap', this.butterflySwap);
-        this.listenTo(window.xispecVent, 'resize:spectrum', this.render);
+        this.listenTo(window.xiSPECUI.vent, 'resize:spectrum', this.render);
 
         this.expand = true;
 

@@ -1,3 +1,6 @@
+import * as _ from 'underscore';
+import Backbone from "backbone";
+import * as $ from "jquery";
 import * as d3 from 'd3';
 
 export const Graph = function(targetSvg, model, options) {
@@ -588,7 +591,7 @@ Graph.prototype.measure = function(on){
 			for(i=1; i<7; i++){
 				var massObj = new Object();
 				massObj.mass = distance * i;
-				massObj.matchAA = xiSPECUI.matchMassToAA(distance * i);
+				massObj.matchAA = window.xiSPECUI.matchMassToAA(distance * i);
 				massArr.push(massObj);
 			};
 
