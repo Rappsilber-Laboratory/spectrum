@@ -675,7 +675,7 @@ export const FragmentationKeyView = Backbone.View.extend({
 
         var lines = this.fraglines;
 
-        for (l = 0; l < lines.length; l++) {
+        for (let l = 0; l < lines.length; l++) {
             var highlightFragments = _.intersection(lines[l].fragments, this.model.highlights);
 
             if (lines[l].fragments.length > 0)
