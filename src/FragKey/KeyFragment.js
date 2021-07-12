@@ -352,7 +352,7 @@ export function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 
 KeyFragment.prototype.highlight = function(show, fragments){
 	if(show === true){
-		for(f = 0; f < fragments.length; f++){
+		for(let f = 0; f < fragments.length; f++){
 			if( this.b.indexOf(fragments[f]) != -1 && this.bHighlight){
 				this.bHighlight.attr("opacity", 1);
 				if (fragments[f].type.indexOf("AIon") != -1)
