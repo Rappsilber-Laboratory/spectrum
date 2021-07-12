@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import * as $ from "jquery";
 
-function KeyFragment (fragments, index, offset, peptideId, FragKey) {
+export function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 	this.FragKey = FragKey;
 	this.peptideId = peptideId;
 	this.peptide = FragKey.model.peptides[peptideId];

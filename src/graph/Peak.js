@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import * as $ from "jquery";
 
-function Peak (id, graph){
+export function Peak (id, graph){
 	let peak = graph.model.get("JSONdata").peaks[id];
 	this.id = id;
 	this.x = peak.mz;
@@ -248,7 +248,7 @@ Peak.prototype.draw = function(){
 			{frags: lossy, group: this.graph.lossyAnnotations, type: "lossy", colourClass: "color_loss"},
 		];
 
-		CLMSUI.idList = CLMSUI.idList || [];	//obsolete?
+		// CLMSUI.idList = CLMSUI.idList || [];	//obsolete?
 
 		var makeIdentityID = function (d) {
 			return d.id;

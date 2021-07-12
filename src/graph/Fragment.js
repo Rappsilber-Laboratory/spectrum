@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import * as $ from "jquery";
 
-function Fragment (fragment, all_clusters){
+export function Fragment (fragment, all_clusters){
 	this.class = fragment.class;
 	this.clusterIds = fragment.clusterIds;
 	this.clusterInfo = fragment.clusterInfo;

@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
 import * as $ from "jquery";
+import {Fragment} from "./graph/Fragment";
 
 const colorbrewer = require('colorbrewer');
 

@@ -1,4 +1,6 @@
 //TODO: find a better place for this?
+import {KeyFragment} from "./FragKey/KeyFragment";
+
 d3.selection.prototype.moveToFront = function () {
     return this.each(function () {
         this.parentNode.appendChild(this);

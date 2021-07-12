@@ -2,6 +2,7 @@ import * as _ from 'underscore';
 import Backbone from "backbone";
 import * as $ from "jquery";
 import * as d3 from 'd3';
+import {Peak} from "./Peak";
 
 export const Graph = function(targetSvg, model, options) {
 	this.xscale = d3.scale.linear();
