@@ -1,8 +1,6 @@
 import * as _ from 'underscore';
-import Backbone from "backbone";
 import * as $ from "jquery";
-
-
+// import jscolor
 import {SettingsView} from "./SettingsView";
 
 export const AppearanceSettingsView = SettingsView.extend({
