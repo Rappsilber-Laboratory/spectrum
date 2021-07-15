@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
 import * as $ from "jquery";
+import {svgUtils} from "../../xi3/js/svgexp";
 
 export const ErrorPlotView = Backbone.View.extend({
 
@@ -60,8 +61,8 @@ export const ErrorPlotView = Backbone.View.extend({
         if (this.isVisible) {
             let svgSel = d3.select(this.el).selectAll("svg");
             let svgArr = svgSel[0];
-            let svgStrings = CLMSUI.svgUtils.capture(svgArr);
-            let svgXML = CLMSUI.svgUtils.makeXMLStr(new XMLSerializer(), svgStrings[0]);
+            let svgStrings = svgUtils.capture(svgArr);
+            let svgXML = svgUtils.makeXMLStr(new XMLSerializer(), svgStrings[0]);
 
             let charge = this.model.precursor.charge;
             let pepStrs = this.model.pepStrsMods;
