@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
-import * as $ from "jquery";
+import d3 from "d3";
+// import * as $ from "jquery";
 
 export const PrecursorInfoView = Backbone.View.extend({
 
@@ -59,19 +60,19 @@ export const PrecursorInfoView = Backbone.View.extend({
             .style("cursor", "default");
 
         if (this.options.invert) {
-            var $el = $(this.el)
-            var parentWidth = $el.width();
-            var parentHeight = $el.height();
+            const $el = $(this.el);
+            const parentWidth = $el.width();
+            const parentHeight = $el.height();
             var top = this.model.isLinear ? parentHeight - 65 : parentHeight - 115;
         } else {
             var top = 0;
         }
         this.wrapper.attr("transform", "translate(0," + top + ")");
 
-        var precursor = this.model.precursor;
-        var content = "";
+        const precursor = this.model.precursor;
+        let content = "";
 
-        var dataArr = [];
+        const dataArr = [];
         if (precursor.intensity !== undefined && precursor.intensity != -1)
             dataArr.push("Intensity=" + precursor.intensity);
         if (precursor.expMz !== undefined && precursor.expMz != -1)
@@ -92,7 +93,7 @@ export const PrecursorInfoView = Backbone.View.extend({
         this.expand = !this.expand;
         if (this.options.hidden)
             return;
-        newOpacity = this.expand ? 1 : 0;
+        const newOpacity = this.expand ? 1 : 0;
 
         this.content.style("opacity", newOpacity);
         if (!this.expand)

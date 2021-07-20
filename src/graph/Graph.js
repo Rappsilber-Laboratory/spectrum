@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
-import Backbone from "backbone";
-import * as $ from "jquery";
+// import Backbone from "backbone";
+// import * as $ from "jquery";
 import * as d3 from 'd3';
 import {Peak} from "./Peak";
 
@@ -228,17 +228,17 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 	if(this.model.get('measureMode'))
 		this.measureClear();
 	//see https://gist.github.com/mbostock/3019563
-	var cx = this.g.node().parentNode.parentNode.parentNode.clientWidth;
-	var cy = this.g.node().parentNode.parentNode.parentNode.clientHeight;
+	const cx = this.g.node().parentNode.parentNode.parentNode.clientWidth;
+	const cy = this.g.node().parentNode.parentNode.parentNode.clientHeight;
 
-	var width = cx - this.margin.left - this.margin.right;
+	const width = cx - this.margin.left - this.margin.right;
 
-	var height = (this.options.butterfly) ? cy - this.margin.top * 2 - 25 : cy - this.margin.top  - this.margin.bottom;
+	let height = (this.options.butterfly) ? cy - this.margin.top * 2 - 25 : cy - this.margin.top - this.margin.bottom;
 
 	if(this.options.butterfly){
 		height = (height / 2);
 		if(this.options.invert){
-			var top = this.margin.top + height;
+			const top = this.margin.top + height;
 			this.g.attr("transform", "translate(" + this.margin.left + "," + top + ")");
 		}
 	}
@@ -260,7 +260,7 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 			.range([height, 0]).nice();
 	}
 
-	var yTicks = height / 40;
+	const yTicks = height / 40;
 	var xTicks = 0
 	if(!this.options.butterfly || this.options.invert)
 		var xTicks = width / 100;
@@ -303,7 +303,7 @@ Graph.prototype.resize = function(xmin, xmax, ymin, ymax) {
 	this.plot.attr("width", width)
 		.attr("height", height);
 
-	var xaxisZoomRectYpos = (this.options.butterfly && !this.options.invert) ? height * 2 : height;
+	const xaxisZoomRectYpos = (this.options.butterfly && !this.options.invert) ? height * 2 : height;
 
 	this.xaxisZoomRect.attr("width",width).attr("y", xaxisZoomRectYpos).attr("height", this.margin.bottom);
 
@@ -368,7 +368,8 @@ Graph.prototype.enableZoom = function(){
 	this.brush.on("brushstart", brushstart)
 		.on("brush", brushmove)
 		.on("brushend", brushend);
-	var self = this;
+	const self = this;
+
 	function brushstart() {
 		self.dragZoomHighlight
 			.attr("width",0)
@@ -377,16 +378,16 @@ Graph.prototype.enableZoom = function(){
 	}
 
 	function brushmove() {
-	  var s = self.brush.extent();
-	  //var width = self.xscale(s[1] - s[0]) - self.xscale(0);
-	  var width = self.xscale(s[1]) - self.xscale(s[0]);
-	  self.dragZoomHighlight.attr("x",self.xscale(s[0])).attr("width", width);
+		const s = self.brush.extent();
+		//var width = self.xscale(s[1] - s[0]) - self.xscale(0);
+		const width = self.xscale(s[1]) - self.xscale(s[0]);
+		self.dragZoomHighlight.attr("x",self.xscale(s[0])).attr("width", width);
 	}
 
 	function brushend() {
 	  self.dragZoomHighlight.attr("display","none");
-	  var s = self.brush.extent();
-	  self.xscale.domain(s);
+		const s = self.brush.extent();
+		self.xscale.domain(s);
 	  self.brush.x(self.xscale);
 	  self.model.xmin = s[0];
 	  self.model.xmax = s[1];
@@ -397,7 +398,7 @@ Graph.prototype.enableZoom = function(){
 
 Graph.prototype.measure = function(on){
 	if (on === true){
-		var self = this;
+		const self = this;
 		self.measureBackground
 	  		.attr("width", self.plot[0][0].getAttribute("width"))
 	  		.attr("height", self.plot[0][0].getAttribute("height"));
@@ -409,13 +410,13 @@ Graph.prototype.measure = function(on){
 		function measureStart() {
 			self.measureShow();
 
-			var coords = d3.mouse(this);
-			var mouseX = self.xscale.invert(coords[0]);
-			var distance = 100;
-			var highlighttrigger = 10;
-			var peakCount = self.peaks.length;
-			for (var p = 0; p < peakCount; p++) {
-				var peak = self.peaks[p];
+			const coords = d3.mouse(this);
+			const mouseX = self.xscale.invert(coords[0]);
+			let distance = 100;
+			const highlighttrigger = 10;
+			const peakCount = self.peaks.length;
+			for (let p = 0; p < peakCount; p++) {
+				const peak = self.peaks[p];
 				if (_.intersection(self.model.highlights, peak.fragments).length !== 0 && Math.abs(peak.x - mouseX)  < highlighttrigger){
 					self.measureStartPeak = peak;
 					break;
@@ -447,14 +448,14 @@ Graph.prototype.measure = function(on){
 		}
 
 		function measureMove() {
-			var coords = d3.mouse(this);
-			var mouseX = self.xscale.invert(coords[0]);
+			const coords = d3.mouse(this);
+			const mouseX = self.xscale.invert(coords[0]);
 			//find start and endPeak
 			var distance = 4;
-			var highlighttrigger = 15;	//triggerdistance to prioritize highlighted peaks as endpoint
-			var peakCount = self.peaks.length;
-			for (var p = 0; p < peakCount; p++) {
-				var peak = self.peaks[p];
+			const highlighttrigger = 15;	//triggerdistance to prioritize highlighted peaks as endpoint
+			const peakCount = self.peaks.length;
+			for (let p = 0; p < peakCount; p++) {
+				const peak = self.peaks[p];
 				if (peak != self.measureStartPeak){
 					if (_.intersection(self.model.highlights, peak.fragments).length != 0 && Math.abs(peak.x - mouseX)  < highlighttrigger){
 						var endPeak = peak;
@@ -487,8 +488,8 @@ Graph.prototype.measure = function(on){
 			}
 
 			//draw horizontal line
-			var measureStartX = parseFloat(self.measuringToolVLineStart.attr("x1"));
-			var measureEndX = parseFloat(self.measuringToolVLineEnd.attr("x1"));
+			const measureStartX = parseFloat(self.measuringToolVLineStart.attr("x1"));
+			const measureEndX = parseFloat(self.measuringToolVLineEnd.attr("x1"));
 
 			if(self.options.invert){
 				if (coords[1] > self.yscale(self.model.ymaxPrimary))
@@ -514,7 +515,7 @@ Graph.prototype.measure = function(on){
 			;
 
 			//draw peak info
-			var deltaX = Math.abs(measureStartX - measureEndX);
+			const deltaX = Math.abs(measureStartX - measureEndX);
 			var distance = Math.abs(self.xscale.invert(measureStartX) - self.xscale.invert(measureEndX));
 			if (measureStartX  < measureEndX)
 				var labelX = measureStartX  + deltaX/2;
@@ -523,11 +524,11 @@ Graph.prototype.measure = function(on){
 
 			self.measureDistance.text(distance.toFixed(self.model.get('showDecimals'))+" Th");
 
-			var matrix = this.getScreenCTM()
+			const matrix = this.getScreenCTM()
 				.translate(+this.getAttribute("cx"),
-						 +this.getAttribute("cy"));
+					+this.getAttribute("cy"));
 
-				if (measureStartX < measureEndX)
+			if (measureStartX < measureEndX)
 					var positionX = coords[0] - Math.abs(measureStartX - measureEndX)/2;
 				else
 					var positionX = coords[0] + Math.abs(measureStartX - measureEndX)/2;
@@ -561,10 +562,10 @@ Graph.prototype.measure = function(on){
 
 			self.measureDistance.attr("x", positionX).attr("y", coords[1]-10);
 
-			var measureTooltipAbsOffsetY = self.options.invert ? 6 + self.margin.top * 2 : self.margin.top;
+			const measureTooltipAbsOffsetY = self.options.invert ? 6 + self.margin.top * 2 : self.margin.top;
 
 			//fromText
-			var fromTextColor = self.measureStartPeak.colour;
+			let fromTextColor = self.measureStartPeak.colour;
 			if(self.measureStartPeak.fragments.length > 0)
 					var fromText = "From: " + self.measureStartPeak.fragments[0].name +" (" + self.measureStartPeak.x.toFixed(self.model.get('showDecimals')) + " m/z)";
 			else if (self.measureStartPeak.isotopes.length > 0)
@@ -588,15 +589,15 @@ Graph.prototype.measure = function(on){
 			else{
 				toText = "";
 			}
-			var massArr = [];
-			for(i=1; i<7; i++){
-				var massObj = new Object();
+			const massArr = [];
+			for(let i=1; i<7; i++){
+				const massObj = new Object();
 				massObj.mass = distance * i;
 				massObj.matchAA = window.xiSPECUI.matchMassToAA(distance * i);
 				massArr.push(massObj);
-			};
+			}
 
-			var yText = coords[1] + 25 + measureTooltipAbsOffsetY;
+			let yText = coords[1] + 25 + measureTooltipAbsOffsetY;
 			self.measureTooltipText['from']
 				.attr("y", yText)
 				.attr("fill", fromTextColor)
@@ -616,8 +617,8 @@ Graph.prototype.measure = function(on){
 				.data(massArr)
 				.enter().append('text')
 				.text(function (d, i) {
-					var z = i + 1;
-					var matchText = "";
+					const z = i + 1;
+					let matchText = "";
 					if (d.matchAA.length > 0)
 						matchText = "("+d.matchAA+")";
 					return "z="+z+": " + d.mass.toFixed(self.model.get('showDecimals')) + " Da " + matchText;
@@ -626,9 +627,11 @@ Graph.prototype.measure = function(on){
 				.attr("class", function(d){ if(d.matchAA.length > 0) return 'matchedAA' })
 			;
 
-			var maxTextWidth = Math.max.apply(Math,self.measureTooltip.selectAll('text')[0].map(function(t){return d3.select(t).node().getComputedTextLength();}));
-			var backgroundWidth = maxTextWidth + 20;
-			var backgroundWidthX = positionX - backgroundWidth / 2;
+			const maxTextWidth = Math.max.apply(Math, self.measureTooltip.selectAll('text')[0].map(function (t) {
+				return d3.select(t).node().getComputedTextLength();
+			}));
+			const backgroundWidth = maxTextWidth + 20;
+			const backgroundWidthX = positionX - backgroundWidth / 2;
 
 			self.measureTooltipBackground
 				.attr("x", backgroundWidthX + self.margin.left)

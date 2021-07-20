@@ -1,4 +1,4 @@
-@charset 'UTF-8';
+@charset "UTF-8";
 @font-face {
   font-family: 'Lato-Bold';
   src: url('../fonts/lato/bold/Lato-Bold.eot'); /* IE9 Compat Modes */
@@ -41,11 +41,11 @@
       border: 1px solid #bdc3c7;
       color: #333;
       resize: none;
-      height: 20px;
+      /*height: 20px;*/
       overflow: auto;
       font-family: "Lato-Regular", Helvetica, Arial, sans-serif;
       font-size: 10pt;
-      text-shadow: 0px;
+      /*text-shadow: 0px;*/
       padding: 8px 12px;
       height: 42px;
       -webkit-appearance: none;
@@ -139,8 +139,7 @@
     transition: all .3s;
     cursor:pointer;
     float:right;
-    margin:2px;
-    margin-right:22px;
+    margin: 2px 22px 2px 2px;
 }
 .fa-times-circle:hover {
     color: #333333;
@@ -148,7 +147,7 @@
 }
 
 #xispec_spectrumControls {
-    display: table-row;
+    /*display: table-row;*/
     font-size: 1.5em;
 	width: 100%;
 	background-color: #750000;
@@ -232,7 +231,7 @@
     font-weight: 300;
     line-height: 1.3em;
     color: #888;
-    -webkit-text-stroke: .15px;
+    /*-webkit-text-stroke: .15px;*/
     overflow: hidden;
 }
 

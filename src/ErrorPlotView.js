@@ -1,7 +1,9 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
-import * as $ from "jquery";
+// import * as $ from "jquery";
 import {svgUtils} from "../../xi3/js/svgexp";
+import d3 from "d3";
+import {download} from "../../xi3/js/downloads";
 
 export const ErrorPlotView = Backbone.View.extend({
 

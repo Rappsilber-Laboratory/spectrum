@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
-import * as $ from "jquery";
+// import * as $ from "jquery";
 
 import {AnnotatedSpectrumModel} from "./AnnotatedSpectrumModel";
 import {SpectrumView} from "./SpectrumView2";
@@ -8,6 +8,7 @@ import {FragmentationKeyView} from "./FragmentationKeyView";
 import {PrecursorInfoView} from "./PrecursorInfoView";
 import {QCwrapperView} from "./QCwrapperView";
 import {ErrorPlotView} from "./ErrorPlotView";
+import d3 from "d3";
 
 export const SpectrumWrapper = Backbone.View.extend({
 	events: {

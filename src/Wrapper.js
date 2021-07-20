@@ -1,12 +1,13 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
-import * as $ from "jquery";
+// import * as $ from "jquery";
 import Split from "split.js";
 
 import {SpectrumWrapper} from "./SpectrumWrapper";
 import {SpectrumControlsView} from "./SpectrumControlsView";
 import {DataSettingsView} from "./DataSettingsView";
 import {AppearanceSettingsView} from "./AppearanceSettingsView";
+import d3 from "d3";
 
 // http://stackoverflow.com/questions/11609825/backbone-js-how-to-communicate-between-views
 window.xiSPECUI.vent = {};

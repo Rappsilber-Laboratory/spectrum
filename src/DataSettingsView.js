@@ -1,11 +1,12 @@
 import * as _ from 'underscore';
-import Backbone from "backbone";
-import * as $ from "jquery";
-import 'datatables';
+// import Backbone from "backbone";
+// import * as $ from "jquery";
+// import 'datatables';
 // import 'datatables.net-dt/css/jquery.dataTables.css';
 
 import {SettingsView} from "./SettingsView";
 import {PepInputView} from "./PepInputView";
+import d3 from "d3";
 
 export const DataSettingsView = SettingsView.extend({
 
@@ -494,7 +495,7 @@ export const DataSettingsView = SettingsView.extend({
 
         // modifications
         if (formData['mods[]']) {
-            var inputMods = this.extractModsFromPepStr(this.model.pepStrsMods.join(''));
+            const inputMods = this.extractModsFromPepStr(this.model.pepStrsMods.join(''));
 
             if (formData['mods[]'][0] === undefined) {
                 var formDataMods = new Array(formData['mods[]']);

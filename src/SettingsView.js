@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
-import * as $ from "jquery";
+import d3 from "d3";
+// import * as $ from "jquery";
 
 window.xiSPECUI = {};
 

@@ -1,10 +1,12 @@
 import * as _ from 'underscore';
 import Backbone from "backbone";
-import * as $ from "jquery";
+// import * as $ from "jquery";
 import {Spinner} from 'spin.js';
 import * as d3 from 'd3';
 
 import {Graph} from "./graph/Graph";
+import {svgUtils} from "../../xi3/js/svgexp";
+import {download} from "../../xi3/js/downloads";
 
 export const SpectrumView = Backbone.View.extend({
 
@@ -215,8 +217,8 @@ export const SpectrumView = Backbone.View.extend({
 	downloadSVG: function(){
 		let svgSel = d3.select(this.el.parentNode);
 		let svgArr = svgSel[0];
-		let svgStrings = CLMSUI.svgUtils.capture (svgArr);
-		let svgXML = CLMSUI.svgUtils.makeXMLStr (new XMLSerializer(), svgStrings[0]);
+		let svgStrings = svgUtils.capture (svgArr);
+		let svgXML = svgUtils.makeXMLStr (new XMLSerializer(), svgStrings[0]);
 
 		let charge = this.model.get("JSONdata").annotation.precursorCharge;
 		let pepStrs = this.model.pepStrsMods;

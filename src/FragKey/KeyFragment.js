@@ -1,5 +1,7 @@
-import * as _ from 'underscore';
-import * as $ from "jquery";
+// import * as _ from 'underscore';
+// import * as $ from "jquery";
+
+import d3 from "d3";
 
 export function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 	this.FragKey = FragKey;
@@ -26,19 +28,19 @@ export function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 		var color = this.FragKey.model.p2color;
 
 
-	var xStep = FragKey.xStep;
-	// var xStep = 23;
+    const xStep = FragKey.xStep;
+    // var xStep = 23;
 
 	this.x = (xStep * (index+offset)) + (xStep / 2);
 	if (this.peptideId == 0)
 		var y = 25;
 	if (this.peptideId == 1)
 		var y = 75;
-	var barHeight = 18, tailX = 5, tailY = 5;
+    const barHeight = 18, tailX = 5, tailY = 5;
 
-	var self = this;
+    const self = this;
 
-	//svg elements
+    //svg elements
 	this.g = this.FragKey.scaleSvgGroup.append('g');
 
 /*	var group = this.g
@@ -116,8 +118,8 @@ export function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 
 		this.bgroup = this.g.append("g")
 			.on("mouseover", function() {
-				var evt = d3.event;
-				if(!self.FragKey.changeMod && !self.FragKey.changeCL){
+                const evt = d3.event;
+                if(!self.FragKey.changeMod && !self.FragKey.changeCL){
 					if (evt.ctrlKey){
 						self.fragBar.style("cursor", "copy");
 						self.bTail.style("cursor", "copy");
@@ -141,8 +143,8 @@ export function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 				endHighlight(self.b);
 			})
 			.on("click", function() {
-				var evt = d3.event;
-				self.FragKey.model.updateStickyHighlight(self.b, evt.ctrlKey);
+                const evt = d3.event;
+                self.FragKey.model.updateStickyHighlight(self.b, evt.ctrlKey);
 			});
 
 		this.bHighlight = this.bgroup.append("path")
@@ -205,7 +207,7 @@ export function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 		for (var i = 0; i < fragments.b.length; i++) {
 			if(fragments.b[i].class != "lossy")
 				blossy = false;
-		};
+		}
 		if (blossy){
 			this.bTail.attr("stroke", this.FragKey.model.get('peakColor'));
 		}
@@ -233,8 +235,8 @@ export function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 
 		this.ygroup = this.g.append("g")
 			.on("mouseover", function() {
-				var evt = d3.event;
-				if(!self.FragKey.changeMod && !self.FragKey.changeCL){
+                const evt = d3.event;
+                if(!self.FragKey.changeMod && !self.FragKey.changeCL){
 					if (evt.ctrlKey){
 						self.fragBar.style("cursor", "copy");
 						self.yTail.style("cursor", "copy");
@@ -258,8 +260,8 @@ export function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 				endHighlight(self.y);
 			})
 			.on("click", function() {
-				var evt = d3.event;
-				self.FragKey.model.updateStickyHighlight(self.y, evt.ctrlKey);
+                const evt = d3.event;
+                self.FragKey.model.updateStickyHighlight(self.y, evt.ctrlKey);
 			});
 
 
@@ -320,7 +322,7 @@ export function KeyFragment (fragments, index, offset, peptideId, FragKey) {
 		for (var i = 0; i < fragments.y.length; i++) {
 			if(fragments.y[i].class != "lossy")
 				ylossy = false;
-		};
+		}
 		if (ylossy){
 			this.yTail.attr("stroke", this.FragKey.model.get('peakColor'));
 		}
